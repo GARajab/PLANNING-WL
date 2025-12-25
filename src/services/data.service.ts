@@ -49,9 +49,9 @@ export class DataService {
         const newRecord: WayleaveRecord = {
           ...record,
           id: crypto.randomUUID(),
-          status: 'Pending with EDD',
+          status: 'Pending TSS action',
           toEddDate: new Date().toISOString(),
-          lastUpdatedBy: currentUser?.name || 'System',
+          lastUpdatedBy: currentUser ? `${currentUser.role} - ${currentUser.cpr}` : 'System',
         };
         const updatedRecords = [newRecord, ...this.records()];
         this.saveRecords(updatedRecords);
@@ -74,7 +74,7 @@ export class DataService {
 
         const recordWithUpdater = {
             ...updatedRecord,
-            lastUpdatedBy: currentUser?.name || 'System'
+            lastUpdatedBy: currentUser ? `${currentUser.role} - ${currentUser.cpr}` : 'System'
         };
 
         const updatedRecords = this.records().map(r =>
@@ -113,7 +113,7 @@ export class DataService {
       {
         id: '1',
         wayleaveNumber: 'WL-2024-001',
-        status: 'Pending with EDD',
+        status: 'Pending TSS action',
         toEddDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
         toMowDate: null,
         fromMowDate: null,
@@ -123,7 +123,7 @@ export class DataService {
         mspNumber: 'MSP-301',
         attachments: ['drawing-v1.pdf'],
         remarks: 'Initial submission for review.',
-        lastUpdatedBy: 'EDD Planner'
+        lastUpdatedBy: 'EDD Planning - 987654321'
       },
       {
         id: '2',
@@ -138,7 +138,7 @@ export class DataService {
         mspNumber: 'MSP-302',
         attachments: ['site-plan.pdf', 'approval-request.docx'],
         remarks: 'Forwarded to Ministry of Works for approval.',
-        lastUpdatedBy: 'Consultant'
+        lastUpdatedBy: 'Consultation Team - 112233445'
       },
        {
         id: '3',
@@ -153,7 +153,7 @@ export class DataService {
         mspNumber: 'MSP-303',
         attachments: ['final-docs.zip'],
         remarks: 'All approvals received. Sent for execution.',
-        lastUpdatedBy: 'Consultant'
+        lastUpdatedBy: 'Consultation Team - 112233445'
       },
     ];
   }

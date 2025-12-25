@@ -32,7 +32,7 @@ export class DashboardComponent implements OnDestroy {
   currentTime = signal(new Date());
 
   statusColors = {
-    'Pending with EDD': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+    'Pending TSS action': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
     'Sent to M.O.W': 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     'Received from M.O.W': 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
     'Sent to Area Engineer': 'bg-green-500/20 text-green-400 border-green-500/30',

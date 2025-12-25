@@ -19,7 +19,7 @@ export class RecordFormComponent {
   wayleaveRecord = signal<Partial<WayleaveRecord>>({});
   isEditMode = signal(false);
   
-  statusOptions: WayleaveStatus[] = ['Pending with EDD', 'Sent to M.O.W', 'Received from M.O.W', 'Sent to Area Engineer'];
+  statusOptions: WayleaveStatus[] = ['Pending TSS action', 'Sent to M.O.W', 'Received from M.O.W', 'Sent to Area Engineer'];
 
   constructor(public dataService: DataService, public authService: AuthService) {
     effect(() => {

@@ -76,7 +76,12 @@
           <!-- Column 3 -->
           <div class="space-y-6">
             <div>
-              <label class="block text-sm font-medium text-slate-400">Attachments</label>
+              <label class="block text-sm font-medium text-slate-400">
+                Attachments
+                @if(!isEditMode()) {
+                  <span class="text-red-400 ml-1">*</span>
+                }
+              </label>
               @if(canEditField('attachments')) {
                 <input type="file" multiple (change)="onFileChange($event)" class="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"/>
               }
@@ -106,7 +111,10 @@
           <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-700 rounded-md hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500">
             Cancel
           </button>
-          <button type="submit" [disabled]="recordForm.invalid || (!canEditField('wayleaveNumber') && !isEditMode())" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 disabled:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+          <button 
+            type="submit" 
+            [disabled]="recordForm.invalid || (!isEditMode() && (!wayleaveRecord().attachments || wayleaveRecord().attachments.length === 0))" 
+            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 disabled:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
             Save Record
           </button>
         </div>
