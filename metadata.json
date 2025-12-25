@@ -1,0 +1,5 @@
+{
+  "name": "Wayleave Management System",
+  "description": "A record management system to manage Wayleave USP / MSP / RCC tasks, featuring role-based access, status tracking, and notifications.",
+  "requestFramePermissions": []
+}

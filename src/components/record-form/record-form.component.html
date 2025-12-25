@@ -1,0 +1,116 @@
+
+<div class="fixed inset-0 bg-black/70 z-40 flex items-center justify-center p-4 animate-fade-in">
+  <div class="bg-slate-800 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative">
+    <div class="sticky top-0 bg-slate-800 z-10 p-6 border-b border-slate-700 flex justify-between items-center">
+      <h3 class="text-xl font-semibold text-white">
+        {{ isEditMode() ? 'Edit Wayleave Record' : 'Create New Wayleave Record' }}
+      </h3>
+      <button (click)="close.emit()" class="text-slate-400 hover:text-white transition-colors">
+        <app-close-icon />
+      </button>
+    </div>
+
+    @if (dataService.isLoading()) {
+      <div class="flex justify-center items-center p-20">
+        <svg class="animate-spin h-10 w-10 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+      </div>
+    } @else {
+      <form #recordForm="ngForm" (ngSubmit)="saveRecord()" class="p-6 space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          
+          <!-- Column 1 -->
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-slate-400">Wayleave Number</label>
+              <input type="text" [(ngModel)]="wayleaveRecord().wayleaveNumber" name="wayleaveNumber" required [disabled]="!canEditField('wayleaveNumber')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+            </div>
+             @if (isEditMode()) {
+              <div>
+                <label class="block text-sm font-medium text-slate-400">Status</label>
+                <select [(ngModel)]="wayleaveRecord().status" name="status" [disabled]="!canEditField('status')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+                  @for(status of statusOptions; track status) {
+                    <option [value]="status">{{ status }}</option>
+                  }
+                </select>
+              </div>
+            }
+            <div>
+              <label class="block text-sm font-medium text-slate-400">USP Number</label>
+              <input type="text" [(ngModel)]="wayleaveRecord().uspNumber" name="uspNumber" [disabled]="!canEditField('uspNumber')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-400">RCC Number</label>
+              <input type="text" [(ngModel)]="wayleaveRecord().rccNumber" name="rccNumber" [disabled]="!canEditField('rccNumber')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+            </div>
+             <div>
+              <label class="block text-sm font-medium text-slate-400">MSP Number</label>
+              <input type="text" [(ngModel)]="wayleaveRecord().mspNumber" name="mspNumber" [disabled]="!canEditField('mspNumber')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+            </div>
+          </div>
+          
+          <!-- Column 2 -->
+          <div class="space-y-6">
+            @if(isEditMode()) {
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">To EDD - Consultation Team</label>
+                  <input type="datetime-local" [ngModel]="formatDateForInput(wayleaveRecord().toEddDate)" (ngModelChange)="updateDate('toEddDate', $event)" name="toEddDate" disabled class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50 disabled:text-slate-400">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">To M.O.W</label>
+                  <input type="datetime-local" [ngModel]="formatDateForInput(wayleaveRecord().toMowDate)" (ngModelChange)="updateDate('toMowDate', $event)" name="toMowDate" [disabled]="!canEditField('toMowDate')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">Received from M.O.W</label>
+                  <input type="datetime-local" [ngModel]="formatDateForInput(wayleaveRecord().fromMowDate)" (ngModelChange)="updateDate('fromMowDate', $event)" name="fromMowDate" [disabled]="!canEditField('fromMowDate')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-slate-400">Sent to Area Engineer</label>
+                  <input type="datetime-local" [ngModel]="formatDateForInput(wayleaveRecord().toAreaEngineerDate)" (ngModelChange)="updateDate('toAreaEngineerDate', $event)" name="toAreaEngineerDate" [disabled]="!canEditField('toAreaEngineerDate')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50">
+                </div>
+            }
+          </div>
+
+          <!-- Column 3 -->
+          <div class="space-y-6">
+            <div>
+              <label class="block text-sm font-medium text-slate-400">Attachments</label>
+              @if(canEditField('attachments')) {
+                <input type="file" multiple (change)="onFileChange($event)" class="mt-1 block w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer"/>
+              }
+              <div class="mt-2 space-y-2">
+                @for(file of wayleaveRecord().attachments; track file) {
+                  <div class="flex items-center justify-between bg-slate-700/50 p-2 rounded-md">
+                    <span class="text-sm truncate">{{ file }}</span>
+                    @if(canEditField('attachments')) {
+                      <button type="button" (click)="removeAttachment(file)" class="text-red-400 hover:text-red-300">
+                          <app-close-icon />
+                      </button>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="col-span-full">
+              <label class="block text-sm font-medium text-slate-400">Remarks</label>
+              <textarea [(ngModel)]="wayleaveRecord().remarks" name="remarks" rows="6" [disabled]="!canEditField('remarks')" class="mt-1 block w-full bg-slate-900 border border-slate-700 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:opacity-50"></textarea>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="pt-6 border-t border-slate-700 flex justify-end gap-3">
+          <button type="button" (click)="close.emit()" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-700 rounded-md hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-slate-500">
+            Cancel
+          </button>
+          <button type="submit" [disabled]="recordForm.invalid || (!canEditField('wayleaveNumber') && !isEditMode())" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 disabled:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+            Save Record
+          </button>
+        </div>
+      </form>
+    }
+  </div>
+</div>
