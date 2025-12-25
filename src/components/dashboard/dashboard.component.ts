@@ -1,8 +1,6 @@
 
-import { Component, ChangeDetectionStrategy, signal, computed, effect, OnDestroy, inject } from '@angular/core';
-import { AsyncPipe } from '@angular/common';
+import { Component, ChangeDetectionStrategy, signal, OnDestroy, inject } from '@angular/core';
 import { WayleaveRecord } from '../../models/wayleave.model';
-import { AppNotification } from '../../models/notification.model';
 import { AuthService } from '../../services/auth.service';
 import { DataService } from '../../services/data.service';
 import { NotificationService } from '../../services/notification.service';
@@ -16,7 +14,7 @@ import { WayleaveIconComponent } from '../icons/wayleave-icon.component';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, RecordFormComponent, BellIconComponent, EditIconComponent, TrashIconComponent, WayleaveIconComponent]
+  imports: [RecordFormComponent, BellIconComponent, EditIconComponent, TrashIconComponent, WayleaveIconComponent]
 })
 export class DashboardComponent implements OnDestroy {
   authService = inject(AuthService);

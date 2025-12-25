@@ -26,15 +26,19 @@ export class LoginComponent {
         return;
     }
     if (!/^\d{9}$/.test(this.cpr())) {
-        this.errorMessage.set('CPR must be 9 digits.');
+        this.errorMessage.set('CPR must be a 9-digit number.');
         return;
     }
     this.errorMessage.set('');
     this.isLoading.set(true);
-    const success = await this.authService.login(this.cpr(), this.password());
+    
+    const { success, error } = await this.authService.login(this.cpr(), this.password());
+    
     if (!success) {
-      this.errorMessage.set('Invalid credentials. Please try again.');
+      this.errorMessage.set(error || 'Invalid credentials. Please try again.');
     }
+    // On success, the auth service will automatically navigate.
+    
     this.isLoading.set(false);
   }
 }

@@ -3,6 +3,7 @@ export type WayleaveStatus = 'Pending TSS action' | 'Sent to M.O.W' | 'Received 
 
 export interface WayleaveRecord {
   id: string;
+  created_at: string;
   wayleaveNumber: string;
   status: WayleaveStatus;
   toEddDate: string | null;
