@@ -15,5 +15,5 @@ export interface WayleaveRecord {
   mspNumber: string;
   attachments: string[]; // Store filenames for mock
   remarks: string;
-  last_updated_by?: string;
+  lastUpdatedBy?: string;
 }

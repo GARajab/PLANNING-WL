@@ -41,7 +41,7 @@ export class DataService {
     return this.records().find(r => r.id === id);
   }
 
-  async addRecord(record: Omit<WayleaveRecord, 'id' | 'created_at' | 'status' | 'last_updated_by' | 'toEddDate'>): Promise<void> {
+  async addRecord(record: Omit<WayleaveRecord, 'id' | 'created_at' | 'status' | 'lastUpdatedBy' | 'toEddDate'>): Promise<void> {
     if (!this.supabase.client) {
       this.notificationService.showToast('Application not configured.', 'error');
       return;
@@ -53,7 +53,7 @@ export class DataService {
       ...record,
       status: 'Pending TSS action' as WayleaveStatus,
       toEddDate: new Date().toISOString(),
-      last_updated_by: currentUser ? `${currentUser.role} - ${currentUser.cpr}` : 'System',
+      lastUpdatedBy: currentUser ? `${currentUser.role} - ${currentUser.cpr}` : 'System',
     };
 
     try {
@@ -86,7 +86,7 @@ export class DataService {
 
     const recordWithUpdater = {
       ...updatedRecord,
-      last_updated_by: currentUser ? `${currentUser.role} - ${currentUser.cpr}` : 'System'
+      lastUpdatedBy: currentUser ? `${currentUser.role} - ${currentUser.cpr}` : 'System'
     };
 
     // remove properties that should not be in the update payload
