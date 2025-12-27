@@ -1,36 +1,33 @@
-<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-  <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="bg-slate-800 p-8 rounded-md w-96 space-y-4">
-    <h2 class="text-2xl font-bold text-center mb-4">Login</h2>
+<ng-container *ngIf="isConfigured(); else configWarning">
+  <ng-container *ngIf="!authService.currentUser(); else dashboard">
+    <app-login></app-login>
+  </ng-container>
+</ng-container>
 
-    <!-- CPR Input -->
-    <div>
-      <label class="block mb-1">CPR</label>
-      <input type="text" placeholder="Enter CPR" class="w-full px-3 py-2 rounded-md text-black" [(ngModel)]="cpr"
-        name="cpr" required />
+<ng-template #dashboard>
+  <app-dashboard></app-dashboard>
+</ng-template>
+
+<ng-template #configWarning>
+  <app-config-warning></app-config-warning>
+</ng-template>
+
+<!-- Global Toast Container -->
+<div aria-live="assertive"
+  class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:p-6 sm:items-start z-50">
+  <div class="w-full flex flex-col items-center space-y-4 sm:items-end">
+    <div *ngFor="let toast of notificationService.toasts(); trackBy: toast.id"
+      class="max-w-sm w-full bg-slate-800 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden border"
+      [class]="getToastColor(toast.type)">
+      <div class="p-4">
+        <div class="flex items-center">
+          <div class="w-0 flex-1 flex justify-between">
+            <p class="w-0 flex-1 text-sm font-medium text-white">
+              {{ toast.message }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Password Input -->
-    <div>
-      <label class="block mb-1">Password</label>
-      <input type="password" placeholder="Enter Password" class="w-full px-3 py-2 rounded-md text-black"
-        [(ngModel)]="password" name="password" required />
-    </div>
-
-    <!-- Error Message -->
-    <p class="text-red-400 text-sm" *ngIf="errorMessage()">{{ errorMessage() }}</p>
-
-    <!-- Sign In Button -->
-    <button type="submit"
-      class="w-full bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md flex items-center justify-center gap-2">
-      <span *ngIf="!isLoading()">Sign In</span>
-      <svg *ngIf="isLoading()" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
-      </svg>
-      <span *ngIf="isLoading()">Signing In...</span>
-    </button>
-  </form>
+  </div>
 </div>
