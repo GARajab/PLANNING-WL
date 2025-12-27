@@ -1,4 +1,3 @@
-
 import { Injectable, signal, computed } from '@angular/core';
 import { AppNotification, Toast } from '../models/notification.model';
 
@@ -13,7 +12,12 @@ export class NotificationService {
      // Load notifications from local storage
     const storedNotifications = localStorage.getItem('appNotifications');
     if (storedNotifications) {
-      this.notifications.set(JSON.parse(storedNotifications).map((n: any) => ({...n, timestamp: new Date(n.timestamp)})));
+      try {
+        this.notifications.set(JSON.parse(storedNotifications).map((n: any) => ({...n, timestamp: new Date(n.timestamp)})));
+      } catch (e) {
+        console.error("Failed to parse notifications from localStorage", e);
+        localStorage.removeItem('appNotifications'); // Clear corrupted data
+      }
     }
   }
 

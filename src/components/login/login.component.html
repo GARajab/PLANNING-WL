@@ -1,36 +1,77 @@
-<div class="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-  <form (ngSubmit)="onLogin()" class="bg-slate-800 p-8 rounded-md w-96 space-y-4">
-    <h2 class="text-2xl font-bold text-center mb-4">Login</h2>
-
-    <!-- CPR Input -->
-    <div>
-      <label class="block mb-1">CPR</label>
-      <input type="text" placeholder="Enter CPR" class="w-full px-3 py-2 rounded-md text-black" [value]="cpr()"
-        (input)="cpr.set($any($event.target).value)" required />
+<div class="flex items-center justify-center min-h-screen p-4 bg-slate-900">
+  <div class="w-full max-w-sm p-8 space-y-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-slate-700">
+    <div class="text-center space-y-4">
+      <div class="flex justify-center">
+        <app-wayleave-icon size="64" />
+      </div>
+      <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400 tracking-tight">Wayleave Management</h1>
+      <p class="text-slate-400">Sign in to access your dashboard</p>
     </div>
 
-    <!-- Password Input -->
-    <div>
-      <label class="block mb-1">Password</label>
-      <input type="password" placeholder="Enter Password" class="w-full px-3 py-2 rounded-md text-black"
-        [value]="password()" (input)="password.set($any($event.target).value)" required />
-    </div>
+    <form class="space-y-6" (ngSubmit)="onLogin()">
+      <div class="space-y-4">
+        <div>
+          <label for="cpr" class="sr-only">CPR Number</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+              <app-user-icon />
+            </div>
+            <input 
+              id="cpr" 
+              name="cpr" 
+              type="text" 
+              [ngModel]="cpr()"
+              (ngModelChange)="cpr.set($event)"
+              required 
+              maxlength="9"
+              pattern="[0-9]{9}"
+              class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-700 bg-slate-900/50 text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" 
+              placeholder="CPR Number (9 digits)">
+          </div>
+        </div>
+        <div>
+          <label for="password" class="sr-only">Password</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+              <app-lock-icon />
+            </div>
+            <input 
+              id="password" 
+              name="password" 
+              type="password"
+              [ngModel]="password()"
+              (ngModelChange)="password.set($event)"
+              required 
+              class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-700 bg-slate-900/50 text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" 
+              placeholder="Password">
+          </div>
+        </div>
+      </div>
 
-    <!-- Error Message -->
-    <p class="text-red-400 text-sm" *ngIf="errorMessage()">{{ errorMessage() }}</p>
+      @if (errorMessage()) {
+        <div class="bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-md text-sm">
+          {{ errorMessage() }}
+        </div>
+      }
 
-    <!-- Sign In Button -->
-    <button type="submit"
-      class="w-full bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md flex items-center justify-center gap-2">
-      <span *ngIf="!isLoading()">Sign In</span>
-      <svg *ngIf="isLoading()" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-        </path>
-      </svg>
-      <span *ngIf="isLoading()">Signing In...</span>
-    </button>
-  </form>
+      <div>
+        <button 
+          type="submit"
+          [disabled]="isLoading()"
+          class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500 disabled:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+          @if(isLoading()) {
+            <span class="flex items-center">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Signing in...
+            </span>
+          } @else {
+            <span>Sign in</span>
+          }
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

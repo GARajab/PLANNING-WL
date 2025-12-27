@@ -1,9 +1,9 @@
-
-export type WayleaveStatus = 'Pending TSS action' | 'Sent to M.O.W' | 'Received from M.O.W' | 'Sent to Area Engineer';
+export type WayleaveStatus = 'Pending with EDD' | 'Sent to M.O.W' | 'Received from M.O.W' | 'Sent to Area Engineer';
 
 export interface WayleaveRecord {
   id: string;
   created_at: string;
+  userId: string;
   wayleaveNumber: string;
   status: WayleaveStatus;
   toEddDate: string | null;
@@ -13,7 +13,7 @@ export interface WayleaveRecord {
   uspNumber: string;
   rccNumber: string;
   mspNumber: string;
-  attachments: string[]; // Store filenames for mock
+  attachments: string[]; // Stores public URLs of files in Supabase Storage
   remarks: string;
   lastUpdatedBy?: string;
 }
