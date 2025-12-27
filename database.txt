@@ -72,6 +72,23 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
+-- 5.5. Create RPC Function for Admins to get all user profiles
+-- This allows admins to bypass the stricter SELECT RLS policy on the profiles table.
+DROP FUNCTION IF EXISTS public.get_all_users();
+CREATE OR REPLACE FUNCTION public.get_all_users()
+RETURNS SETOF public.profiles
+AS $$
+BEGIN
+    -- Only allow admins to execute this function
+    IF get_user_role() <> 'Admin' THEN
+        RAISE EXCEPTION 'Forbidden: You must be an admin to view all users.';
+    END IF;
+    
+    RETURN QUERY SELECT * FROM public.profiles ORDER BY name ASC;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+
 -- 6. Set up Row-Level Security (RLS)
 -- These policies are crucial for securing your data.
 -- Enable RLS on the tables
@@ -85,8 +102,10 @@ DROP POLICY IF EXISTS "Users can view their own profile." ON public.profiles;
 DROP POLICY IF EXISTS "Authenticated users can view profiles." ON public.profiles;
 DROP POLICY IF EXISTS "Admins can update any profile." ON public.profiles;
 
-CREATE POLICY "Authenticated users can view profiles." ON public.profiles
-  FOR SELECT TO authenticated USING ((get_user_role() = 'Admin') OR (auth.uid() = id));
+-- SIMPLIFIED SELECT POLICY: Users can only select their own profile directly.
+-- Admins must use the 'get_all_users' RPC to view all profiles, which avoids RLS recursion.
+CREATE POLICY "Users can view their own profile." ON public.profiles
+  FOR SELECT TO authenticated USING (auth.uid() = id);
 
 CREATE POLICY "Admins can update any profile." ON public.profiles
   FOR UPDATE TO authenticated USING (get_user_role() = 'Admin');

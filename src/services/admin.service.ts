@@ -17,10 +17,7 @@ export class AdminService {
     if (!this.supabase.client) return;
     this.isLoading.set(true);
     try {
-      const { data, error } = await this.supabase.client
-        .from('profiles')
-        .select('*')
-        .order('name', { ascending: true });
+      const { data, error } = await this.supabase.client.rpc('get_all_users');
 
       if (error) throw error;
 
