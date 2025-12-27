@@ -10,8 +10,14 @@ import { LockIconComponent } from '../icons/lock-icon.component';
   standalone: true,
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, WayleaveIconComponent, UserIconComponent, LockIconComponent]
+  imports: [
+    FormsModule, // ✅ required for ngModel
+    WayleaveIconComponent,
+    UserIconComponent,
+    LockIconComponent
+  ]
 })
+
 export class LoginComponent {
   cpr = signal('');
   password = signal('');
