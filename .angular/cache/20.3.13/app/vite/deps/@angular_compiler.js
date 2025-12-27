@@ -4,10 +4,25 @@ import {
 } from "./chunk-GOMI4DH3.js";
 
 // node_modules/@angular/compiler/fesm2022/compiler.mjs
-var _SELECTOR_REGEXP = new RegExp(`(\\:not\\()|(([\\.\\#]?)[-\\w]+)|(?:\\[([-.\\w*\\\\$]+)(?:=(["']?)([^\\]"']*)\\5)?\\])|(\\))|(\\s*,\\s*)`, "g");
+var _SELECTOR_REGEXP = new RegExp(
+  `(\\:not\\()|(([\\.\\#]?)[-\\w]+)|(?:\\[([-.\\w*\\\\$]+)(?:=(["']?)([^\\]"']*)\\5)?\\])|(\\))|(\\s*,\\s*)`,
+  // 8: ","
+  "g"
+);
 var CssSelector = class _CssSelector {
   element = null;
   classNames = [];
+  /**
+   * The selectors are encoded in pairs where:
+   * - even locations are attribute names
+   * - odd locations are attribute values.
+   *
+   * Example:
+   * Selector: `[key1=value1][key2]` would parse to:
+   * ```
+   * ['key1', 'value1', 'key2', '']
+   * ```
+   */
   attrs = [];
   notSelectors = [];
   static parse(selector) {
@@ -24,7 +39,10 @@ var CssSelector = class _CssSelector {
     let inNot = false;
     _SELECTOR_REGEXP.lastIndex = 0;
     while (match = _SELECTOR_REGEXP.exec(selector)) {
-      if (match[1]) {
+      if (match[
+        1
+        /* SelectorRegexp.NOT */
+      ]) {
         if (inNot) {
           throw new Error("Nesting :not in a selector is not allowed");
         }
@@ -32,9 +50,15 @@ var CssSelector = class _CssSelector {
         current = new _CssSelector();
         cssSelector.notSelectors.push(current);
       }
-      const tag = match[2];
+      const tag = match[
+        2
+        /* SelectorRegexp.TAG */
+      ];
       if (tag) {
-        const prefix = match[3];
+        const prefix = match[
+          3
+          /* SelectorRegexp.PREFIX */
+        ];
         if (prefix === "#") {
           current.addAttribute("id", tag.slice(1));
         } else if (prefix === ".") {
@@ -43,15 +67,27 @@ var CssSelector = class _CssSelector {
           current.setElement(tag);
         }
       }
-      const attribute2 = match[4];
+      const attribute2 = match[
+        4
+        /* SelectorRegexp.ATTRIBUTE */
+      ];
       if (attribute2) {
-        current.addAttribute(current.unescapeAttribute(attribute2), match[6]);
+        current.addAttribute(current.unescapeAttribute(attribute2), match[
+          6
+          /* SelectorRegexp.ATTRIBUTE_VALUE */
+        ]);
       }
-      if (match[7]) {
+      if (match[
+        7
+        /* SelectorRegexp.NOT_END */
+      ]) {
         inNot = false;
         current = cssSelector;
       }
-      if (match[8]) {
+      if (match[
+        8
+        /* SelectorRegexp.SEPARATOR */
+      ]) {
         if (inNot) {
           throw new Error("Multiple selectors in :not are not supported");
         }
@@ -62,6 +98,16 @@ var CssSelector = class _CssSelector {
     _addResult(results, cssSelector);
     return results;
   }
+  /**
+   * Unescape `\$` sequences from the CSS attribute selector.
+   *
+   * This is needed because `$` can have a special meaning in CSS selectors,
+   * but we might want to match an attribute that contains `$`.
+   * [MDN web link for more
+   * info](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors).
+   * @param attr the attribute to unescape.
+   * @returns the unescaped string.
+   */
   unescapeAttribute(attr) {
     let result = "";
     let escaping = false;
@@ -79,6 +125,16 @@ var CssSelector = class _CssSelector {
     }
     return result;
   }
+  /**
+   * Escape `$` sequences from the CSS attribute selector.
+   *
+   * This is needed because `$` can have a special meaning in CSS selectors,
+   * with this method we are escaping `$` with `\$'.
+   * [MDN web link for more
+   * info](https://developer.mozilla.org/en-US/docs/Web/CSS/Attribute_selectors).
+   * @param attr the attribute to escape.
+   * @returns the escaped string.
+   */
   escapeAttribute(attr) {
     return attr.replace(/\\/g, "\\\\").replace(/\$/g, "\\$");
   }
@@ -143,6 +199,11 @@ var SelectorMatcher = class _SelectorMatcher {
       this._addSelectable(cssSelectors[i], callbackCtxt, listContext);
     }
   }
+  /**
+   * Add an object that can be found later on by calling `match`.
+   * @param cssSelector A css selector
+   * @param callbackCtxt An opaque object that will be given to the callback of the `match` function
+   */
   _addSelectable(cssSelector, callbackCtxt, listContext) {
     let matcher = this;
     const element2 = cssSelector.element;
@@ -209,6 +270,13 @@ var SelectorMatcher = class _SelectorMatcher {
     }
     return matcher;
   }
+  /**
+   * Find the objects that have been added via `addSelectable`
+   * whose css selector is contained in the given css selector.
+   * @param cssSelector A css selector
+   * @param matchedCallback This callback will be called with the object handed into `addSelectable`
+   * @return boolean true if a match was found
+   */
   match(cssSelector, matchedCallback) {
     let result = false;
     const element2 = cssSelector.element;
@@ -244,6 +312,7 @@ var SelectorMatcher = class _SelectorMatcher {
     }
     return result;
   }
+  /** @internal */
   _matchTerminal(map, name, cssSelector, matchedCallback) {
     if (!map || typeof name !== "string") {
       return false;
@@ -264,6 +333,7 @@ var SelectorMatcher = class _SelectorMatcher {
     }
     return result;
   }
+  /** @internal */
   _matchPartial(map, name, cssSelector, matchedCallback) {
     if (!map || typeof name !== "string") {
       return false;
@@ -323,7 +393,6 @@ var ViewEncapsulation$1;
   ViewEncapsulation2[ViewEncapsulation2["Emulated"] = 0] = "Emulated";
   ViewEncapsulation2[ViewEncapsulation2["None"] = 2] = "None";
   ViewEncapsulation2[ViewEncapsulation2["ShadowDom"] = 3] = "ShadowDom";
-  ViewEncapsulation2[ViewEncapsulation2["ExperimentalIsolatedShadowDom"] = 4] = "ExperimentalIsolatedShadowDom";
 })(ViewEncapsulation$1 || (ViewEncapsulation$1 = {}));
 var ChangeDetectionStrategy;
 (function(ChangeDetectionStrategy2) {
@@ -367,7 +436,12 @@ function parserSelectorToSimpleSelector(selector) {
 function parserSelectorToNegativeSelector(selector) {
   const classes = selector.classNames && selector.classNames.length ? [8, ...selector.classNames] : [];
   if (selector.element) {
-    return [1 | 4, selector.element, ...selector.attrs, ...classes];
+    return [
+      1 | 4,
+      selector.element,
+      ...selector.attrs,
+      ...classes
+    ];
   } else if (selector.attrs.length) {
     return [1 | 2, ...selector.attrs, ...classes];
   } else {
@@ -424,7 +498,6 @@ var ViewEncapsulation;
   ViewEncapsulation2[ViewEncapsulation2["Emulated"] = 0] = "Emulated";
   ViewEncapsulation2[ViewEncapsulation2["None"] = 2] = "None";
   ViewEncapsulation2[ViewEncapsulation2["ShadowDom"] = 3] = "ShadowDom";
-  ViewEncapsulation2[ViewEncapsulation2["ExperimentalIsolatedShadowDom"] = 4] = "ExperimentalIsolatedShadowDom";
 })(ViewEncapsulation || (ViewEncapsulation = {}));
 var textEncoder;
 function digest$1(message) {
@@ -986,6 +1059,7 @@ var InvokeFunctionExpr = class _InvokeFunctionExpr extends Expression {
     this.args = args;
     this.pure = pure;
   }
+  // An alias for fn, which allows other logic to handle calls and property reads together.
   get receiver() {
     return this.fn;
   }
@@ -1042,27 +1116,6 @@ var InstantiateExpr = class _InstantiateExpr extends Expression {
   }
   clone() {
     return new _InstantiateExpr(this.classExpr.clone(), this.args.map((arg) => arg.clone()), this.type, this.sourceSpan);
-  }
-};
-var RegularExpressionLiteralExpr = class _RegularExpressionLiteralExpr extends Expression {
-  body;
-  flags;
-  constructor(body, flags, sourceSpan) {
-    super(null, sourceSpan);
-    this.body = body;
-    this.flags = flags;
-  }
-  isEquivalent(e) {
-    return e instanceof _RegularExpressionLiteralExpr && this.body === e.body && this.flags === e.flags;
-  }
-  isConstant() {
-    return true;
-  }
-  visitExpression(visitor, context) {
-    return visitor.visitRegularExpressionLiteral(this, context);
-  }
-  clone() {
-    return new _RegularExpressionLiteralExpr(this.body, this.flags, this.sourceSpan);
   }
 };
 var LiteralExpr = class _LiteralExpr extends Expression {
@@ -1138,6 +1191,15 @@ var PlaceholderPiece = class {
   text;
   sourceSpan;
   associatedMessage;
+  /**
+   * Create a new instance of a `PlaceholderPiece`.
+   *
+   * @param text the name of this placeholder (e.g. `PH_1`).
+   * @param sourceSpan the location of this placeholder in its localized message the source code.
+   * @param associatedMessage reference to another message that this placeholder is associated with.
+   * The `associatedMessage` is mainly used to provide a relationship to an ICU message that has
+   * been extracted out from the message containing the placeholder.
+   */
   constructor(text2, sourceSpan, associatedMessage) {
     this.text = text2;
     this.sourceSpan = sourceSpan;
@@ -1171,6 +1233,14 @@ var LocalizedString = class _LocalizedString extends Expression {
   clone() {
     return new _LocalizedString(this.metaBlock, this.messageParts, this.placeHolderNames, this.expressions.map((expr) => expr.clone()), this.sourceSpan);
   }
+  /**
+   * Serialize the given `meta` and `messagePart` into "cooked" and "raw" strings that can be used
+   * in a `$localize` tagged string. The format of the metadata is the same as that parsed by
+   * `parseI18nMeta()`.
+   *
+   * @param meta The metadata to serialize
+   * @param messagePart The first part of the tagged string
+   */
   serializeI18nHead() {
     let metaBlock = this.metaBlock.description || "";
     if (this.metaBlock.meaning) {
@@ -1192,6 +1262,17 @@ var LocalizedString = class _LocalizedString extends Expression {
   getPlaceholderSourceSpan(i) {
     return this.placeHolderNames[i]?.sourceSpan ?? this.expressions[i]?.sourceSpan ?? this.sourceSpan;
   }
+  /**
+   * Serialize the given `placeholderName` and `messagePart` into "cooked" and "raw" strings that
+   * can be used in a `$localize` tagged string.
+   *
+   * The format is `:<placeholder-name>[@@<associated-id>]:`.
+   *
+   * The `associated-id` is the message id of the (usually an ICU) message to which this placeholder
+   * refers.
+   *
+   * @param partIndex The index of the message part to serialize.
+   */
   serializeI18nTemplatePart(partIndex) {
     const placeholder = this.placeHolderNames[partIndex - 1];
     const messagePart = this.messageParts[partIndex];
@@ -1356,6 +1437,8 @@ var FunctionExpr = class _FunctionExpr extends Expression {
 var ArrowFunctionExpr = class _ArrowFunctionExpr extends Expression {
   params;
   body;
+  // Note that `body: Expression` represents `() => expr` whereas
+  // `body: Statement[]` represents `() => { expr }`.
   constructor(params, body, type, sourceSpan) {
     super(type, sourceSpan);
     this.params = params;
@@ -1463,6 +1546,7 @@ var ReadPropExpr = class _ReadPropExpr extends Expression {
     this.receiver = receiver;
     this.name = name;
   }
+  // An alias for name, which allows other logic to handle property reads and keyed reads together.
   get index() {
     return this.name;
   }
@@ -1610,7 +1694,13 @@ var LeadingComment = class {
 var JSDocComment = class extends LeadingComment {
   tags;
   constructor(tags) {
-    super("", true, true);
+    super(
+      "",
+      /* multiline */
+      true,
+      /* trailingNewline */
+      true
+    );
     this.tags = tags;
   }
   toString() {
@@ -1767,9 +1857,6 @@ var RecursiveAstVisitor$1 = class RecursiveAstVisitor {
     return this.visitExpression(ast, context);
   }
   visitLiteralExpr(ast, context) {
-    return this.visitExpression(ast, context);
-  }
-  visitRegularExpressionLiteral(ast, context) {
     return this.visitExpression(ast, context);
   }
   visitLocalizedString(ast, context) {
@@ -1961,7 +2048,8 @@ function tagToString(tag) {
   return out;
 }
 function serializeTags(tags) {
-  if (tags.length === 0) return "";
+  if (tags.length === 0)
+    return "";
   if (tags.length === 1 && tags[0].tagName && !tags[0].text) {
     return `*${tagToString(tags[0])} `;
   }
@@ -2025,7 +2113,6 @@ var output_ast = Object.freeze({
   ReadPropExpr,
   ReadVarExpr,
   RecursiveAstVisitor: RecursiveAstVisitor$1,
-  RegularExpressionLiteralExpr,
   ReturnStatement,
   STRING_TYPE,
   Statement,
@@ -2110,6 +2197,12 @@ var ConstantPool = class {
   literals = /* @__PURE__ */ new Map();
   literalFactories = /* @__PURE__ */ new Map();
   sharedConstants = /* @__PURE__ */ new Map();
+  /**
+   * Constant pool also tracks claimed names from {@link uniqueName}.
+   * This is useful to avoid collisions if variables are intended to be
+   * named a certain way- but may conflict. We wouldn't want to always suffix
+   * them with unique numbers.
+   */
   _claimedNames = /* @__PURE__ */ new Map();
   nextNameIndex = 0;
   constructor(isClosureCompilerEnabled = false) {
@@ -2132,7 +2225,14 @@ var ConstantPool = class {
       let value;
       let usage;
       if (this.isClosureCompilerEnabled && isLongStringLiteral(literal2)) {
-        value = new FunctionExpr([], [new ReturnStatement(literal2)]);
+        value = new FunctionExpr(
+          [],
+          // Params.
+          [
+            // Statements.
+            new ReturnStatement(literal2)
+          ]
+        );
         usage = variable(name).callFn([]);
       } else {
         value = literal2;
@@ -2171,6 +2271,8 @@ var ConstantPool = class {
       }))));
     }
   }
+  // TODO: useUniqueName(false) is necessary for naming compatibility with
+  // TemplateDefinitionBuilder, but should be removed once Template Pipeline is the default.
   getSharedFunctionReference(fn2, prefix, useUniqueName = true) {
     const isArrow = fn2 instanceof ArrowFunctionExpr;
     for (const current of this.statements) {
@@ -2197,11 +2299,15 @@ var ConstantPool = class {
       literalFactory = variable(name);
       this.literalFactories.set(key, literalFactory);
     }
-    return {
-      literalFactory,
-      literalFactoryArguments
-    };
+    return { literalFactory, literalFactoryArguments };
   }
+  /**
+   * Produce a unique name in the context of this pool.
+   *
+   * The name might be unique among different prefixes if any of the prefixes end in
+   * a digit so the prefix should be a constant string (not based on user input) and
+   * must not end in a digit.
+   */
   uniqueName(name, alwaysIncludeSuffix = true) {
     const count = this._claimedNames.get(name) ?? 0;
     const result = count === 0 && !alwaysIncludeSuffix ? `${name}` : `${name}${count}`;
@@ -2219,8 +2325,6 @@ var GenericKeyFn = class _GenericKeyFn {
       return `"${expr.value}"`;
     } else if (expr instanceof LiteralExpr) {
       return String(expr.value);
-    } else if (expr instanceof RegularExpressionLiteralExpr) {
-      return `/${expr.body}/${expr.flags ?? ""}`;
     } else if (expr instanceof LiteralArrayExpr) {
       const entries = [];
       for (const entry of expr.entries) {
@@ -2256,49 +2360,21 @@ function isLongStringLiteral(expr) {
 }
 var CORE = "@angular/core";
 var Identifiers = class {
+  /* Methods */
   static NEW_METHOD = "factory";
   static TRANSFORM_METHOD = "transform";
   static PATCH_DEPS = "patchedDeps";
-  static core = {
-    name: null,
-    moduleName: CORE
-  };
-  static namespaceHTML = {
-    name: "ɵɵnamespaceHTML",
-    moduleName: CORE
-  };
-  static namespaceMathML = {
-    name: "ɵɵnamespaceMathML",
-    moduleName: CORE
-  };
-  static namespaceSVG = {
-    name: "ɵɵnamespaceSVG",
-    moduleName: CORE
-  };
-  static element = {
-    name: "ɵɵelement",
-    moduleName: CORE
-  };
-  static elementStart = {
-    name: "ɵɵelementStart",
-    moduleName: CORE
-  };
-  static elementEnd = {
-    name: "ɵɵelementEnd",
-    moduleName: CORE
-  };
-  static domElement = {
-    name: "ɵɵdomElement",
-    moduleName: CORE
-  };
-  static domElementStart = {
-    name: "ɵɵdomElementStart",
-    moduleName: CORE
-  };
-  static domElementEnd = {
-    name: "ɵɵdomElementEnd",
-    moduleName: CORE
-  };
+  static core = { name: null, moduleName: CORE };
+  /* Instructions */
+  static namespaceHTML = { name: "ɵɵnamespaceHTML", moduleName: CORE };
+  static namespaceMathML = { name: "ɵɵnamespaceMathML", moduleName: CORE };
+  static namespaceSVG = { name: "ɵɵnamespaceSVG", moduleName: CORE };
+  static element = { name: "ɵɵelement", moduleName: CORE };
+  static elementStart = { name: "ɵɵelementStart", moduleName: CORE };
+  static elementEnd = { name: "ɵɵelementEnd", moduleName: CORE };
+  static domElement = { name: "ɵɵdomElement", moduleName: CORE };
+  static domElementStart = { name: "ɵɵdomElementStart", moduleName: CORE };
+  static domElementEnd = { name: "ɵɵdomElementEnd", moduleName: CORE };
   static domElementContainer = {
     name: "ɵɵdomElementContainer",
     moduleName: CORE
@@ -2311,18 +2387,9 @@ var Identifiers = class {
     name: "ɵɵdomElementContainerEnd",
     moduleName: CORE
   };
-  static domTemplate = {
-    name: "ɵɵdomTemplate",
-    moduleName: CORE
-  };
-  static domListener = {
-    name: "ɵɵdomListener",
-    moduleName: CORE
-  };
-  static advance = {
-    name: "ɵɵadvance",
-    moduleName: CORE
-  };
+  static domTemplate = { name: "ɵɵdomTemplate", moduleName: CORE };
+  static domListener = { name: "ɵɵdomListener", moduleName: CORE };
+  static advance = { name: "ɵɵadvance", moduleName: CORE };
   static syntheticHostProperty = {
     name: "ɵɵsyntheticHostProperty",
     moduleName: CORE
@@ -2331,14 +2398,8 @@ var Identifiers = class {
     name: "ɵɵsyntheticHostListener",
     moduleName: CORE
   };
-  static attribute = {
-    name: "ɵɵattribute",
-    moduleName: CORE
-  };
-  static classProp = {
-    name: "ɵɵclassProp",
-    moduleName: CORE
-  };
+  static attribute = { name: "ɵɵattribute", moduleName: CORE };
+  static classProp = { name: "ɵɵclassProp", moduleName: CORE };
   static elementContainerStart = {
     name: "ɵɵelementContainerStart",
     moduleName: CORE
@@ -2347,22 +2408,10 @@ var Identifiers = class {
     name: "ɵɵelementContainerEnd",
     moduleName: CORE
   };
-  static elementContainer = {
-    name: "ɵɵelementContainer",
-    moduleName: CORE
-  };
-  static styleMap = {
-    name: "ɵɵstyleMap",
-    moduleName: CORE
-  };
-  static classMap = {
-    name: "ɵɵclassMap",
-    moduleName: CORE
-  };
-  static styleProp = {
-    name: "ɵɵstyleProp",
-    moduleName: CORE
-  };
+  static elementContainer = { name: "ɵɵelementContainer", moduleName: CORE };
+  static styleMap = { name: "ɵɵstyleMap", moduleName: CORE };
+  static classMap = { name: "ɵɵclassMap", moduleName: CORE };
+  static styleProp = { name: "ɵɵstyleProp", moduleName: CORE };
   static interpolate = {
     name: "ɵɵinterpolate",
     moduleName: CORE
@@ -2403,54 +2452,18 @@ var Identifiers = class {
     name: "ɵɵinterpolateV",
     moduleName: CORE
   };
-  static nextContext = {
-    name: "ɵɵnextContext",
-    moduleName: CORE
-  };
-  static resetView = {
-    name: "ɵɵresetView",
-    moduleName: CORE
-  };
-  static templateCreate = {
-    name: "ɵɵtemplate",
-    moduleName: CORE
-  };
-  static defer = {
-    name: "ɵɵdefer",
-    moduleName: CORE
-  };
-  static deferWhen = {
-    name: "ɵɵdeferWhen",
-    moduleName: CORE
-  };
-  static deferOnIdle = {
-    name: "ɵɵdeferOnIdle",
-    moduleName: CORE
-  };
-  static deferOnImmediate = {
-    name: "ɵɵdeferOnImmediate",
-    moduleName: CORE
-  };
-  static deferOnTimer = {
-    name: "ɵɵdeferOnTimer",
-    moduleName: CORE
-  };
-  static deferOnHover = {
-    name: "ɵɵdeferOnHover",
-    moduleName: CORE
-  };
-  static deferOnInteraction = {
-    name: "ɵɵdeferOnInteraction",
-    moduleName: CORE
-  };
-  static deferOnViewport = {
-    name: "ɵɵdeferOnViewport",
-    moduleName: CORE
-  };
-  static deferPrefetchWhen = {
-    name: "ɵɵdeferPrefetchWhen",
-    moduleName: CORE
-  };
+  static nextContext = { name: "ɵɵnextContext", moduleName: CORE };
+  static resetView = { name: "ɵɵresetView", moduleName: CORE };
+  static templateCreate = { name: "ɵɵtemplate", moduleName: CORE };
+  static defer = { name: "ɵɵdefer", moduleName: CORE };
+  static deferWhen = { name: "ɵɵdeferWhen", moduleName: CORE };
+  static deferOnIdle = { name: "ɵɵdeferOnIdle", moduleName: CORE };
+  static deferOnImmediate = { name: "ɵɵdeferOnImmediate", moduleName: CORE };
+  static deferOnTimer = { name: "ɵɵdeferOnTimer", moduleName: CORE };
+  static deferOnHover = { name: "ɵɵdeferOnHover", moduleName: CORE };
+  static deferOnInteraction = { name: "ɵɵdeferOnInteraction", moduleName: CORE };
+  static deferOnViewport = { name: "ɵɵdeferOnViewport", moduleName: CORE };
+  static deferPrefetchWhen = { name: "ɵɵdeferPrefetchWhen", moduleName: CORE };
   static deferPrefetchOnIdle = {
     name: "ɵɵdeferPrefetchOnIdle",
     moduleName: CORE
@@ -2475,14 +2488,8 @@ var Identifiers = class {
     name: "ɵɵdeferPrefetchOnViewport",
     moduleName: CORE
   };
-  static deferHydrateWhen = {
-    name: "ɵɵdeferHydrateWhen",
-    moduleName: CORE
-  };
-  static deferHydrateNever = {
-    name: "ɵɵdeferHydrateNever",
-    moduleName: CORE
-  };
+  static deferHydrateWhen = { name: "ɵɵdeferHydrateWhen", moduleName: CORE };
+  static deferHydrateNever = { name: "ɵɵdeferHydrateNever", moduleName: CORE };
   static deferHydrateOnIdle = {
     name: "ɵɵdeferHydrateOnIdle",
     moduleName: CORE
@@ -2511,26 +2518,14 @@ var Identifiers = class {
     name: "ɵɵdeferEnableTimerScheduling",
     moduleName: CORE
   };
-  static conditionalCreate = {
-    name: "ɵɵconditionalCreate",
-    moduleName: CORE
-  };
+  static conditionalCreate = { name: "ɵɵconditionalCreate", moduleName: CORE };
   static conditionalBranchCreate = {
     name: "ɵɵconditionalBranchCreate",
     moduleName: CORE
   };
-  static conditional = {
-    name: "ɵɵconditional",
-    moduleName: CORE
-  };
-  static repeater = {
-    name: "ɵɵrepeater",
-    moduleName: CORE
-  };
-  static repeaterCreate = {
-    name: "ɵɵrepeaterCreate",
-    moduleName: CORE
-  };
+  static conditional = { name: "ɵɵconditional", moduleName: CORE };
+  static repeater = { name: "ɵɵrepeater", moduleName: CORE };
+  static repeaterCreate = { name: "ɵɵrepeaterCreate", moduleName: CORE };
   static repeaterTrackByIndex = {
     name: "ɵɵrepeaterTrackByIndex",
     moduleName: CORE
@@ -2539,150 +2534,40 @@ var Identifiers = class {
     name: "ɵɵrepeaterTrackByIdentity",
     moduleName: CORE
   };
-  static componentInstance = {
-    name: "ɵɵcomponentInstance",
-    moduleName: CORE
-  };
-  static text = {
-    name: "ɵɵtext",
-    moduleName: CORE
-  };
-  static enableBindings = {
-    name: "ɵɵenableBindings",
-    moduleName: CORE
-  };
-  static disableBindings = {
-    name: "ɵɵdisableBindings",
-    moduleName: CORE
-  };
-  static getCurrentView = {
-    name: "ɵɵgetCurrentView",
-    moduleName: CORE
-  };
-  static textInterpolate = {
-    name: "ɵɵtextInterpolate",
-    moduleName: CORE
-  };
-  static textInterpolate1 = {
-    name: "ɵɵtextInterpolate1",
-    moduleName: CORE
-  };
-  static textInterpolate2 = {
-    name: "ɵɵtextInterpolate2",
-    moduleName: CORE
-  };
-  static textInterpolate3 = {
-    name: "ɵɵtextInterpolate3",
-    moduleName: CORE
-  };
-  static textInterpolate4 = {
-    name: "ɵɵtextInterpolate4",
-    moduleName: CORE
-  };
-  static textInterpolate5 = {
-    name: "ɵɵtextInterpolate5",
-    moduleName: CORE
-  };
-  static textInterpolate6 = {
-    name: "ɵɵtextInterpolate6",
-    moduleName: CORE
-  };
-  static textInterpolate7 = {
-    name: "ɵɵtextInterpolate7",
-    moduleName: CORE
-  };
-  static textInterpolate8 = {
-    name: "ɵɵtextInterpolate8",
-    moduleName: CORE
-  };
-  static textInterpolateV = {
-    name: "ɵɵtextInterpolateV",
-    moduleName: CORE
-  };
-  static restoreView = {
-    name: "ɵɵrestoreView",
-    moduleName: CORE
-  };
-  static pureFunction0 = {
-    name: "ɵɵpureFunction0",
-    moduleName: CORE
-  };
-  static pureFunction1 = {
-    name: "ɵɵpureFunction1",
-    moduleName: CORE
-  };
-  static pureFunction2 = {
-    name: "ɵɵpureFunction2",
-    moduleName: CORE
-  };
-  static pureFunction3 = {
-    name: "ɵɵpureFunction3",
-    moduleName: CORE
-  };
-  static pureFunction4 = {
-    name: "ɵɵpureFunction4",
-    moduleName: CORE
-  };
-  static pureFunction5 = {
-    name: "ɵɵpureFunction5",
-    moduleName: CORE
-  };
-  static pureFunction6 = {
-    name: "ɵɵpureFunction6",
-    moduleName: CORE
-  };
-  static pureFunction7 = {
-    name: "ɵɵpureFunction7",
-    moduleName: CORE
-  };
-  static pureFunction8 = {
-    name: "ɵɵpureFunction8",
-    moduleName: CORE
-  };
-  static pureFunctionV = {
-    name: "ɵɵpureFunctionV",
-    moduleName: CORE
-  };
-  static pipeBind1 = {
-    name: "ɵɵpipeBind1",
-    moduleName: CORE
-  };
-  static pipeBind2 = {
-    name: "ɵɵpipeBind2",
-    moduleName: CORE
-  };
-  static pipeBind3 = {
-    name: "ɵɵpipeBind3",
-    moduleName: CORE
-  };
-  static pipeBind4 = {
-    name: "ɵɵpipeBind4",
-    moduleName: CORE
-  };
-  static pipeBindV = {
-    name: "ɵɵpipeBindV",
-    moduleName: CORE
-  };
-  static domProperty = {
-    name: "ɵɵdomProperty",
-    moduleName: CORE
-  };
-  static ariaProperty = {
-    name: "ɵɵariaProperty",
-    moduleName: CORE
-  };
-  static property = {
-    name: "ɵɵproperty",
-    moduleName: CORE
-  };
-  static control = {
-    name: "ɵɵcontrol",
-    moduleName: CORE
-  };
-  static controlCreate = {
-    name: "ɵɵcontrolCreate",
-    moduleName: CORE
-  };
+  static componentInstance = { name: "ɵɵcomponentInstance", moduleName: CORE };
+  static text = { name: "ɵɵtext", moduleName: CORE };
+  static enableBindings = { name: "ɵɵenableBindings", moduleName: CORE };
+  static disableBindings = { name: "ɵɵdisableBindings", moduleName: CORE };
+  static getCurrentView = { name: "ɵɵgetCurrentView", moduleName: CORE };
+  static textInterpolate = { name: "ɵɵtextInterpolate", moduleName: CORE };
+  static textInterpolate1 = { name: "ɵɵtextInterpolate1", moduleName: CORE };
+  static textInterpolate2 = { name: "ɵɵtextInterpolate2", moduleName: CORE };
+  static textInterpolate3 = { name: "ɵɵtextInterpolate3", moduleName: CORE };
+  static textInterpolate4 = { name: "ɵɵtextInterpolate4", moduleName: CORE };
+  static textInterpolate5 = { name: "ɵɵtextInterpolate5", moduleName: CORE };
+  static textInterpolate6 = { name: "ɵɵtextInterpolate6", moduleName: CORE };
+  static textInterpolate7 = { name: "ɵɵtextInterpolate7", moduleName: CORE };
+  static textInterpolate8 = { name: "ɵɵtextInterpolate8", moduleName: CORE };
+  static textInterpolateV = { name: "ɵɵtextInterpolateV", moduleName: CORE };
+  static restoreView = { name: "ɵɵrestoreView", moduleName: CORE };
+  static pureFunction0 = { name: "ɵɵpureFunction0", moduleName: CORE };
+  static pureFunction1 = { name: "ɵɵpureFunction1", moduleName: CORE };
+  static pureFunction2 = { name: "ɵɵpureFunction2", moduleName: CORE };
+  static pureFunction3 = { name: "ɵɵpureFunction3", moduleName: CORE };
+  static pureFunction4 = { name: "ɵɵpureFunction4", moduleName: CORE };
+  static pureFunction5 = { name: "ɵɵpureFunction5", moduleName: CORE };
+  static pureFunction6 = { name: "ɵɵpureFunction6", moduleName: CORE };
+  static pureFunction7 = { name: "ɵɵpureFunction7", moduleName: CORE };
+  static pureFunction8 = { name: "ɵɵpureFunction8", moduleName: CORE };
+  static pureFunctionV = { name: "ɵɵpureFunctionV", moduleName: CORE };
+  static pipeBind1 = { name: "ɵɵpipeBind1", moduleName: CORE };
+  static pipeBind2 = { name: "ɵɵpipeBind2", moduleName: CORE };
+  static pipeBind3 = { name: "ɵɵpipeBind3", moduleName: CORE };
+  static pipeBind4 = { name: "ɵɵpipeBind4", moduleName: CORE };
+  static pipeBindV = { name: "ɵɵpipeBindV", moduleName: CORE };
+  static domProperty = { name: "ɵɵdomProperty", moduleName: CORE };
+  static ariaProperty = { name: "ɵɵariaProperty", moduleName: CORE };
+  static property = { name: "ɵɵproperty", moduleName: CORE };
   static animationEnterListener = {
     name: "ɵɵanimateEnterListener",
     moduleName: CORE
@@ -2691,138 +2576,51 @@ var Identifiers = class {
     name: "ɵɵanimateLeaveListener",
     moduleName: CORE
   };
-  static animationEnter = {
-    name: "ɵɵanimateEnter",
-    moduleName: CORE
-  };
-  static animationLeave = {
-    name: "ɵɵanimateLeave",
-    moduleName: CORE
-  };
-  static i18n = {
-    name: "ɵɵi18n",
-    moduleName: CORE
-  };
-  static i18nAttributes = {
-    name: "ɵɵi18nAttributes",
-    moduleName: CORE
-  };
-  static i18nExp = {
-    name: "ɵɵi18nExp",
-    moduleName: CORE
-  };
-  static i18nStart = {
-    name: "ɵɵi18nStart",
-    moduleName: CORE
-  };
-  static i18nEnd = {
-    name: "ɵɵi18nEnd",
-    moduleName: CORE
-  };
-  static i18nApply = {
-    name: "ɵɵi18nApply",
-    moduleName: CORE
-  };
-  static i18nPostprocess = {
-    name: "ɵɵi18nPostprocess",
-    moduleName: CORE
-  };
-  static pipe = {
-    name: "ɵɵpipe",
-    moduleName: CORE
-  };
-  static projection = {
-    name: "ɵɵprojection",
-    moduleName: CORE
-  };
-  static projectionDef = {
-    name: "ɵɵprojectionDef",
-    moduleName: CORE
-  };
-  static reference = {
-    name: "ɵɵreference",
-    moduleName: CORE
-  };
-  static inject = {
-    name: "ɵɵinject",
-    moduleName: CORE
-  };
-  static injectAttribute = {
-    name: "ɵɵinjectAttribute",
-    moduleName: CORE
-  };
-  static directiveInject = {
-    name: "ɵɵdirectiveInject",
-    moduleName: CORE
-  };
-  static invalidFactory = {
-    name: "ɵɵinvalidFactory",
-    moduleName: CORE
-  };
-  static invalidFactoryDep = {
-    name: "ɵɵinvalidFactoryDep",
-    moduleName: CORE
-  };
+  static animationEnter = { name: "ɵɵanimateEnter", moduleName: CORE };
+  static animationLeave = { name: "ɵɵanimateLeave", moduleName: CORE };
+  static i18n = { name: "ɵɵi18n", moduleName: CORE };
+  static i18nAttributes = { name: "ɵɵi18nAttributes", moduleName: CORE };
+  static i18nExp = { name: "ɵɵi18nExp", moduleName: CORE };
+  static i18nStart = { name: "ɵɵi18nStart", moduleName: CORE };
+  static i18nEnd = { name: "ɵɵi18nEnd", moduleName: CORE };
+  static i18nApply = { name: "ɵɵi18nApply", moduleName: CORE };
+  static i18nPostprocess = { name: "ɵɵi18nPostprocess", moduleName: CORE };
+  static pipe = { name: "ɵɵpipe", moduleName: CORE };
+  static projection = { name: "ɵɵprojection", moduleName: CORE };
+  static projectionDef = { name: "ɵɵprojectionDef", moduleName: CORE };
+  static reference = { name: "ɵɵreference", moduleName: CORE };
+  static inject = { name: "ɵɵinject", moduleName: CORE };
+  static injectAttribute = { name: "ɵɵinjectAttribute", moduleName: CORE };
+  static directiveInject = { name: "ɵɵdirectiveInject", moduleName: CORE };
+  static invalidFactory = { name: "ɵɵinvalidFactory", moduleName: CORE };
+  static invalidFactoryDep = { name: "ɵɵinvalidFactoryDep", moduleName: CORE };
   static templateRefExtractor = {
     name: "ɵɵtemplateRefExtractor",
     moduleName: CORE
   };
-  static forwardRef = {
-    name: "forwardRef",
-    moduleName: CORE
-  };
-  static resolveForwardRef = {
-    name: "resolveForwardRef",
-    moduleName: CORE
-  };
-  static replaceMetadata = {
-    name: "ɵɵreplaceMetadata",
-    moduleName: CORE
-  };
+  static forwardRef = { name: "forwardRef", moduleName: CORE };
+  static resolveForwardRef = { name: "resolveForwardRef", moduleName: CORE };
+  static replaceMetadata = { name: "ɵɵreplaceMetadata", moduleName: CORE };
   static getReplaceMetadataURL = {
     name: "ɵɵgetReplaceMetadataURL",
     moduleName: CORE
   };
-  static ɵɵdefineInjectable = {
-    name: "ɵɵdefineInjectable",
-    moduleName: CORE
-  };
-  static declareInjectable = {
-    name: "ɵɵngDeclareInjectable",
-    moduleName: CORE
-  };
+  static ɵɵdefineInjectable = { name: "ɵɵdefineInjectable", moduleName: CORE };
+  static declareInjectable = { name: "ɵɵngDeclareInjectable", moduleName: CORE };
   static InjectableDeclaration = {
     name: "ɵɵInjectableDeclaration",
     moduleName: CORE
   };
-  static resolveWindow = {
-    name: "ɵɵresolveWindow",
-    moduleName: CORE
-  };
-  static resolveDocument = {
-    name: "ɵɵresolveDocument",
-    moduleName: CORE
-  };
-  static resolveBody = {
-    name: "ɵɵresolveBody",
-    moduleName: CORE
-  };
+  static resolveWindow = { name: "ɵɵresolveWindow", moduleName: CORE };
+  static resolveDocument = { name: "ɵɵresolveDocument", moduleName: CORE };
+  static resolveBody = { name: "ɵɵresolveBody", moduleName: CORE };
   static getComponentDepsFactory = {
     name: "ɵɵgetComponentDepsFactory",
     moduleName: CORE
   };
-  static defineComponent = {
-    name: "ɵɵdefineComponent",
-    moduleName: CORE
-  };
-  static declareComponent = {
-    name: "ɵɵngDeclareComponent",
-    moduleName: CORE
-  };
-  static setComponentScope = {
-    name: "ɵɵsetComponentScope",
-    moduleName: CORE
-  };
+  static defineComponent = { name: "ɵɵdefineComponent", moduleName: CORE };
+  static declareComponent = { name: "ɵɵngDeclareComponent", moduleName: CORE };
+  static setComponentScope = { name: "ɵɵsetComponentScope", moduleName: CORE };
   static ChangeDetectionStrategy = {
     name: "ChangeDetectionStrategy",
     moduleName: CORE
@@ -2839,42 +2637,21 @@ var Identifiers = class {
     name: "ɵɵFactoryDeclaration",
     moduleName: CORE
   };
-  static declareFactory = {
-    name: "ɵɵngDeclareFactory",
-    moduleName: CORE
-  };
-  static FactoryTarget = {
-    name: "ɵɵFactoryTarget",
-    moduleName: CORE
-  };
-  static defineDirective = {
-    name: "ɵɵdefineDirective",
-    moduleName: CORE
-  };
-  static declareDirective = {
-    name: "ɵɵngDeclareDirective",
-    moduleName: CORE
-  };
+  static declareFactory = { name: "ɵɵngDeclareFactory", moduleName: CORE };
+  static FactoryTarget = { name: "ɵɵFactoryTarget", moduleName: CORE };
+  static defineDirective = { name: "ɵɵdefineDirective", moduleName: CORE };
+  static declareDirective = { name: "ɵɵngDeclareDirective", moduleName: CORE };
   static DirectiveDeclaration = {
     name: "ɵɵDirectiveDeclaration",
     moduleName: CORE
   };
-  static InjectorDef = {
-    name: "ɵɵInjectorDef",
-    moduleName: CORE
-  };
+  static InjectorDef = { name: "ɵɵInjectorDef", moduleName: CORE };
   static InjectorDeclaration = {
     name: "ɵɵInjectorDeclaration",
     moduleName: CORE
   };
-  static defineInjector = {
-    name: "ɵɵdefineInjector",
-    moduleName: CORE
-  };
-  static declareInjector = {
-    name: "ɵɵngDeclareInjector",
-    moduleName: CORE
-  };
+  static defineInjector = { name: "ɵɵdefineInjector", moduleName: CORE };
+  static declareInjector = { name: "ɵɵngDeclareInjector", moduleName: CORE };
   static NgModuleDeclaration = {
     name: "ɵɵNgModuleDeclaration",
     moduleName: CORE
@@ -2883,34 +2660,16 @@ var Identifiers = class {
     name: "ModuleWithProviders",
     moduleName: CORE
   };
-  static defineNgModule = {
-    name: "ɵɵdefineNgModule",
-    moduleName: CORE
-  };
-  static declareNgModule = {
-    name: "ɵɵngDeclareNgModule",
-    moduleName: CORE
-  };
-  static setNgModuleScope = {
-    name: "ɵɵsetNgModuleScope",
-    moduleName: CORE
-  };
+  static defineNgModule = { name: "ɵɵdefineNgModule", moduleName: CORE };
+  static declareNgModule = { name: "ɵɵngDeclareNgModule", moduleName: CORE };
+  static setNgModuleScope = { name: "ɵɵsetNgModuleScope", moduleName: CORE };
   static registerNgModuleType = {
     name: "ɵɵregisterNgModuleType",
     moduleName: CORE
   };
-  static PipeDeclaration = {
-    name: "ɵɵPipeDeclaration",
-    moduleName: CORE
-  };
-  static definePipe = {
-    name: "ɵɵdefinePipe",
-    moduleName: CORE
-  };
-  static declarePipe = {
-    name: "ɵɵngDeclarePipe",
-    moduleName: CORE
-  };
+  static PipeDeclaration = { name: "ɵɵPipeDeclaration", moduleName: CORE };
+  static definePipe = { name: "ɵɵdefinePipe", moduleName: CORE };
+  static declarePipe = { name: "ɵɵngDeclarePipe", moduleName: CORE };
   static declareClassMetadata = {
     name: "ɵɵngDeclareClassMetadata",
     moduleName: CORE
@@ -2919,86 +2678,41 @@ var Identifiers = class {
     name: "ɵɵngDeclareClassMetadataAsync",
     moduleName: CORE
   };
-  static setClassMetadata = {
-    name: "ɵsetClassMetadata",
-    moduleName: CORE
-  };
+  static setClassMetadata = { name: "ɵsetClassMetadata", moduleName: CORE };
   static setClassMetadataAsync = {
     name: "ɵsetClassMetadataAsync",
     moduleName: CORE
   };
-  static setClassDebugInfo = {
-    name: "ɵsetClassDebugInfo",
-    moduleName: CORE
-  };
-  static queryRefresh = {
-    name: "ɵɵqueryRefresh",
-    moduleName: CORE
-  };
-  static viewQuery = {
-    name: "ɵɵviewQuery",
-    moduleName: CORE
-  };
-  static loadQuery = {
-    name: "ɵɵloadQuery",
-    moduleName: CORE
-  };
-  static contentQuery = {
-    name: "ɵɵcontentQuery",
-    moduleName: CORE
-  };
-  static viewQuerySignal = {
-    name: "ɵɵviewQuerySignal",
-    moduleName: CORE
-  };
-  static contentQuerySignal = {
-    name: "ɵɵcontentQuerySignal",
-    moduleName: CORE
-  };
-  static queryAdvance = {
-    name: "ɵɵqueryAdvance",
-    moduleName: CORE
-  };
-  static twoWayProperty = {
-    name: "ɵɵtwoWayProperty",
-    moduleName: CORE
-  };
-  static twoWayBindingSet = {
-    name: "ɵɵtwoWayBindingSet",
-    moduleName: CORE
-  };
-  static twoWayListener = {
-    name: "ɵɵtwoWayListener",
-    moduleName: CORE
-  };
-  static declareLet = {
-    name: "ɵɵdeclareLet",
-    moduleName: CORE
-  };
-  static storeLet = {
-    name: "ɵɵstoreLet",
-    moduleName: CORE
-  };
-  static readContextLet = {
-    name: "ɵɵreadContextLet",
-    moduleName: CORE
-  };
+  static setClassDebugInfo = { name: "ɵsetClassDebugInfo", moduleName: CORE };
+  static queryRefresh = { name: "ɵɵqueryRefresh", moduleName: CORE };
+  static viewQuery = { name: "ɵɵviewQuery", moduleName: CORE };
+  static loadQuery = { name: "ɵɵloadQuery", moduleName: CORE };
+  static contentQuery = { name: "ɵɵcontentQuery", moduleName: CORE };
+  // Signal queries
+  static viewQuerySignal = { name: "ɵɵviewQuerySignal", moduleName: CORE };
+  static contentQuerySignal = { name: "ɵɵcontentQuerySignal", moduleName: CORE };
+  static queryAdvance = { name: "ɵɵqueryAdvance", moduleName: CORE };
+  // Two-way bindings
+  static twoWayProperty = { name: "ɵɵtwoWayProperty", moduleName: CORE };
+  static twoWayBindingSet = { name: "ɵɵtwoWayBindingSet", moduleName: CORE };
+  static twoWayListener = { name: "ɵɵtwoWayListener", moduleName: CORE };
+  static declareLet = { name: "ɵɵdeclareLet", moduleName: CORE };
+  static storeLet = { name: "ɵɵstoreLet", moduleName: CORE };
+  static readContextLet = { name: "ɵɵreadContextLet", moduleName: CORE };
   static attachSourceLocations = {
     name: "ɵɵattachSourceLocations",
     moduleName: CORE
   };
-  static NgOnChangesFeature = {
-    name: "ɵɵNgOnChangesFeature",
-    moduleName: CORE
-  };
+  static NgOnChangesFeature = { name: "ɵɵNgOnChangesFeature", moduleName: CORE };
   static InheritDefinitionFeature = {
     name: "ɵɵInheritDefinitionFeature",
     moduleName: CORE
   };
-  static ProvidersFeature = {
-    name: "ɵɵProvidersFeature",
+  static CopyDefinitionFeature = {
+    name: "ɵɵCopyDefinitionFeature",
     moduleName: CORE
   };
+  static ProvidersFeature = { name: "ɵɵProvidersFeature", moduleName: CORE };
   static HostDirectivesFeature = {
     name: "ɵɵHostDirectivesFeature",
     moduleName: CORE
@@ -3007,22 +2721,14 @@ var Identifiers = class {
     name: "ɵɵExternalStylesFeature",
     moduleName: CORE
   };
-  static listener = {
-    name: "ɵɵlistener",
-    moduleName: CORE
-  };
+  static listener = { name: "ɵɵlistener", moduleName: CORE };
   static getInheritedFactory = {
     name: "ɵɵgetInheritedFactory",
     moduleName: CORE
   };
-  static sanitizeHtml = {
-    name: "ɵɵsanitizeHtml",
-    moduleName: CORE
-  };
-  static sanitizeStyle = {
-    name: "ɵɵsanitizeStyle",
-    moduleName: CORE
-  };
+  // sanitization-related functions
+  static sanitizeHtml = { name: "ɵɵsanitizeHtml", moduleName: CORE };
+  static sanitizeStyle = { name: "ɵɵsanitizeStyle", moduleName: CORE };
   static validateAttribute = {
     name: "ɵɵvalidateAttribute",
     moduleName: CORE
@@ -3031,66 +2737,32 @@ var Identifiers = class {
     name: "ɵɵsanitizeResourceUrl",
     moduleName: CORE
   };
-  static sanitizeScript = {
-    name: "ɵɵsanitizeScript",
-    moduleName: CORE
-  };
-  static sanitizeUrl = {
-    name: "ɵɵsanitizeUrl",
-    moduleName: CORE
-  };
+  static sanitizeScript = { name: "ɵɵsanitizeScript", moduleName: CORE };
+  static sanitizeUrl = { name: "ɵɵsanitizeUrl", moduleName: CORE };
   static sanitizeUrlOrResourceUrl = {
     name: "ɵɵsanitizeUrlOrResourceUrl",
     moduleName: CORE
   };
-  static trustConstantHtml = {
-    name: "ɵɵtrustConstantHtml",
-    moduleName: CORE
-  };
+  static trustConstantHtml = { name: "ɵɵtrustConstantHtml", moduleName: CORE };
   static trustConstantResourceUrl = {
     name: "ɵɵtrustConstantResourceUrl",
     moduleName: CORE
   };
-  static inputDecorator = {
-    name: "Input",
-    moduleName: CORE
-  };
-  static outputDecorator = {
-    name: "Output",
-    moduleName: CORE
-  };
-  static viewChildDecorator = {
-    name: "ViewChild",
-    moduleName: CORE
-  };
-  static viewChildrenDecorator = {
-    name: "ViewChildren",
-    moduleName: CORE
-  };
-  static contentChildDecorator = {
-    name: "ContentChild",
-    moduleName: CORE
-  };
+  // Decorators
+  static inputDecorator = { name: "Input", moduleName: CORE };
+  static outputDecorator = { name: "Output", moduleName: CORE };
+  static viewChildDecorator = { name: "ViewChild", moduleName: CORE };
+  static viewChildrenDecorator = { name: "ViewChildren", moduleName: CORE };
+  static contentChildDecorator = { name: "ContentChild", moduleName: CORE };
   static contentChildrenDecorator = {
     name: "ContentChildren",
     moduleName: CORE
   };
-  static InputSignalBrandWriteType = {
-    name: "ɵINPUT_SIGNAL_BRAND_WRITE_TYPE",
-    moduleName: CORE
-  };
-  static UnwrapDirectiveSignalInputs = {
-    name: "ɵUnwrapDirectiveSignalInputs",
-    moduleName: CORE
-  };
-  static unwrapWritableSignal = {
-    name: "ɵunwrapWritableSignal",
-    moduleName: CORE
-  };
-  static assertType = {
-    name: "ɵassertType",
-    moduleName: CORE
-  };
+  // type-checking
+  static InputSignalBrandWriteType = { name: "ɵINPUT_SIGNAL_BRAND_WRITE_TYPE", moduleName: CORE };
+  static UnwrapDirectiveSignalInputs = { name: "ɵUnwrapDirectiveSignalInputs", moduleName: CORE };
+  static unwrapWritableSignal = { name: "ɵunwrapWritableSignal", moduleName: CORE };
+  static assertType = { name: "ɵassertType", moduleName: CORE };
 };
 var DASH_CASE_REGEXP = /-+([a-z0-9])/g;
 function dashCaseToCamelCase(input) {
@@ -3104,7 +2776,8 @@ function splitAtPeriod(input, defaultValues) {
 }
 function _splitAt(input, character, defaultValues) {
   const characterIndex = input.indexOf(character);
-  if (characterIndex == -1) return defaultValues;
+  if (characterIndex == -1)
+    return defaultValues;
   return [input.slice(0, characterIndex).trim(), input.slice(characterIndex + 1).trim()];
 }
 function noUndefined(val) {
@@ -3195,6 +2868,7 @@ var SourceMapGenerator = class {
   constructor(file = null) {
     this.file = file;
   }
+  // The content is `null` when the content is expected to be loaded using the URL
   addSource(url, content = null) {
     if (!this.sourcesContent.has(url)) {
       this.sourcesContent.set(url, content);
@@ -3224,14 +2898,13 @@ var SourceMapGenerator = class {
     }
     this.hasMappings = true;
     this.lastCol0 = col0;
-    this.currentLine.push({
-      col0,
-      sourceUrl,
-      sourceLine0,
-      sourceCol0
-    });
+    this.currentLine.push({ col0, sourceUrl, sourceLine0, sourceCol0 });
     return this;
   }
+  /**
+   * @internal strip this from published d.ts files due to
+   * https://github.com/microsoft/TypeScript/issues/36216
+   */
   get currentLine() {
     return this.lines.slice(-1)[0];
   }
@@ -3329,7 +3002,38 @@ var _EmittedLine = class {
     this.indent = indent;
   }
 };
-var BINARY_OPERATORS$1 = /* @__PURE__ */ new Map([[BinaryOperator.And, "&&"], [BinaryOperator.Bigger, ">"], [BinaryOperator.BiggerEquals, ">="], [BinaryOperator.BitwiseOr, "|"], [BinaryOperator.BitwiseAnd, "&"], [BinaryOperator.Divide, "/"], [BinaryOperator.Assign, "="], [BinaryOperator.Equals, "=="], [BinaryOperator.Identical, "==="], [BinaryOperator.Lower, "<"], [BinaryOperator.LowerEquals, "<="], [BinaryOperator.Minus, "-"], [BinaryOperator.Modulo, "%"], [BinaryOperator.Exponentiation, "**"], [BinaryOperator.Multiply, "*"], [BinaryOperator.NotEquals, "!="], [BinaryOperator.NotIdentical, "!=="], [BinaryOperator.NullishCoalesce, "??"], [BinaryOperator.Or, "||"], [BinaryOperator.Plus, "+"], [BinaryOperator.In, "in"], [BinaryOperator.AdditionAssignment, "+="], [BinaryOperator.SubtractionAssignment, "-="], [BinaryOperator.MultiplicationAssignment, "*="], [BinaryOperator.DivisionAssignment, "/="], [BinaryOperator.RemainderAssignment, "%="], [BinaryOperator.ExponentiationAssignment, "**="], [BinaryOperator.AndAssignment, "&&="], [BinaryOperator.OrAssignment, "||="], [BinaryOperator.NullishCoalesceAssignment, "??="]]);
+var BINARY_OPERATORS$1 = /* @__PURE__ */ new Map([
+  [BinaryOperator.And, "&&"],
+  [BinaryOperator.Bigger, ">"],
+  [BinaryOperator.BiggerEquals, ">="],
+  [BinaryOperator.BitwiseOr, "|"],
+  [BinaryOperator.BitwiseAnd, "&"],
+  [BinaryOperator.Divide, "/"],
+  [BinaryOperator.Assign, "="],
+  [BinaryOperator.Equals, "=="],
+  [BinaryOperator.Identical, "==="],
+  [BinaryOperator.Lower, "<"],
+  [BinaryOperator.LowerEquals, "<="],
+  [BinaryOperator.Minus, "-"],
+  [BinaryOperator.Modulo, "%"],
+  [BinaryOperator.Exponentiation, "**"],
+  [BinaryOperator.Multiply, "*"],
+  [BinaryOperator.NotEquals, "!="],
+  [BinaryOperator.NotIdentical, "!=="],
+  [BinaryOperator.NullishCoalesce, "??"],
+  [BinaryOperator.Or, "||"],
+  [BinaryOperator.Plus, "+"],
+  [BinaryOperator.In, "in"],
+  [BinaryOperator.AdditionAssignment, "+="],
+  [BinaryOperator.SubtractionAssignment, "-="],
+  [BinaryOperator.MultiplicationAssignment, "*="],
+  [BinaryOperator.DivisionAssignment, "/="],
+  [BinaryOperator.RemainderAssignment, "%="],
+  [BinaryOperator.ExponentiationAssignment, "**="],
+  [BinaryOperator.AndAssignment, "&&="],
+  [BinaryOperator.OrAssignment, "||="],
+  [BinaryOperator.NullishCoalesceAssignment, "??="]
+]);
 var EmitterVisitorContext = class _EmitterVisitorContext {
   _indent;
   static createRoot() {
@@ -3340,6 +3044,10 @@ var EmitterVisitorContext = class _EmitterVisitorContext {
     this._indent = _indent;
     this._lines = [new _EmittedLine(_indent)];
   }
+  /**
+   * @internal strip this from published d.ts files due to
+   * https://github.com/microsoft/TypeScript/issues/36216
+   */
   get _currentLine() {
     return this._lines[this._lines.length - 1];
   }
@@ -3440,6 +3148,10 @@ var EmitterVisitorContext = class _EmitterVisitorContext {
     }
     return null;
   }
+  /**
+   * @internal strip this from published d.ts files due to
+   * https://github.com/microsoft/TypeScript/issues/36216
+   */
   get sourceLines() {
     if (this._lines.length && this._lines[this._lines.length - 1].parts.length === 0) {
       return this._lines.slice(0, -1);
@@ -3579,10 +3291,6 @@ var AbstractEmitterVisitor = class {
     }
     return null;
   }
-  visitRegularExpressionLiteral(ast, ctx) {
-    ctx.print(ast, `/${ast.body}/${ast.flags || ""}`);
-    return null;
-  }
   visitLocalizedString(ast, ctx) {
     const head = ast.serializeI18nHead();
     ctx.print(ast, "$localize `" + head.raw);
@@ -3625,10 +3333,12 @@ var AbstractEmitterVisitor = class {
         throw new Error(`Unknown operator ${ast.operator}`);
     }
     const parens = ast !== this.lastIfCondition;
-    if (parens) ctx.print(ast, `(`);
+    if (parens)
+      ctx.print(ast, `(`);
     ctx.print(ast, opStr);
     ast.expr.visitExpression(this, ctx);
-    if (parens) ctx.print(ast, `)`);
+    if (parens)
+      ctx.print(ast, `)`);
     return null;
   }
   visitBinaryOperatorExpr(ast, ctx) {
@@ -3637,11 +3347,13 @@ var AbstractEmitterVisitor = class {
       throw new Error(`Unknown operator ${ast.operator}`);
     }
     const parens = ast !== this.lastIfCondition;
-    if (parens) ctx.print(ast, `(`);
+    if (parens)
+      ctx.print(ast, `(`);
     ast.lhs.visitExpression(this, ctx);
     ctx.print(ast, ` ${operator} `);
     ast.rhs.visitExpression(this, ctx);
-    if (parens) ctx.print(ast, `)`);
+    if (parens)
+      ctx.print(ast, `)`);
     return null;
   }
   visitReadPropExpr(ast, ctx) {
@@ -3756,35 +3468,31 @@ function devOnlyGuardedExpression(expr) {
   return guardedExpression("ngDevMode", expr);
 }
 function guardedExpression(guard, expr) {
-  const guardExpr = new ExternalExpr({
-    name: guard,
-    moduleName: null
-  });
+  const guardExpr = new ExternalExpr({ name: guard, moduleName: null });
   const guardNotDefined = new BinaryOperatorExpr(BinaryOperator.Identical, new TypeofExpr(guardExpr), literal("undefined"));
-  const guardUndefinedOrTrue = new BinaryOperatorExpr(BinaryOperator.Or, guardNotDefined, guardExpr, void 0, void 0);
+  const guardUndefinedOrTrue = new BinaryOperatorExpr(
+    BinaryOperator.Or,
+    guardNotDefined,
+    guardExpr,
+    /* type */
+    void 0,
+    /* sourceSpan */
+    void 0
+  );
   return new BinaryOperatorExpr(BinaryOperator.And, guardUndefinedOrTrue, expr);
 }
 function wrapReference(value) {
   const wrapped = new WrappedNodeExpr(value);
-  return {
-    value: wrapped,
-    type: wrapped
-  };
+  return { value: wrapped, type: wrapped };
 }
 function refsToArray(refs, shouldForwardDeclare) {
   const values = literalArr(refs.map((ref) => ref.value));
   return shouldForwardDeclare ? arrowFn([], values) : values;
 }
 function createMayBeForwardRefExpression(expression, forwardRef) {
-  return {
-    expression,
-    forwardRef
-  };
+  return { expression, forwardRef };
 }
-function convertFromMaybeForwardRefExpression({
-  expression,
-  forwardRef
-}) {
+function convertFromMaybeForwardRefExpression({ expression, forwardRef }) {
   switch (forwardRef) {
     case 0:
     case 1:
@@ -3843,7 +3551,13 @@ function compileFactoryFunction(meta) {
   }
   let factoryFn = fn([new FnParam(t.name, DYNAMIC_TYPE)], body, INFERRED_TYPE, void 0, `${meta.name}_Factory`);
   if (baseFactoryVar !== null) {
-    factoryFn = arrowFn([], [new DeclareVarStmt(baseFactoryVar.name), new ReturnStatement(factoryFn)]).callFn([], void 0, true);
+    factoryFn = arrowFn([], [new DeclareVarStmt(baseFactoryVar.name), new ReturnStatement(factoryFn)]).callFn(
+      [],
+      /* sourceSpan */
+      void 0,
+      /* pure */
+      true
+    );
   }
   return {
     expression: factoryFn,
@@ -3853,7 +3567,10 @@ function compileFactoryFunction(meta) {
 }
 function createFactoryType(meta) {
   const ctorDepsType = meta.deps !== null && meta.deps !== "invalid" ? createCtorDepsType(meta.deps) : NONE_TYPE;
-  return expressionType(importExpr(Identifiers.FactoryDeclaration, [typeWithParameters(meta.type.type, meta.typeArgumentCount), ctorDepsType]));
+  return expressionType(importExpr(Identifiers.FactoryDeclaration, [
+    typeWithParameters(meta.type.type, meta.typeArgumentCount),
+    ctorDepsType
+  ]));
 }
 function injectDependencies(deps, target) {
   return deps.map((dep, index) => compileInjectDependency(dep, target, index));
@@ -3894,39 +3611,19 @@ function createCtorDepsType(deps) {
 function createCtorDepType(dep) {
   const entries = [];
   if (dep.attributeNameType !== null) {
-    entries.push({
-      key: "attribute",
-      value: dep.attributeNameType,
-      quoted: false
-    });
+    entries.push({ key: "attribute", value: dep.attributeNameType, quoted: false });
   }
   if (dep.optional) {
-    entries.push({
-      key: "optional",
-      value: literal(true),
-      quoted: false
-    });
+    entries.push({ key: "optional", value: literal(true), quoted: false });
   }
   if (dep.host) {
-    entries.push({
-      key: "host",
-      value: literal(true),
-      quoted: false
-    });
+    entries.push({ key: "host", value: literal(true), quoted: false });
   }
   if (dep.self) {
-    entries.push({
-      key: "self",
-      value: literal(true),
-      quoted: false
-    });
+    entries.push({ key: "self", value: literal(true), quoted: false });
   }
   if (dep.skipSelf) {
-    entries.push({
-      key: "skipSelf",
-      value: literal(true),
-      quoted: false
-    });
+    entries.push({ key: "skipSelf", value: literal(true), quoted: false });
   }
   return entries.length > 0 ? literalMap(entries) : null;
 }
@@ -4148,15 +3845,27 @@ var Binary = class extends AST {
 var Unary = class _Unary extends Binary {
   operator;
   expr;
+  // Redeclare the properties that are inherited from `Binary` as `never`, as consumers should not
+  // depend on these fields when operating on `Unary`.
   left = null;
   right = null;
   operation = null;
+  /**
+   * Creates a unary minus expression "-x", represented as `Binary` using "0 - x".
+   */
   static createMinus(span, sourceSpan, expr) {
     return new _Unary(span, sourceSpan, "-", expr, "-", new LiteralPrimitive(span, sourceSpan, 0), expr);
   }
+  /**
+   * Creates a unary plus expression "+x", represented as `Binary` using "x - 0".
+   */
   static createPlus(span, sourceSpan, expr) {
     return new _Unary(span, sourceSpan, "+", expr, "-", expr, new LiteralPrimitive(span, sourceSpan, 0));
   }
+  /**
+   * During the deprecation period this constructor is private, to avoid consumers from creating
+   * a `Unary` with the fallback properties for `Binary`.
+   */
   constructor(span, sourceSpan, operator, expr, binaryOp, binaryLeft, binaryRight) {
     super(span, sourceSpan, binaryOp, binaryLeft, binaryRight);
     this.operator = operator;
@@ -4281,18 +3990,6 @@ var ParenthesizedExpression = class extends AST {
     return visitor.visitParenthesizedExpression(this, context);
   }
 };
-var RegularExpressionLiteral = class extends AST {
-  body;
-  flags;
-  constructor(span, sourceSpan, body, flags) {
-    super(span, sourceSpan);
-    this.body = body;
-    this.flags = flags;
-  }
-  visit(visitor, context) {
-    return visitor.visitRegularExpressionLiteral(this, context);
-  }
-};
 var AbsoluteSourceSpan = class {
   start;
   end;
@@ -4327,6 +4024,11 @@ var VariableBinding = class {
   sourceSpan;
   key;
   value;
+  /**
+   * @param sourceSpan entire span of the binding.
+   * @param key name of the LHS along with its span.
+   * @param value optional value for the RHS along with its span.
+   */
   constructor(sourceSpan, key, value) {
     this.sourceSpan = sourceSpan;
     this.key = key;
@@ -4337,6 +4039,16 @@ var ExpressionBinding = class {
   sourceSpan;
   key;
   value;
+  /**
+   * @param sourceSpan entire span of the binding.
+   * @param key binding name, like ngForOf, ngForTrackBy, ngIf, along with its
+   * span. Note that the length of the span may not be the same as
+   * `key.source.length`. For example,
+   * 1. key.source = ngFor, key.span is for "ngFor"
+   * 2. key.source = ngForOf, key.span is for "of"
+   * 3. key.source = ngForTrackBy, key.span is for "trackBy"
+   * @param value optional expression for the RHS.
+   */
   constructor(sourceSpan, key, value) {
     this.sourceSpan = sourceSpan;
     this.key = key;
@@ -4433,8 +4145,7 @@ var RecursiveAstVisitor2 = class {
   visitParenthesizedExpression(ast, context) {
     this.visit(ast.expression, context);
   }
-  visitRegularExpressionLiteral(ast, context) {
-  }
+  // This is not part of the AstVisitor interface, just a helper method
   visitAll(asts, context) {
     for (const ast of asts) {
       this.visit(ast, context);
@@ -4744,7 +4455,14 @@ var DeferredTrigger = class {
 var BoundDeferredTrigger = class extends DeferredTrigger {
   value;
   constructor(value, sourceSpan, prefetchSpan, whenSourceSpan, hydrateSpan) {
-    super(null, sourceSpan, prefetchSpan, whenSourceSpan, hydrateSpan);
+    super(
+      /** nameSpan */
+      null,
+      sourceSpan,
+      prefetchSpan,
+      whenSourceSpan,
+      hydrateSpan
+    );
     this.value = value;
   }
 };
@@ -4777,11 +4495,9 @@ var InteractionDeferredTrigger = class extends DeferredTrigger {
 };
 var ViewportDeferredTrigger = class extends DeferredTrigger {
   reference;
-  options;
-  constructor(reference2, options, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan) {
+  constructor(reference2, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan) {
     super(nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
     this.reference = reference2;
-    this.options = options;
   }
 };
 var BlockNode = class {
@@ -5306,8 +5022,17 @@ var Message = class {
   customId;
   sources;
   id;
+  /** The ids to use if there are no custom id and if `i18nLegacyMessageIdFormat` is not empty */
   legacyIds = [];
   messageString;
+  /**
+   * @param nodes message AST
+   * @param placeholders maps placeholder names to static content and their source spans
+   * @param placeholderToMessage maps placeholder names to messages (used for nested ICU messages)
+   * @param meaning
+   * @param description
+   * @param customId
+   */
   constructor(nodes, placeholders, placeholderToMessage, meaning, description, customId) {
     this.nodes = nodes;
     this.placeholders = placeholders;
@@ -5318,13 +5043,15 @@ var Message = class {
     this.id = this.customId;
     this.messageString = serializeMessage(this.nodes);
     if (nodes.length) {
-      this.sources = [{
-        filePath: nodes[0].sourceSpan.start.file.url,
-        startLine: nodes[0].sourceSpan.start.line + 1,
-        startCol: nodes[0].sourceSpan.start.col + 1,
-        endLine: nodes[nodes.length - 1].sourceSpan.end.line + 1,
-        endCol: nodes[0].sourceSpan.start.col + 1
-      }];
+      this.sources = [
+        {
+          filePath: nodes[0].sourceSpan.start.file.url,
+          startLine: nodes[0].sourceSpan.start.line + 1,
+          startCol: nodes[0].sourceSpan.start.col + 1,
+          endLine: nodes[nodes.length - 1].sourceSpan.end.line + 1,
+          endCol: nodes[0].sourceSpan.start.col + 1
+        }
+      ];
     } else {
       this.sources = [];
     }
@@ -5411,6 +5138,7 @@ var IcuPlaceholder = class {
   value;
   name;
   sourceSpan;
+  /** Used to capture a message computed from a previous processing pass (see `setI18nRefs()`). */
   previousMessage;
   constructor(value, name, sourceSpan) {
     this.value = value;
@@ -5527,6 +5255,8 @@ var LocalizeMessageStringVisitor = class {
   }
 };
 var Serializer = class {
+  // Creates a name mapper, see `PlaceholderMapper`
+  // Returning `null` means that no name mapping is used.
   createNameMapper(message) {
     return null;
   }
@@ -5536,6 +5266,7 @@ var SimplePlaceholderMapper = class extends RecurseVisitor {
   internalToPublic = {};
   publicToNextId = {};
   publicToInternal = {};
+  // create a mapping from the message
   constructor(message, mapName) {
     super();
     this.mapName = mapName;
@@ -5566,6 +5297,7 @@ var SimplePlaceholderMapper = class extends RecurseVisitor {
   visitIcuPlaceholder(ph, context) {
     this.visitPlaceholderName(ph.name);
   }
+  // XMB placeholders could only contains A-Z, 0-9 and _
   visitPlaceholderName(internalName) {
     if (!internalName || this.internalToPublic.hasOwnProperty(internalName)) {
       return;
@@ -5663,7 +5395,13 @@ var CR = class extends Text$1 {
 ${new Array(ws + 1).join(" ")}`);
   }
 };
-var _ESCAPED_CHARS = [[/&/g, "&amp;"], [/"/g, "&quot;"], [/'/g, "&apos;"], [/</g, "&lt;"], [/>/g, "&gt;"]];
+var _ESCAPED_CHARS = [
+  [/&/g, "&amp;"],
+  [/"/g, "&quot;"],
+  [/'/g, "&apos;"],
+  [/</g, "&lt;"],
+  [/>/g, "&gt;"]
+];
 function escapeXml(text2) {
   return _ESCAPED_CHARS.reduce((text3, entry) => text3.replace(entry[0], entry[1]), text2);
 }
@@ -5699,9 +5437,7 @@ var Xmb = class extends Serializer {
     const rootNode = new Tag(_MESSAGES_TAG);
     rootNode.attrs["handler"] = _XMB_HANDLER;
     messages.forEach((message) => {
-      const attrs = {
-        id: message.id
-      };
+      const attrs = { id: message.id };
       if (message.description) {
         attrs["desc"] = message.description;
       }
@@ -5710,15 +5446,21 @@ var Xmb = class extends Serializer {
       }
       let sourceTags = [];
       message.sources.forEach((source) => {
-        sourceTags.push(new Tag(_SOURCE_TAG$2, {}, [new Text$1(`${source.filePath}:${source.startLine}${source.endLine !== source.startLine ? "," + source.endLine : ""}`)]));
+        sourceTags.push(new Tag(_SOURCE_TAG$2, {}, [
+          new Text$1(`${source.filePath}:${source.startLine}${source.endLine !== source.startLine ? "," + source.endLine : ""}`)
+        ]));
       });
       rootNode.children.push(new CR(2), new Tag(_MESSAGE_TAG, attrs, [...sourceTags, ...visitor.serialize(message.nodes)]));
     });
     rootNode.children.push(new CR());
-    return serialize$1([new Declaration({
-      version: "1.0",
-      encoding: "UTF-8"
-    }), new CR(), new Doctype(_MESSAGES_TAG, _DOCTYPE), new CR(), exampleVisitor.addDefaultExamples(rootNode), new CR()]);
+    return serialize$1([
+      new Declaration({ version: "1.0", encoding: "UTF-8" }),
+      new CR(),
+      new Doctype(_MESSAGES_TAG, _DOCTYPE),
+      new CR(),
+      exampleVisitor.addDefaultExamples(rootNode),
+      new CR()
+    ]);
   }
   load(content, url) {
     throw new Error("Unsupported");
@@ -5750,37 +5492,36 @@ var _Visitor$1 = class _Visitor2 {
   visitTagPlaceholder(ph, context) {
     const startTagAsText = new Text$1(`<${ph.tag}>`);
     const startEx = new Tag(_EXAMPLE_TAG, {}, [startTagAsText]);
-    const startTagPh = new Tag(_PLACEHOLDER_TAG$3, {
-      name: ph.startName
-    }, [startEx, startTagAsText]);
+    const startTagPh = new Tag(_PLACEHOLDER_TAG$3, { name: ph.startName }, [
+      startEx,
+      startTagAsText
+    ]);
     if (ph.isVoid) {
       return [startTagPh];
     }
     const closeTagAsText = new Text$1(`</${ph.tag}>`);
     const closeEx = new Tag(_EXAMPLE_TAG, {}, [closeTagAsText]);
-    const closeTagPh = new Tag(_PLACEHOLDER_TAG$3, {
-      name: ph.closeName
-    }, [closeEx, closeTagAsText]);
+    const closeTagPh = new Tag(_PLACEHOLDER_TAG$3, { name: ph.closeName }, [
+      closeEx,
+      closeTagAsText
+    ]);
     return [startTagPh, ...this.serialize(ph.children), closeTagPh];
   }
   visitPlaceholder(ph, context) {
     const interpolationAsText = new Text$1(`{{${ph.value}}}`);
     const exTag = new Tag(_EXAMPLE_TAG, {}, [interpolationAsText]);
-    return [new Tag(_PLACEHOLDER_TAG$3, {
-      name: ph.name
-    }, [exTag, interpolationAsText])];
+    return [
+      // TC requires PH to have a non empty EX, and uses the text node to show the "original" value.
+      new Tag(_PLACEHOLDER_TAG$3, { name: ph.name }, [exTag, interpolationAsText])
+    ];
   }
   visitBlockPlaceholder(ph, context) {
     const startAsText = new Text$1(`@${ph.name}`);
     const startEx = new Tag(_EXAMPLE_TAG, {}, [startAsText]);
-    const startTagPh = new Tag(_PLACEHOLDER_TAG$3, {
-      name: ph.startName
-    }, [startEx, startAsText]);
+    const startTagPh = new Tag(_PLACEHOLDER_TAG$3, { name: ph.startName }, [startEx, startAsText]);
     const closeAsText = new Text$1(`}`);
     const closeEx = new Tag(_EXAMPLE_TAG, {}, [closeAsText]);
-    const closeTagPh = new Tag(_PLACEHOLDER_TAG$3, {
-      name: ph.closeName
-    }, [closeEx, closeAsText]);
+    const closeTagPh = new Tag(_PLACEHOLDER_TAG$3, { name: ph.closeName }, [closeEx, closeAsText]);
     return [startTagPh, ...this.serialize(ph.children), closeTagPh];
   }
   visitIcuPlaceholder(ph, context) {
@@ -5789,9 +5530,10 @@ var _Visitor$1 = class _Visitor2 {
     const icuCases = Object.keys(ph.value.cases).map((value) => value + " {...}").join(" ");
     const icuAsText = new Text$1(`{${icuExpression}, ${icuType}, ${icuCases}}`);
     const exTag = new Tag(_EXAMPLE_TAG, {}, [icuAsText]);
-    return [new Tag(_PLACEHOLDER_TAG$3, {
-      name: ph.name
-    }, [exTag, icuAsText])];
+    return [
+      // TC requires PH to have a non empty EX, and uses the text node to show the "original" value.
+      new Tag(_PLACEHOLDER_TAG$3, { name: ph.name }, [exTag, icuAsText])
+    ];
   }
   serialize(nodes) {
     return [].concat(...nodes.map((node) => node.visit(this)));
@@ -5927,6 +5669,7 @@ function conditionallyCreateDirectiveBindingLiteral(map, forInputs) {
     }
     return {
       key: minifiedName,
+      // put quotes around keys that contain potentially unsafe characters
       quoted: UNSAFE_OBJECT_KEY_NAME_REGEXP.test(minifiedName),
       value: expressionValue
     };
@@ -5940,11 +5683,7 @@ var DefinitionMap = class {
       if (existing) {
         existing.value = value;
       } else {
-        this.values.push({
-          key,
-          value,
-          quoted: false
-        });
+        this.values.push({ key, value, quoted: false });
       }
     }
   }
@@ -6027,10 +5766,7 @@ function compileInjectable(meta, resolveForwardRefs) {
         delegateType: R3FactoryDelegateType.Function
       }));
     } else {
-      result = {
-        statements: [],
-        expression: arrowFn([], meta.useFactory.callFn([]))
-      };
+      result = { statements: [], expression: arrowFn([], meta.useFactory.callFn([])) };
     }
   } else if (meta.useValue !== void 0) {
     result = compileFactoryFunction(__spreadProps(__spreadValues({}, factoryMeta), {
@@ -6061,7 +5797,9 @@ function compileInjectable(meta, resolveForwardRefs) {
   };
 }
 function createInjectableType(meta) {
-  return new ExpressionType(importExpr(Identifiers.InjectableDeclaration, [typeWithParameters(meta.type.type, meta.typeArgumentCount)]));
+  return new ExpressionType(importExpr(Identifiers.InjectableDeclaration, [
+    typeWithParameters(meta.type.type, meta.typeArgumentCount)
+  ]));
 }
 function delegateToFactory(type, useType, unwrapForwardRefs) {
   if (type.node === useType.node) {
@@ -6077,6 +5815,50 @@ function createFactoryFunction(type) {
   const t = new FnParam("__ngFactoryType__", DYNAMIC_TYPE);
   return arrowFn([t], type.prop("ɵfac").callFn([variable(t.name)]));
 }
+var UNUSABLE_INTERPOLATION_REGEXPS = [
+  /@/,
+  // control flow reserved symbol
+  /^\s*$/,
+  // empty
+  /[<>]/,
+  // html tag
+  /^[{}]$/,
+  // i18n expansion
+  /&(#|[a-z])/i,
+  // character reference,
+  /^\/\//
+  // comment
+];
+function assertInterpolationSymbols(identifier, value) {
+  if (value != null && !(Array.isArray(value) && value.length == 2)) {
+    throw new Error(`Expected '${identifier}' to be an array, [start, end].`);
+  } else if (value != null) {
+    const start = value[0];
+    const end = value[1];
+    UNUSABLE_INTERPOLATION_REGEXPS.forEach((regexp) => {
+      if (regexp.test(start) || regexp.test(end)) {
+        throw new Error(`['${start}', '${end}'] contains unusable interpolation symbol.`);
+      }
+    });
+  }
+}
+var InterpolationConfig = class _InterpolationConfig {
+  start;
+  end;
+  static fromArray(markers) {
+    if (!markers) {
+      return DEFAULT_INTERPOLATION_CONFIG;
+    }
+    assertInterpolationSymbols("interpolation", markers);
+    return new _InterpolationConfig(markers[0], markers[1]);
+  }
+  constructor(start, end) {
+    this.start = start;
+    this.end = end;
+  }
+};
+var DEFAULT_INTERPOLATION_CONFIG = new InterpolationConfig("{{", "}}");
+var DEFAULT_CONTAINER_BLOCKS = /* @__PURE__ */ new Set(["switch"]);
 var $EOF = 0;
 var $BSPACE = 8;
 var $TAB = 9;
@@ -6202,6 +5984,8 @@ var ParseLocation = class _ParseLocation {
     }
     return new _ParseLocation(this.file, offset, line, col);
   }
+  // Return the source around the location
+  // Up to `maxChars` or `maxLines` on each side of the location
   getContext(maxChars, maxLines) {
     const content = this.file.content;
     let startOffset = this.offset;
@@ -6253,6 +6037,29 @@ var ParseSourceSpan = class {
   end;
   fullStart;
   details;
+  /**
+   * Create an object that holds information about spans of tokens/nodes captured during
+   * lexing/parsing of text.
+   *
+   * @param start
+   * The location of the start of the span (having skipped leading trivia).
+   * Skipping leading trivia makes source-spans more "user friendly", since things like HTML
+   * elements will appear to begin at the start of the opening tag, rather than at the start of any
+   * leading trivia, which could include newlines.
+   *
+   * @param end
+   * The location of the end of the span.
+   *
+   * @param fullStart
+   * The start of the token without skipping the leading trivia.
+   * This is used by tooling that splits tokens further, such as extracting Angular interpolations
+   * from text tokens. Such tooling creates new source-spans relative to the original token's
+   * source-span. If leading trivia characters have been skipped then the new source-spans may be
+   * incorrectly offset.
+   *
+   * @param details
+   * Additional information (such as identifier names) that should be associated with the span.
+   */
   constructor(start, end, fullStart = start, details = null) {
     this.start = start;
     this.end = end;
@@ -6463,6 +6270,15 @@ function newTrustedFunctionForJIT(...args) {
   return fn2.bind(_global);
 }
 var JitEvaluator = class {
+  /**
+   *
+   * @param sourceUrl The URL of the generated code.
+   * @param statements An array of Angular statement AST nodes to be evaluated.
+   * @param refResolver Resolves `o.ExternalReference`s into values.
+   * @param createSourceMaps If true then create a source-map for the generated code and include it
+   * inline as a source-map comment.
+   * @returns A map of all the variables in the generated code.
+   */
   evaluateStatements(sourceUrl, statements, refResolver, createSourceMaps) {
     const converter = new JitEmitterVisitor(refResolver);
     const ctx = EmitterVisitorContext.createRoot();
@@ -6473,6 +6289,16 @@ var JitEvaluator = class {
     converter.createReturnStmt(ctx);
     return this.evaluateCode(sourceUrl, ctx, converter.getArgs(), createSourceMaps);
   }
+  /**
+   * Evaluate a piece of JIT generated code.
+   * @param sourceUrl The URL of this generated code.
+   * @param ctx A context object that contains an AST of the code to be evaluated.
+   * @param vars A map containing the names and values of variables that the evaluated code might
+   * reference.
+   * @param createSourceMap If true then create a source-map for the generated code and include it
+   * inline as a source-map comment.
+   * @returns The result of evaluating the code.
+   */
   evaluateCode(sourceUrl, ctx, vars, createSourceMap) {
     let fnBody = `"use strict";${ctx.toSource()}
 //# sourceURL=${sourceUrl}`;
@@ -6491,6 +6317,16 @@ ${ctx.toSourceMapGenerator(sourceUrl, headerLines).toJsComment()}`;
     const fn2 = newTrustedFunctionForJIT(...fnArgNames.concat(fnBody));
     return this.executeFunction(fn2, fnArgValues);
   }
+  /**
+   * Execute a JIT generated function by calling it.
+   *
+   * This method can be overridden in tests to capture the functions that are generated
+   * by this `JitEvaluator` class.
+   *
+   * @param fn A function to execute.
+   * @param args The arguments to pass to the function being executed.
+   * @returns The return value of the executed function.
+   */
   executeFunction(fn2, args) {
     return fn2(...args);
   }
@@ -6540,9 +6376,7 @@ var JitEmitterVisitor = class extends AbstractJsEmitterVisitor {
     if (id === -1) {
       id = this._evalArgValues.length;
       this._evalArgValues.push(value);
-      const name = identifierName({
-        reference: value
-      }) || "val";
+      const name = identifierName({ reference: value }) || "val";
       this._evalArgNames.push(`jit_${name}_${id}`);
     }
     ctx.print(ast, this._evalArgNames[id]);
@@ -6561,11 +6395,7 @@ function compileInjector(meta) {
   }
   const expression = importExpr(Identifiers.defineInjector).callFn([definitionMap.toLiteralMap()], void 0, true);
   const type = createInjectorType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createInjectorType(meta) {
   return new ExpressionType(importExpr(Identifiers.InjectorDeclaration, [new ExpressionType(meta.type.type)]));
@@ -6628,11 +6458,7 @@ function compileNgModule(meta) {
   }
   const expression = importExpr(Identifiers.defineNgModule).callFn([definitionMap.toLiteralMap()], void 0, true);
   const type = createNgModuleType(meta);
-  return {
-    expression,
-    type,
-    statements
-  };
+  return { expression, type, statements };
 }
 function compileNgModuleDeclarationExpression(meta) {
   const definitionMap = new DefinitionMap();
@@ -6661,15 +6487,13 @@ function createNgModuleType(meta) {
   if (meta.kind === R3NgModuleMetadataKind.Local) {
     return new ExpressionType(meta.type.value);
   }
-  const {
-    type: moduleType,
-    declarations,
-    exports,
-    imports,
-    includeImportTypes,
-    publicDeclarationTypes
-  } = meta;
-  return new ExpressionType(importExpr(Identifiers.NgModuleDeclaration, [new ExpressionType(moduleType.type), publicDeclarationTypes === null ? tupleTypeOf(declarations) : tupleOfTypes(publicDeclarationTypes), includeImportTypes ? tupleTypeOf(imports) : NONE_TYPE, tupleTypeOf(exports)]));
+  const { type: moduleType, declarations, exports, imports, includeImportTypes, publicDeclarationTypes } = meta;
+  return new ExpressionType(importExpr(Identifiers.NgModuleDeclaration, [
+    new ExpressionType(moduleType.type),
+    publicDeclarationTypes === null ? tupleTypeOf(declarations) : tupleOfTypes(publicDeclarationTypes),
+    includeImportTypes ? tupleTypeOf(imports) : NONE_TYPE,
+    tupleTypeOf(exports)
+  ]));
 }
 function generateSetNgModuleScopeCall(meta) {
   const scopeMap = new DefinitionMap();
@@ -6706,10 +6530,25 @@ function generateSetNgModuleScopeCall(meta) {
   if (Object.keys(scopeMap.values).length === 0) {
     return null;
   }
-  const fnCall = new InvokeFunctionExpr(importExpr(Identifiers.setNgModuleScope), [meta.type.value, scopeMap.toLiteralMap()]);
+  const fnCall = new InvokeFunctionExpr(
+    /* fn */
+    importExpr(Identifiers.setNgModuleScope),
+    /* args */
+    [meta.type.value, scopeMap.toLiteralMap()]
+  );
   const guardedCall = jitOnlyGuardedExpression(fnCall);
-  const iife = new FunctionExpr([], [guardedCall.toStmt()]);
-  const iifeCall = new InvokeFunctionExpr(iife, []);
+  const iife = new FunctionExpr(
+    /* params */
+    [],
+    /* statements */
+    [guardedCall.toStmt()]
+  );
+  const iifeCall = new InvokeFunctionExpr(
+    /* fn */
+    iife,
+    /* args */
+    []
+  );
   return iifeCall.toStmt();
 }
 function tupleTypeOf(exp) {
@@ -6727,33 +6566,21 @@ function compilePipeFromMetadata(metadata) {
     value: literal(metadata.pipeName ?? metadata.name),
     quoted: false
   });
-  definitionMapValues.push({
-    key: "type",
-    value: metadata.type.value,
-    quoted: false
-  });
-  definitionMapValues.push({
-    key: "pure",
-    value: literal(metadata.pure),
-    quoted: false
-  });
+  definitionMapValues.push({ key: "type", value: metadata.type.value, quoted: false });
+  definitionMapValues.push({ key: "pure", value: literal(metadata.pure), quoted: false });
   if (metadata.isStandalone === false) {
-    definitionMapValues.push({
-      key: "standalone",
-      value: literal(false),
-      quoted: false
-    });
+    definitionMapValues.push({ key: "standalone", value: literal(false), quoted: false });
   }
   const expression = importExpr(Identifiers.definePipe).callFn([literalMap(definitionMapValues)], void 0, true);
   const type = createPipeType(metadata);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createPipeType(metadata) {
-  return new ExpressionType(importExpr(Identifiers.PipeDeclaration, [typeWithParameters(metadata.type.type, metadata.typeArgumentCount), new ExpressionType(new LiteralExpr(metadata.pipeName)), new ExpressionType(new LiteralExpr(metadata.isStandalone))]));
+  return new ExpressionType(importExpr(Identifiers.PipeDeclaration, [
+    typeWithParameters(metadata.type.type, metadata.typeArgumentCount),
+    new ExpressionType(new LiteralExpr(metadata.pipeName)),
+    new ExpressionType(new LiteralExpr(metadata.isStandalone))
+  ]));
 }
 var R3TemplateDependencyKind;
 (function(R3TemplateDependencyKind2) {
@@ -6761,9 +6588,57 @@ var R3TemplateDependencyKind;
   R3TemplateDependencyKind2[R3TemplateDependencyKind2["Pipe"] = 1] = "Pipe";
   R3TemplateDependencyKind2[R3TemplateDependencyKind2["NgModule"] = 2] = "NgModule";
 })(R3TemplateDependencyKind || (R3TemplateDependencyKind = {}));
-var animationKeywords = /* @__PURE__ */ new Set(["inherit", "initial", "revert", "unset", "alternate", "alternate-reverse", "normal", "reverse", "backwards", "both", "forwards", "none", "paused", "running", "ease", "ease-in", "ease-in-out", "ease-out", "linear", "step-start", "step-end", "end", "jump-both", "jump-end", "jump-none", "jump-start", "start"]);
-var scopedAtRuleIdentifiers = ["@media", "@supports", "@document", "@layer", "@container", "@scope", "@starting-style"];
+var animationKeywords = /* @__PURE__ */ new Set([
+  // global values
+  "inherit",
+  "initial",
+  "revert",
+  "unset",
+  // animation-direction
+  "alternate",
+  "alternate-reverse",
+  "normal",
+  "reverse",
+  // animation-fill-mode
+  "backwards",
+  "both",
+  "forwards",
+  "none",
+  // animation-play-state
+  "paused",
+  "running",
+  // animation-timing-function
+  "ease",
+  "ease-in",
+  "ease-in-out",
+  "ease-out",
+  "linear",
+  "step-start",
+  "step-end",
+  // `steps()` function
+  "end",
+  "jump-both",
+  "jump-end",
+  "jump-none",
+  "jump-start",
+  "start"
+]);
+var scopedAtRuleIdentifiers = [
+  "@media",
+  "@supports",
+  "@document",
+  "@layer",
+  "@container",
+  "@scope",
+  "@starting-style"
+];
 var ShadowCss = class {
+  /*
+   * Shim some cssText with the given selector. Returns cssText that can be included in the document
+   *
+   * The selector is the attribute added to all elements inside the host,
+   * The hostSelector is the attribute added to the host itself.
+   */
   shimCssText(cssText, selector, hostSelector = "") {
     const comments = [];
     cssText = cssText.replace(_commentRe, (m) => {
@@ -6784,11 +6659,86 @@ var ShadowCss = class {
     cssText = this._insertPolyfillDirectivesInCssText(cssText);
     return this._insertPolyfillRulesInCssText(cssText);
   }
+  /**
+   * Process styles to add scope to keyframes.
+   *
+   * Modify both the names of the keyframes defined in the component styles and also the css
+   * animation rules using them.
+   *
+   * Animation rules using keyframes defined elsewhere are not modified to allow for globally
+   * defined keyframes.
+   *
+   * For example, we convert this css:
+   *
+   * ```scss
+   * .box {
+   *   animation: box-animation 1s forwards;
+   * }
+   *
+   * @keyframes box-animation {
+   *   to {
+   *     background-color: green;
+   *   }
+   * }
+   * ```
+   *
+   * to this:
+   *
+   * ```scss
+   * .box {
+   *   animation: scopeName_box-animation 1s forwards;
+   * }
+   *
+   * @keyframes scopeName_box-animation {
+   *   to {
+   *     background-color: green;
+   *   }
+   * }
+   * ```
+   *
+   * @param cssText the component's css text that needs to be scoped.
+   * @param scopeSelector the component's scope selector.
+   *
+   * @returns the scoped css text.
+   */
   _scopeKeyframesRelatedCss(cssText, scopeSelector) {
     const unscopedKeyframesSet = /* @__PURE__ */ new Set();
     const scopedKeyframesCssText = processRules(cssText, (rule) => this._scopeLocalKeyframeDeclarations(rule, scopeSelector, unscopedKeyframesSet));
     return processRules(scopedKeyframesCssText, (rule) => this._scopeAnimationRule(rule, scopeSelector, unscopedKeyframesSet));
   }
+  /**
+   * Scopes local keyframes names, returning the updated css rule and it also
+   * adds the original keyframe name to a provided set to collect all keyframes names
+   * so that it can later be used to scope the animation rules.
+   *
+   * For example, it takes a rule such as:
+   *
+   * ```scss
+   * @keyframes box-animation {
+   *   to {
+   *     background-color: green;
+   *   }
+   * }
+   * ```
+   *
+   * and returns:
+   *
+   * ```scss
+   * @keyframes scopeName_box-animation {
+   *   to {
+   *     background-color: green;
+   *   }
+   * }
+   * ```
+   * and as a side effect it adds "box-animation" to the `unscopedKeyframesSet` set
+   *
+   * @param cssRule the css rule to process.
+   * @param scopeSelector the component's scope selector.
+   * @param unscopedKeyframesSet the set of unscoped keyframes names (which can be
+   * modified as a side effect)
+   *
+   * @returns the css rule modified with the scoped keyframes name.
+   */
   _scopeLocalKeyframeDeclarations(rule, scopeSelector, unscopedKeyframesSet) {
     return __spreadProps(__spreadValues({}, rule), {
       selector: rule.selector.replace(/(^@(?:-webkit-)?keyframes(?:\s+))(['"]?)(.+)\2(\s*)$/, (_, start, quote, keyframeName, endSpaces) => {
@@ -6797,13 +6747,52 @@ var ShadowCss = class {
       })
     });
   }
+  /**
+   * Function used to scope a keyframes name (obtained from an animation declaration)
+   * using an existing set of unscopedKeyframes names to discern if the scoping needs to be
+   * performed (keyframes names of keyframes not defined in the component's css need not to be
+   * scoped).
+   *
+   * @param keyframe the keyframes name to check.
+   * @param scopeSelector the component's scope selector.
+   * @param unscopedKeyframesSet the set of unscoped keyframes names.
+   *
+   * @returns the scoped name of the keyframe, or the original name is the name need not to be
+   * scoped.
+   */
   _scopeAnimationKeyframe(keyframe, scopeSelector, unscopedKeyframesSet) {
     return keyframe.replace(/^(\s*)(['"]?)(.+?)\2(\s*)$/, (_, spaces1, quote, name, spaces2) => {
       name = `${unscopedKeyframesSet.has(unescapeQuotes(name, quote)) ? scopeSelector + "_" : ""}${name}`;
       return `${spaces1}${quote}${name}${quote}${spaces2}`;
     });
   }
+  /**
+   * Regular expression used to extrapolate the possible keyframes from an
+   * animation declaration (with possibly multiple animation definitions)
+   *
+   * The regular expression can be divided in three parts
+   *  - (^|\s+|,)
+   *    captures how many (if any) leading whitespaces are present or a comma
+   *  - (?:(?:(['"])((?:\\\\|\\\2|(?!\2).)+)\2)|(-?[A-Za-z][\w\-]*))
+   *    captures two different possible keyframes, ones which are quoted or ones which are valid css
+   * indents (custom properties excluded)
+   *  - (?=[,\s;]|$)
+   *    simply matches the end of the possible keyframe, valid endings are: a comma, a space, a
+   * semicolon or the end of the string
+   */
   _animationDeclarationKeyframesRe = /(^|\s+|,)(?:(?:(['"])((?:\\\\|\\\2|(?!\2).)+)\2)|(-?[A-Za-z][\w\-]*))(?=[,\s]|$)/g;
+  /**
+   * Scope an animation rule so that the keyframes mentioned in such rule
+   * are scoped if defined in the component's css and left untouched otherwise.
+   *
+   * It can scope values of both the 'animation' and 'animation-name' properties.
+   *
+   * @param rule css rule to scope.
+   * @param scopeSelector the component's scope selector.
+   * @param unscopedKeyframesSet the set of unscoped keyframes names.
+   *
+   * @returns the updated css rule.
+   **/
   _scopeAnimationRule(rule, scopeSelector, unscopedKeyframesSet) {
     let content = rule.content.replace(/((?:^|\s+|;)(?:-webkit-)?animation\s*:\s*),*([^;]+)/g, (_, start, animationDeclarations) => start + animationDeclarations.replace(this._animationDeclarationKeyframesRe, (original, leadingSpaces, quote = "", quotedName, nonQuotedName) => {
       if (quotedName) {
@@ -6813,21 +6802,56 @@ var ShadowCss = class {
       }
     }));
     content = content.replace(/((?:^|\s+|;)(?:-webkit-)?animation-name(?:\s*):(?:\s*))([^;]+)/g, (_match, start, commaSeparatedKeyframes) => `${start}${commaSeparatedKeyframes.split(",").map((keyframe) => this._scopeAnimationKeyframe(keyframe, scopeSelector, unscopedKeyframesSet)).join(",")}`);
-    return __spreadProps(__spreadValues({}, rule), {
-      content
-    });
+    return __spreadProps(__spreadValues({}, rule), { content });
   }
+  /*
+   * Process styles to convert native ShadowDOM rules that will trip
+   * up the css parser; we rely on decorating the stylesheet with inert rules.
+   *
+   * For example, we convert this rule:
+   *
+   * polyfill-next-selector { content: ':host menu-item'; }
+   * ::content menu-item {
+   *
+   * to this:
+   *
+   * scopeName menu-item {
+   *
+   **/
   _insertPolyfillDirectivesInCssText(cssText) {
     return cssText.replace(_cssContentNextSelectorRe, function(...m) {
       return m[2] + "{";
     });
   }
+  /*
+   * Process styles to add rules which will only apply under the polyfill
+   *
+   * For example, we convert this rule:
+   *
+   * polyfill-rule {
+   *   content: ':host menu-item';
+   * ...
+   * }
+   *
+   * to this:
+   *
+   * scopeName menu-item {...}
+   *
+   **/
   _insertPolyfillRulesInCssText(cssText) {
     return cssText.replace(_cssContentRuleRe, (...m) => {
       const rule = m[0].replace(m[1], "").replace(m[2], "");
       return m[4] + rule;
     });
   }
+  /* Ensure styles are scoped. Pseudo-scoping takes a rule like:
+   *
+   *  .foo {... }
+   *
+   *  and converts this to
+   *
+   *  scopeName .foo { ... }
+   */
   _scopeCssText(cssText, scopeSelector, hostSelector) {
     const unscopedRules = this._extractUnscopedRulesFromCssText(cssText);
     cssText = this._insertPolyfillHostInCssText(cssText);
@@ -6841,6 +6865,21 @@ var ShadowCss = class {
     cssText = cssText + "\n" + unscopedRules;
     return cssText.trim();
   }
+  /*
+   * Process styles to add rules which will only apply under the polyfill
+   * and do not process via CSSOM. (CSSOM is destructive to rules on rare
+   * occasions, e.g. -webkit-calc on Safari.)
+   * For example, we convert this rule:
+   *
+   * @polyfill-unscoped-rule {
+   *   content: 'menu-item';
+   * ... }
+   *
+   * to this:
+   *
+   * menu-item {...}
+   *
+   **/
   _extractUnscopedRulesFromCssText(cssText) {
     let r = "";
     let m;
@@ -6851,14 +6890,22 @@ var ShadowCss = class {
     }
     return r;
   }
+  /*
+   * convert a rule like :host(.foo) > .bar { }
+   *
+   * to
+   *
+   * .foo<scopeName> > .bar
+   */
   _convertColonHost(cssText) {
     return cssText.replace(_cssColonHostRe, (_, hostSelectors, otherSelectors) => {
       if (hostSelectors) {
         const convertedSelectors = [];
-        for (const hostSelector of this._splitOnTopLevelCommas(hostSelectors, true)) {
-          const trimmedHostSelector = hostSelector.trim();
-          if (!trimmedHostSelector) break;
-          const convertedSelector = _polyfillHostNoCombinator + trimmedHostSelector.replace(_polyfillHost, "") + otherSelectors;
+        const hostSelectorArray = hostSelectors.split(",").map((p) => p.trim());
+        for (const hostSelector of hostSelectorArray) {
+          if (!hostSelector)
+            break;
+          const convertedSelector = _polyfillHostNoCombinator + hostSelector.replace(_polyfillHost, "") + otherSelectors;
           convertedSelectors.push(convertedSelector);
         }
         return convertedSelectors.join(",");
@@ -6867,54 +6914,51 @@ var ShadowCss = class {
       }
     });
   }
-  *_splitOnTopLevelCommas(text2, returnOnClosingParen) {
-    const length = text2.length;
+  /*
+   * convert a rule like :host-context(.foo) > .bar { }
+   *
+   * to
+   *
+   * .foo<scopeName> > .bar, .foo <scopeName> > .bar { }
+   *
+   * and
+   *
+   * :host-context(.foo:host) .bar { ... }
+   *
+   * to
+   *
+   * .foo<scopeName> .bar { ... }
+   */
+  _convertColonHostContext(cssText) {
+    const length = cssText.length;
     let parens = 0;
     let prev = 0;
+    let result = "";
     for (let i = 0; i < length; i++) {
-      const charCode = text2.charCodeAt(i);
-      if (charCode === $LPAREN) {
-        parens++;
-      } else if (charCode === $RPAREN) {
-        parens--;
-        if (parens < 0 && returnOnClosingParen) {
-          yield text2.slice(prev, i);
-          return;
-        }
-      } else if (charCode === $COMMA && parens === 0) {
-        yield text2.slice(prev, i);
+      const char = cssText[i];
+      if (char === "," && parens === 0) {
+        result += this._convertColonHostContextInSelectorPart(cssText.slice(prev, i)) + ",";
         prev = i + 1;
+        continue;
+      }
+      if (i === length - 1) {
+        result += this._convertColonHostContextInSelectorPart(cssText.slice(prev));
+        break;
+      }
+      if (char === "(") {
+        parens++;
+      } else if (char === ")") {
+        parens--;
       }
     }
-    yield text2.slice(prev);
-  }
-  _convertColonHostContext(cssText) {
-    const results = [];
-    for (const part of this._splitOnTopLevelCommas(cssText, false)) {
-      results.push(this._convertColonHostContextInSelectorPart(part));
-    }
-    return results.join(",");
+    return result;
   }
   _convertColonHostContextInSelectorPart(cssText) {
     return cssText.replace(_cssColonHostContextReGlobal, (selectorText, pseudoPrefix) => {
       const contextSelectorGroups = [[]];
-      let startIndex = selectorText.indexOf(_polyfillHostContext);
-      while (startIndex !== -1) {
-        const afterPrefix = selectorText.substring(startIndex + _polyfillHostContext.length);
-        if (!afterPrefix || afterPrefix[0] !== "(") {
-          selectorText = afterPrefix;
-          startIndex = selectorText.indexOf(_polyfillHostContext);
-          continue;
-        }
-        const newContextSelectors = [];
-        let endIndex = 0;
-        for (const selector of this._splitOnTopLevelCommas(afterPrefix.substring(1), true)) {
-          endIndex = endIndex + selector.length + 1;
-          const trimmed = selector.trim();
-          if (trimmed) {
-            newContextSelectors.push(trimmed);
-          }
-        }
+      let match;
+      while (match = _cssColonHostContextRe.exec(selectorText)) {
+        const newContextSelectors = (match[1] ?? "").trim().split(",").map((m) => m.trim()).filter((m) => m !== "");
         const contextSelectorGroupsLength = contextSelectorGroups.length;
         repeatGroups(contextSelectorGroups, newContextSelectors.length);
         for (let i = 0; i < newContextSelectors.length; i++) {
@@ -6922,15 +6966,19 @@ var ShadowCss = class {
             contextSelectorGroups[j + i * contextSelectorGroupsLength].push(newContextSelectors[i]);
           }
         }
-        selectorText = afterPrefix.substring(endIndex + 1);
-        startIndex = selectorText.indexOf(_polyfillHostContext);
+        selectorText = match[2];
       }
       return contextSelectorGroups.map((contextSelectors) => _combineHostContextSelectors(contextSelectors, selectorText, pseudoPrefix)).join(", ");
     });
   }
+  /*
+   * Convert combinators like ::shadow and pseudo-elements like ::content
+   * by replacing with space.
+   */
   _convertShadowDOMSelectors(cssText) {
     return _shadowDOMSelectorsRe.reduce((result, pattern) => result.replace(pattern, " "), cssText);
   }
+  // change a selector like 'div' to 'name div'
   _scopeSelectors(cssText, scopeSelector, hostSelector) {
     return processRules(cssText, (rule) => {
       let selector = rule.selector;
@@ -6950,6 +6998,27 @@ var ShadowCss = class {
       return new CssRule(selector, content);
     });
   }
+  /**
+   * Handle a css text that is within a rule that should not contain scope selectors by simply
+   * removing them! An example of such a rule is `@font-face`.
+   *
+   * `@font-face` rules cannot contain nested selectors. Nor can they be nested under a selector.
+   * Normally this would be a syntax error by the author of the styles. But in some rare cases, such
+   * as importing styles from a library, and applying `:host ::ng-deep` to the imported styles, we
+   * can end up with broken css if the imported styles happen to contain @font-face rules.
+   *
+   * For example:
+   *
+   * ```
+   * :host ::ng-deep {
+   *   import 'some/lib/containing/font-face';
+   * }
+   *
+   * Similar logic applies to `@page` rules which can contain a particular set of properties,
+   * as well as some specific at-rules. Since they can't be encapsulated, we have to strip
+   * any scoping selectors from them. For more information: https://www.w3.org/TR/css-page-3
+   * ```
+   */
   _stripScopingSelectors(cssText) {
     return processRules(cssText, (rule) => {
       const selector = rule.selector.replace(_shadowDeepSelectors, " ").replace(_polyfillHostNoCombinatorRe, " ");
@@ -6958,12 +7027,11 @@ var ShadowCss = class {
   }
   _safeSelector;
   _shouldScopeIndicator;
-  _scopeSelector({
-    selector,
-    scopeSelector,
-    hostSelector,
-    isParentSelector = false
-  }) {
+  // `isParentSelector` is used to distinguish the selectors which are coming from
+  // the initial selector string and any nested selectors, parsed recursively,
+  // for example `selector = 'a:where(.one)'` could be the parent, while recursive call
+  // would have `selector = '.one'`.
+  _scopeSelector({ selector, scopeSelector, hostSelector, isParentSelector = false }) {
     const selectorSplitRe = / ?,(?!(?:[^)(]*(?:\([^)(]*(?:\([^)(]*(?:\([^)(]*\)[^)(]*)*\)[^)(]*)*\)[^)(]*)*\))) ?/;
     return selector.split(selectorSplitRe).map((part) => part.split(_shadowDeepSelectors)).map((deepParts) => {
       const [shallowPart, ...otherParts] = deepParts;
@@ -6992,6 +7060,7 @@ var ShadowCss = class {
     scopeSelector = scopeSelector.replace(lre, "\\[").replace(rre, "\\]");
     return new RegExp("^(" + scopeSelector + ")" + _selectorReSuffix, "m");
   }
+  // scope via name and [is=name]
   _applySimpleSelectorScope(selector, scopeSelector, hostSelector) {
     _polyfillHostRe.lastIndex = 0;
     if (_polyfillHostRe.test(selector)) {
@@ -7008,12 +7077,9 @@ var ShadowCss = class {
     }
     return scopeSelector + " " + selector;
   }
-  _applySelectorScope({
-    selector,
-    scopeSelector,
-    hostSelector,
-    isParentSelector
-  }) {
+  // return a selector with [name] suffix on each simple selector
+  // e.g. .foo.bar > .zot becomes .foo[name].bar[name] > .zot[name]  /** @internal */
+  _applySelectorScope({ selector, scopeSelector, hostSelector, isParentSelector }) {
     const isRe = /\[is=([^\]]*)\]/g;
     scopeSelector = scopeSelector.replace(isRe, (_, ...parts) => parts[0]);
     const attrName = `[${scopeSelector}]`;
@@ -7126,9 +7192,9 @@ var SafeSelector = class {
       this.index++;
       return replaceBy;
     });
-    this._content = selector.replace(nthRegex, (_, pseudo, exp) => {
+    this._content = selector.replace(/(:nth-[-\w]+)(\([^)]+\))/g, (_, pseudo, exp) => {
       const replaceBy = `__ph-${this.index}__`;
-      this.placeholders.push(`(${exp})`);
+      this.placeholders.push(exp);
       this.index++;
       return pseudo + replaceBy;
     });
@@ -7139,6 +7205,10 @@ var SafeSelector = class {
   content() {
     return this._content;
   }
+  /**
+   * Replaces all of the substrings that match a regex within a
+   * special string (e.g. `__ph-0__`, `__ph-1__`, etc).
+   */
   _escapeRegexMatches(content, pattern) {
     return content.replace(pattern, (_, keep) => {
       const replaceBy = `__ph-${this.index}__`;
@@ -7155,18 +7225,21 @@ var _cssContentRuleRe = /(polyfill-rule)[^}]*(content:[\s]*(['"])(.*?)\3)[;\s]*[
 var _cssContentUnscopedRuleRe = /(polyfill-unscoped-rule)[^}]*(content:[\s]*(['"])(.*?)\3)[;\s]*[^}]*}/gim;
 var _polyfillHost = "-shadowcsshost";
 var _polyfillHostContext = "-shadowcsscontext";
-var _noParens = "[^)(]*";
-var _level1Parens = String.raw`(?:\(${_noParens}\)|${_noParens})+?`;
-var _level2Parens = String.raw`(?:\(${_level1Parens}\)|${_noParens})+?`;
-var _parenSuffix = String.raw`(?:\((${_level2Parens})\))`;
-var nthRegex = new RegExp(String.raw`(:nth-[-\w]+)` + _parenSuffix, "g");
+var _parenSuffix = "(?:\\(((?:\\([^)(]*\\)|[^)(]*)+?)\\))";
 var _cssColonHostRe = new RegExp(_polyfillHost + _parenSuffix + "?([^,{]*)", "gim");
 var _hostContextPattern = _polyfillHostContext + _parenSuffix + "?([^{]*)";
 var _cssColonHostContextReGlobal = new RegExp(`${_cssScopedPseudoFunctionPrefix}(${_hostContextPattern})`, "gim");
+var _cssColonHostContextRe = new RegExp(_hostContextPattern, "im");
 var _polyfillHostNoCombinator = _polyfillHost + "-no-combinator";
 var _polyfillHostNoCombinatorOutsidePseudoFunction = new RegExp(`${_polyfillHostNoCombinator}(?![^(]*\\))`, "g");
 var _polyfillHostNoCombinatorRe = /-shadowcsshost-no-combinator([^\s,]*)/;
-var _shadowDOMSelectorsRe = [/::shadow/g, /::content/g, /\/shadow-deep\//g, /\/shadow\//g];
+var _shadowDOMSelectorsRe = [
+  /::shadow/g,
+  /::content/g,
+  // Deprecated selectors
+  /\/shadow-deep\//g,
+  /\/shadow\//g
+];
 var _shadowDeepSelectors = /(?:>>>)|(?:\/deep\/)|(?:::ng-deep)/g;
 var _selectorReSuffix = "([>\\s~+[.,{:][\\s\\S]*)?$";
 var _polyfillHostRe = /-shadowcsshost/gim;
@@ -7386,8 +7459,6 @@ var OpKind;
   OpKind2[OpKind2["AnimationString"] = 54] = "AnimationString";
   OpKind2[OpKind2["AnimationBinding"] = 55] = "AnimationBinding";
   OpKind2[OpKind2["AnimationListener"] = 56] = "AnimationListener";
-  OpKind2[OpKind2["Control"] = 57] = "Control";
-  OpKind2[OpKind2["ControlCreate"] = 58] = "ControlCreate";
 })(OpKind || (OpKind = {}));
 var ExpressionKind;
 (function(ExpressionKind2) {
@@ -7744,21 +7815,6 @@ function createStoreLetOp(target, declaredName, value, sourceSpan) {
     sourceSpan
   }, TRAIT_DEPENDS_ON_SLOT_CONTEXT), TRAIT_CONSUMES_VARS), NEW_OP);
 }
-function createControlOp(op) {
-  return __spreadValues(__spreadValues(__spreadValues({
-    kind: OpKind.Control,
-    target: op.target,
-    expression: op.expression,
-    bindingKind: op.bindingKind,
-    securityContext: op.securityContext,
-    sanitizer: null,
-    isStructuralTemplateAttribute: op.isStructuralTemplateAttribute,
-    templateKind: op.templateKind,
-    i18nContext: op.i18nContext,
-    i18nMessage: op.i18nMessage,
-    sourceSpan: op.sourceSpan
-  }, TRAIT_DEPENDS_ON_SLOT_CONTEXT), TRAIT_CONSUMES_VARS), NEW_OP);
-}
 function isIrExpression(expr) {
   return expr instanceof ExpressionBase;
 }
@@ -8060,8 +8116,22 @@ var PureFunctionExpr = class _PureFunctionExpr extends ExpressionBase {
   [ConsumesVarsTrait] = true;
   [UsesVarOffset] = true;
   varOffset = null;
+  /**
+   * The expression which should be memoized as a pure computation.
+   *
+   * This expression contains internal `PureFunctionParameterExpr`s, which are placeholders for the
+   * positional argument expressions in `args.
+   */
   body;
+  /**
+   * Positional arguments to the pure function which will memoize the `body` expression, which act
+   * as memoization keys.
+   */
   args;
+  /**
+   * Once extracted to the `ConstantPool`, a reference to the function which defines the computation
+   * of `body`.
+   */
   fn = null;
   constructor(expression, args) {
     super();
@@ -8204,6 +8274,7 @@ var SafePropertyReadExpr = class _SafePropertyReadExpr extends ExpressionBase {
     this.receiver = receiver;
     this.name = name;
   }
+  // An alias for name, which allows other logic to handle property reads and keyed reads together.
   get index() {
     return this.name;
   }
@@ -8403,6 +8474,11 @@ var ConditionalCaseExpr = class _ConditionalCaseExpr extends ExpressionBase {
   targetSlot;
   alias;
   kind = ExpressionKind.ConditionalCase;
+  /**
+   * Create an expression for one branch of a conditional.
+   * @param expr The expression to be tested for this case. Might be null, as in an `else` case.
+   * @param target The Xref of the view to be displayed if this condition is true.
+   */
   constructor(expr, target, targetSlot, alias = null) {
     super();
     this.expr = expr;
@@ -8490,7 +8566,6 @@ function transformExpressionsInOp(op, transform2, flags) {
     case OpKind.Property:
     case OpKind.DomProperty:
     case OpKind.Attribute:
-    case OpKind.Control:
       if (op.expression instanceof Interpolation2) {
         transformExpressionsInInterpolation(op.expression, transform2, flags);
       } else {
@@ -8609,7 +8684,6 @@ function transformExpressionsInOp(op, transform2, flags) {
     case OpKind.SourceLocation:
     case OpKind.ConditionalCreate:
     case OpKind.ConditionalBranchCreate:
-    case OpKind.ControlCreate:
       break;
     default:
       throw new Error(`AssertionError: transformExpressionsInOp doesn't handle ${OpKind[op.kind]}`);
@@ -8675,7 +8749,7 @@ function transformExpressionsInExpression(expr, transform2, flags) {
     }
   } else if (expr instanceof ParenthesizedExpr) {
     expr.expr = transformExpressionsInExpression(expr.expr, transform2, flags);
-  } else if (expr instanceof ReadVarExpr || expr instanceof ExternalExpr || expr instanceof LiteralExpr || expr instanceof RegularExpressionLiteralExpr) ;
+  } else if (expr instanceof ReadVarExpr || expr instanceof ExternalExpr || expr instanceof LiteralExpr) ;
   else {
     throw new Error(`Unhandled expression kind: ${expr.constructor.name}`);
   }
@@ -8707,7 +8781,13 @@ function isStringLiteral(expr) {
 }
 var OpList = class _OpList {
   static nextListId = 0;
+  /**
+   * Debug ID of this `OpList` instance.
+   */
   debugListId = _OpList.nextListId++;
+  // OpList uses static head/tail nodes of a special `ListEnd` type.
+  // This avoids the need for special casing of the first and last list
+  // elements in all list operations.
   head = {
     kind: OpKind.ListEnd,
     next: null,
@@ -8724,6 +8804,9 @@ var OpList = class _OpList {
     this.head.next = this.tail;
     this.tail.prev = this.head;
   }
+  /**
+   * Push a new operation to the tail of the list.
+   */
   push(op) {
     if (Array.isArray(op)) {
       for (const o of op) {
@@ -8740,6 +8823,9 @@ var OpList = class _OpList {
     op.next = this.tail;
     this.tail.prev = op;
   }
+  /**
+   * Prepend one or more nodes to the start of the list.
+   */
   prepend(ops) {
     if (ops.length === 0) {
       return;
@@ -8759,6 +8845,13 @@ var OpList = class _OpList {
     prev.next = first;
     first.prev = prev;
   }
+  /**
+   * `OpList` is iterable via the iteration protocol.
+   *
+   * It's safe to mutate the part of the list that has already been returned by the iterator, up to
+   * and including the last operation returned. Mutations beyond that point _may_ be safe, but may
+   * also corrupt the iteration position and should be avoided.
+   */
   *[Symbol.iterator]() {
     let current = this.head.next;
     while (current !== this.tail) {
@@ -8777,6 +8870,9 @@ var OpList = class _OpList {
       current = prev;
     }
   }
+  /**
+   * Replace `oldOp` with `newOp` in the list.
+   */
   static replace(oldOp, newOp) {
     _OpList.assertIsNotEnd(oldOp);
     _OpList.assertIsNotEnd(newOp);
@@ -8795,6 +8891,9 @@ var OpList = class _OpList {
     oldOp.prev = null;
     oldOp.next = null;
   }
+  /**
+   * Replace `oldOp` with some number of new operations in the list (which may include `oldOp`).
+   */
   static replaceWithMany(oldOp, newOps) {
     if (newOps.length === 0) {
       _OpList.remove(oldOp);
@@ -8808,10 +8907,7 @@ var OpList = class _OpList {
       _OpList.assertIsNotEnd(newOp);
       _OpList.assertIsUnowned(newOp);
     }
-    const {
-      prev: oldPrev,
-      next: oldNext
-    } = oldOp;
+    const { prev: oldPrev, next: oldNext } = oldOp;
     oldOp.prev = null;
     oldOp.next = null;
     let prev = oldPrev;
@@ -8834,6 +8930,9 @@ var OpList = class _OpList {
       last.next = oldNext;
     }
   }
+  /**
+   * Remove the given node from the list which contains it.
+   */
   static remove(op) {
     _OpList.assertIsNotEnd(op);
     _OpList.assertIsOwned(op);
@@ -8843,6 +8942,9 @@ var OpList = class _OpList {
     op.prev = null;
     op.next = null;
   }
+  /**
+   * Insert `op` before `target`.
+   */
   static insertBefore(op, target) {
     if (Array.isArray(op)) {
       for (const o of op) {
@@ -8863,6 +8965,9 @@ var OpList = class _OpList {
     op.next = target;
     target.prev = op;
   }
+  /**
+   * Insert `op` after `target`.
+   */
   static insertAfter(op, target) {
     _OpList.assertIsOwned(target);
     if (target.next === null) {
@@ -8876,11 +8981,18 @@ var OpList = class _OpList {
     op.prev = target;
     target.next = op;
   }
+  /**
+   * Asserts that `op` does not currently belong to a list.
+   */
   static assertIsUnowned(op) {
     if (op.debugListId !== null) {
       throw new Error(`AssertionError: illegal operation on owned node: ${OpKind[op.kind]}`);
     }
   }
+  /**
+   * Asserts that `op` currently belongs to a list. If `byList` is passed, `op` is asserted to
+   * specifically belong to that list.
+   */
   static assertIsOwned(op, byList) {
     if (op.debugListId === null) {
       throw new Error(`AssertionError: illegal operation on unowned node: ${OpKind[op.kind]}`);
@@ -8888,6 +9000,9 @@ var OpList = class _OpList {
       throw new Error(`AssertionError: node belongs to the wrong list (expected ${byList}, actual ${op.debugListId})`);
     }
   }
+  /**
+   * Asserts that `op` is not a special `ListEnd` node.
+   */
   static assertIsNotEnd(op) {
     if (op.kind === OpKind.ListEnd) {
       throw new Error(`AssertionError: illegal operation on list head or tail`);
@@ -8897,7 +9012,16 @@ var OpList = class _OpList {
 var SlotHandle = class {
   slot = null;
 };
-var elementContainerOpKinds = /* @__PURE__ */ new Set([OpKind.Element, OpKind.ElementStart, OpKind.Container, OpKind.ContainerStart, OpKind.Template, OpKind.RepeaterCreate, OpKind.ConditionalCreate, OpKind.ConditionalBranchCreate]);
+var elementContainerOpKinds = /* @__PURE__ */ new Set([
+  OpKind.Element,
+  OpKind.ElementStart,
+  OpKind.Container,
+  OpKind.ContainerStart,
+  OpKind.Template,
+  OpKind.RepeaterCreate,
+  OpKind.ConditionalCreate,
+  OpKind.ConditionalBranchCreate
+]);
 function isElementOrContainerOp(op) {
   return elementContainerOpKinds.has(op.kind);
 }
@@ -9295,12 +9419,6 @@ function createSourceLocationOp(templatePath, locations) {
     locations
   }, NEW_OP);
 }
-function createControlCreateOp(sourceSpan) {
-  return __spreadValues({
-    kind: OpKind.ControlCreate,
-    sourceSpan
-  }, NEW_OP);
-}
 function createDomPropertyOp(name, expression, bindingKind, i18nContext, securityContext, sourceSpan) {
   return __spreadValues(__spreadValues({
     kind: OpKind.DomProperty,
@@ -9337,9 +9455,15 @@ var CompilationJob = class {
     this.mode = mode;
   }
   kind = CompilationJobKind.Both;
+  /**
+   * Generate a new unique `ir.XrefId` in this job.
+   */
   allocateXrefId() {
     return this.nextXrefId++;
   }
+  /**
+   * Tracks the next `ir.XrefId` which can be assigned as template structures are ingested.
+   */
   nextXrefId = 0;
 };
 var ComponentCompilationJob = class extends CompilationJob {
@@ -9362,9 +9486,19 @@ var ComponentCompilationJob = class extends CompilationJob {
   }
   kind = CompilationJobKind.Tmpl;
   fnSuffix = "Template";
+  /**
+   * The root view, representing the component's template.
+   */
   root;
   views = /* @__PURE__ */ new Map();
+  /**
+   * Causes ngContentSelectors to be emitted, for content projection slots in the view. Possibly a
+   * reference into the constant pool.
+   */
   contentSelectors = null;
+  /**
+   * Add a `ViewCompilation` for a new embedded view to this compilation.
+   */
   allocateView(parent) {
     const view = new ViewCompilationUnit(this, this.allocateXrefId(), parent);
     this.views.set(view.xref, view);
@@ -9373,6 +9507,9 @@ var ComponentCompilationJob = class extends CompilationJob {
   get units() {
     return this.views.values();
   }
+  /**
+   * Add a constant `o.Expression` to the compilation and return its index in the `consts` array.
+   */
   addConst(newConst, initializers) {
     for (let idx2 = 0; idx2 < this.consts.length; idx2++) {
       if (this.consts[idx2].isEquivalent(newConst)) {
@@ -9386,7 +9523,15 @@ var ComponentCompilationJob = class extends CompilationJob {
     }
     return idx;
   }
+  /**
+   * Constant expressions used by operations within this component's compilation.
+   *
+   * This will eventually become the `consts` array in the component definition.
+   */
   consts = [];
+  /**
+   * Initialization statements needed to set up the consts.
+   */
   constsInitializers = [];
 };
 var CompilationUnit = class {
@@ -9394,10 +9539,32 @@ var CompilationUnit = class {
   constructor(xref) {
     this.xref = xref;
   }
+  /**
+   * List of creation operations for this view.
+   *
+   * Creation operations may internally contain other operations, including update operations.
+   */
   create = new OpList();
+  /**
+   * List of update operations for this view.
+   */
   update = new OpList();
+  /**
+   * Name of the function which will be generated for this unit.
+   *
+   * May be `null` if not yet determined.
+   */
   fnName = null;
+  /**
+   * Number of variable slots used within this view, or `null` if variables have not yet been
+   * counted.
+   */
   vars = null;
+  /**
+   * Iterate over all `ir.Op`s within this view.
+   *
+   * Some operations may have child operations, which this iterator will visit.
+   */
   *ops() {
     for (const op of this.create) {
       yield op;
@@ -9424,8 +9591,20 @@ var ViewCompilationUnit = class extends CompilationUnit {
     this.job = job;
     this.parent = parent;
   }
+  /**
+   * Map of declared variables available within this view to the property on the context object
+   * which they alias.
+   */
   contextVariables = /* @__PURE__ */ new Map();
+  /**
+   * Set of aliases available within this view. An alias is a variable whose provided expression is
+   * inlined at every location it is used. It may also depend on context variables, by name.
+   */
   aliases = /* @__PURE__ */ new Set();
+  /**
+   * Number of declaration slots used within this view, or `null` if slots have not yet been
+   * allocated.
+   */
   decls = null;
 };
 var HostBindingCompilationJob = class extends CompilationJob {
@@ -9446,6 +9625,9 @@ var HostBindingCompilationUnit = class extends CompilationUnit {
     super(0);
     this.job = job;
   }
+  /**
+   * Much like an element can have attributes, so can a host binding function.
+   */
   attributes = null;
 };
 function deleteAnyCasts(job) {
@@ -9541,7 +9723,10 @@ function assignI18nSlotDependencies(job) {
           let hasDifferentTarget = false;
           if (hasDependsOnSlotContextTrait(updateOp) && updateOp.target !== createOp.xref) {
             hasDifferentTarget = true;
-          } else if (updateOp.kind === OpKind.Statement || updateOp.kind === OpKind.Variable) {
+          } else if (
+            // Some expressions may consume slots as well (e.g. `storeLet`).
+            updateOp.kind === OpKind.Statement || updateOp.kind === OpKind.Variable
+          ) {
             visitExpressionsInOp(updateOp, (expr) => {
               if (!hasDifferentTarget && hasDependsOnSlotContextTrait(expr) && expr.target !== createOp.xref) {
                 hasDifferentTarget = true;
@@ -9610,24 +9795,73 @@ function extractAttributes(job) {
             } else {
               bindingKind = BindingKind.Property;
             }
-            OpList.insertBefore(createExtractedAttributeOp(op.target, bindingKind, null, op.name, null, null, null, op.securityContext), lookupElement$3(elements, op.target));
+            OpList.insertBefore(
+              // Deliberately null i18nMessage value
+              createExtractedAttributeOp(
+                op.target,
+                bindingKind,
+                null,
+                op.name,
+                /* expression */
+                null,
+                /* i18nContext */
+                null,
+                /* i18nMessage */
+                null,
+                op.securityContext
+              ),
+              lookupElement$3(elements, op.target)
+            );
           }
           break;
-        case OpKind.Control:
-          OpList.insertBefore(createExtractedAttributeOp(op.target, BindingKind.Property, null, "field", null, null, null, op.securityContext), lookupElement$3(elements, op.target));
-          break;
         case OpKind.TwoWayProperty:
-          OpList.insertBefore(createExtractedAttributeOp(op.target, BindingKind.TwoWayProperty, null, op.name, null, null, null, op.securityContext), lookupElement$3(elements, op.target));
+          OpList.insertBefore(createExtractedAttributeOp(
+            op.target,
+            BindingKind.TwoWayProperty,
+            null,
+            op.name,
+            /* expression */
+            null,
+            /* i18nContext */
+            null,
+            /* i18nMessage */
+            null,
+            op.securityContext
+          ), lookupElement$3(elements, op.target));
           break;
         case OpKind.StyleProp:
         case OpKind.ClassProp:
           if (unit.job.compatibility === CompatibilityMode.TemplateDefinitionBuilder && op.expression instanceof EmptyExpr2) {
-            OpList.insertBefore(createExtractedAttributeOp(op.target, BindingKind.Property, null, op.name, null, null, null, SecurityContext.STYLE), lookupElement$3(elements, op.target));
+            OpList.insertBefore(createExtractedAttributeOp(
+              op.target,
+              BindingKind.Property,
+              null,
+              op.name,
+              /* expression */
+              null,
+              /* i18nContext */
+              null,
+              /* i18nMessage */
+              null,
+              SecurityContext.STYLE
+            ), lookupElement$3(elements, op.target));
           }
           break;
         case OpKind.Listener:
           if (!op.isLegacyAnimationListener) {
-            const extractedAttributeOp = createExtractedAttributeOp(op.target, BindingKind.Property, null, op.name, null, null, null, SecurityContext.NONE);
+            const extractedAttributeOp = createExtractedAttributeOp(
+              op.target,
+              BindingKind.Property,
+              null,
+              op.name,
+              /* expression */
+              null,
+              /* i18nContext */
+              null,
+              /* i18nMessage */
+              null,
+              SecurityContext.NONE
+            );
             if (job.kind === CompilationJobKind.Host) {
               if (job.compatibility) {
                 break;
@@ -9640,7 +9874,19 @@ function extractAttributes(job) {
           break;
         case OpKind.TwoWayListener:
           if (job.kind !== CompilationJobKind.Host) {
-            const extractedAttributeOp = createExtractedAttributeOp(op.target, BindingKind.Property, null, op.name, null, null, null, SecurityContext.NONE);
+            const extractedAttributeOp = createExtractedAttributeOp(
+              op.target,
+              BindingKind.Property,
+              null,
+              op.name,
+              /* expression */
+              null,
+              /* i18nContext */
+              null,
+              /* i18nMessage */
+              null,
+              SecurityContext.NONE
+            );
             OpList.insertBefore(extractedAttributeOp, lookupElement$3(elements, op.target));
           }
           break;
@@ -9707,23 +9953,52 @@ function specializeBindings(job) {
             const target = lookupElement$2(elements, op.target);
             target.nonBindable = true;
           } else if (op.name.startsWith("animate.")) {
-            OpList.replace(op, createAnimationBindingOp(op.name, op.target, op.name === "animate.enter" ? "enter" : "leave", op.expression, op.securityContext, op.sourceSpan, 0));
+            OpList.replace(op, createAnimationBindingOp(
+              op.name,
+              op.target,
+              op.name === "animate.enter" ? "enter" : "leave",
+              op.expression,
+              op.securityContext,
+              op.sourceSpan,
+              0
+              /* ir.AnimationBindingKind.STRING */
+            ));
           } else {
             const [namespace, name] = splitNsName(op.name);
             OpList.replace(op, createAttributeOp(op.target, namespace, name, op.expression, op.securityContext, op.isTextAttribute, op.isStructuralTemplateAttribute, op.templateKind, op.i18nMessage, op.sourceSpan));
           }
           break;
         case BindingKind.Animation:
-          OpList.replace(op, createAnimationBindingOp(op.name, op.target, op.name === "animate.enter" ? "enter" : "leave", op.expression, op.securityContext, op.sourceSpan, 1));
+          OpList.replace(op, createAnimationBindingOp(
+            op.name,
+            op.target,
+            op.name === "animate.enter" ? "enter" : "leave",
+            op.expression,
+            op.securityContext,
+            op.sourceSpan,
+            1
+            /* ir.AnimationBindingKind.VALUE */
+          ));
           break;
         case BindingKind.Property:
         case BindingKind.LegacyAnimation:
           if (job.mode === TemplateCompilationMode.DomOnly && isAriaAttribute(op.name)) {
-            OpList.replace(op, createAttributeOp(op.target, null, op.name, op.expression, op.securityContext, false, op.isStructuralTemplateAttribute, op.templateKind, op.i18nMessage, op.sourceSpan));
+            OpList.replace(op, createAttributeOp(
+              op.target,
+              /* namespace= */
+              null,
+              op.name,
+              op.expression,
+              op.securityContext,
+              /* isTextAttribute= */
+              false,
+              op.isStructuralTemplateAttribute,
+              op.templateKind,
+              op.i18nMessage,
+              op.sourceSpan
+            ));
           } else if (job.kind === CompilationJobKind.Host) {
             OpList.replace(op, createDomPropertyOp(op.name, op.expression, op.bindingKind, op.i18nContext, op.securityContext, op.sourceSpan));
-          } else if (op.name === "field") {
-            OpList.replace(op, createControlOp(op));
           } else {
             OpList.replace(op, createPropertyOp(op.target, op.name, op.expression, op.bindingKind, op.securityContext, op.isStructuralTemplateAttribute, op.templateKind, op.i18nContext, op.i18nMessage, op.sourceSpan));
           }
@@ -9742,7 +10017,43 @@ function specializeBindings(job) {
     }
   }
 }
-var CHAIN_COMPATIBILITY = /* @__PURE__ */ new Map([[Identifiers.ariaProperty, Identifiers.ariaProperty], [Identifiers.attribute, Identifiers.attribute], [Identifiers.classProp, Identifiers.classProp], [Identifiers.element, Identifiers.element], [Identifiers.elementContainer, Identifiers.elementContainer], [Identifiers.elementContainerEnd, Identifiers.elementContainerEnd], [Identifiers.elementContainerStart, Identifiers.elementContainerStart], [Identifiers.elementEnd, Identifiers.elementEnd], [Identifiers.elementStart, Identifiers.elementStart], [Identifiers.domProperty, Identifiers.domProperty], [Identifiers.i18nExp, Identifiers.i18nExp], [Identifiers.listener, Identifiers.listener], [Identifiers.listener, Identifiers.listener], [Identifiers.property, Identifiers.property], [Identifiers.styleProp, Identifiers.styleProp], [Identifiers.syntheticHostListener, Identifiers.syntheticHostListener], [Identifiers.syntheticHostProperty, Identifiers.syntheticHostProperty], [Identifiers.templateCreate, Identifiers.templateCreate], [Identifiers.twoWayProperty, Identifiers.twoWayProperty], [Identifiers.twoWayListener, Identifiers.twoWayListener], [Identifiers.declareLet, Identifiers.declareLet], [Identifiers.conditionalCreate, Identifiers.conditionalBranchCreate], [Identifiers.conditionalBranchCreate, Identifiers.conditionalBranchCreate], [Identifiers.domElement, Identifiers.domElement], [Identifiers.domElementStart, Identifiers.domElementStart], [Identifiers.domElementEnd, Identifiers.domElementEnd], [Identifiers.domElementContainer, Identifiers.domElementContainer], [Identifiers.domElementContainerStart, Identifiers.domElementContainerStart], [Identifiers.domElementContainerEnd, Identifiers.domElementContainerEnd], [Identifiers.domListener, Identifiers.domListener], [Identifiers.domTemplate, Identifiers.domTemplate], [Identifiers.animationEnter, Identifiers.animationEnter], [Identifiers.animationLeave, Identifiers.animationLeave], [Identifiers.animationEnterListener, Identifiers.animationEnterListener], [Identifiers.animationLeaveListener, Identifiers.animationLeaveListener]]);
+var CHAIN_COMPATIBILITY = /* @__PURE__ */ new Map([
+  [Identifiers.ariaProperty, Identifiers.ariaProperty],
+  [Identifiers.attribute, Identifiers.attribute],
+  [Identifiers.classProp, Identifiers.classProp],
+  [Identifiers.element, Identifiers.element],
+  [Identifiers.elementContainer, Identifiers.elementContainer],
+  [Identifiers.elementContainerEnd, Identifiers.elementContainerEnd],
+  [Identifiers.elementContainerStart, Identifiers.elementContainerStart],
+  [Identifiers.elementEnd, Identifiers.elementEnd],
+  [Identifiers.elementStart, Identifiers.elementStart],
+  [Identifiers.domProperty, Identifiers.domProperty],
+  [Identifiers.i18nExp, Identifiers.i18nExp],
+  [Identifiers.listener, Identifiers.listener],
+  [Identifiers.listener, Identifiers.listener],
+  [Identifiers.property, Identifiers.property],
+  [Identifiers.styleProp, Identifiers.styleProp],
+  [Identifiers.syntheticHostListener, Identifiers.syntheticHostListener],
+  [Identifiers.syntheticHostProperty, Identifiers.syntheticHostProperty],
+  [Identifiers.templateCreate, Identifiers.templateCreate],
+  [Identifiers.twoWayProperty, Identifiers.twoWayProperty],
+  [Identifiers.twoWayListener, Identifiers.twoWayListener],
+  [Identifiers.declareLet, Identifiers.declareLet],
+  [Identifiers.conditionalCreate, Identifiers.conditionalBranchCreate],
+  [Identifiers.conditionalBranchCreate, Identifiers.conditionalBranchCreate],
+  [Identifiers.domElement, Identifiers.domElement],
+  [Identifiers.domElementStart, Identifiers.domElementStart],
+  [Identifiers.domElementEnd, Identifiers.domElementEnd],
+  [Identifiers.domElementContainer, Identifiers.domElementContainer],
+  [Identifiers.domElementContainerStart, Identifiers.domElementContainerStart],
+  [Identifiers.domElementContainerEnd, Identifiers.domElementContainerEnd],
+  [Identifiers.domListener, Identifiers.domListener],
+  [Identifiers.domTemplate, Identifiers.domTemplate],
+  [Identifiers.animationEnter, Identifiers.animationEnter],
+  [Identifiers.animationLeave, Identifiers.animationLeave],
+  [Identifiers.animationEnterListener, Identifiers.animationEnterListener],
+  [Identifiers.animationLeaveListener, Identifiers.animationLeaveListener]
+]);
 var MAX_CHAIN_LENGTH = 256;
 function chain(job) {
   for (const unit of job.units) {
@@ -9828,16 +10139,53 @@ function generateConditionalExpressions(job) {
     }
   }
 }
-var BINARY_OPERATORS = /* @__PURE__ */ new Map([["&&", BinaryOperator.And], [">", BinaryOperator.Bigger], [">=", BinaryOperator.BiggerEquals], ["|", BinaryOperator.BitwiseOr], ["&", BinaryOperator.BitwiseAnd], ["/", BinaryOperator.Divide], ["=", BinaryOperator.Assign], ["==", BinaryOperator.Equals], ["===", BinaryOperator.Identical], ["<", BinaryOperator.Lower], ["<=", BinaryOperator.LowerEquals], ["-", BinaryOperator.Minus], ["%", BinaryOperator.Modulo], ["**", BinaryOperator.Exponentiation], ["*", BinaryOperator.Multiply], ["!=", BinaryOperator.NotEquals], ["!==", BinaryOperator.NotIdentical], ["??", BinaryOperator.NullishCoalesce], ["||", BinaryOperator.Or], ["+", BinaryOperator.Plus], ["in", BinaryOperator.In], ["+=", BinaryOperator.AdditionAssignment], ["-=", BinaryOperator.SubtractionAssignment], ["*=", BinaryOperator.MultiplicationAssignment], ["/=", BinaryOperator.DivisionAssignment], ["%=", BinaryOperator.RemainderAssignment], ["**=", BinaryOperator.ExponentiationAssignment], ["&&=", BinaryOperator.AndAssignment], ["||=", BinaryOperator.OrAssignment], ["??=", BinaryOperator.NullishCoalesceAssignment]]);
+var BINARY_OPERATORS = /* @__PURE__ */ new Map([
+  ["&&", BinaryOperator.And],
+  [">", BinaryOperator.Bigger],
+  [">=", BinaryOperator.BiggerEquals],
+  ["|", BinaryOperator.BitwiseOr],
+  ["&", BinaryOperator.BitwiseAnd],
+  ["/", BinaryOperator.Divide],
+  ["=", BinaryOperator.Assign],
+  ["==", BinaryOperator.Equals],
+  ["===", BinaryOperator.Identical],
+  ["<", BinaryOperator.Lower],
+  ["<=", BinaryOperator.LowerEquals],
+  ["-", BinaryOperator.Minus],
+  ["%", BinaryOperator.Modulo],
+  ["**", BinaryOperator.Exponentiation],
+  ["*", BinaryOperator.Multiply],
+  ["!=", BinaryOperator.NotEquals],
+  ["!==", BinaryOperator.NotIdentical],
+  ["??", BinaryOperator.NullishCoalesce],
+  ["||", BinaryOperator.Or],
+  ["+", BinaryOperator.Plus],
+  ["in", BinaryOperator.In],
+  ["+=", BinaryOperator.AdditionAssignment],
+  ["-=", BinaryOperator.SubtractionAssignment],
+  ["*=", BinaryOperator.MultiplicationAssignment],
+  ["/=", BinaryOperator.DivisionAssignment],
+  ["%=", BinaryOperator.RemainderAssignment],
+  ["**=", BinaryOperator.ExponentiationAssignment],
+  ["&&=", BinaryOperator.AndAssignment],
+  ["||=", BinaryOperator.OrAssignment],
+  ["??=", BinaryOperator.NullishCoalesceAssignment]
+]);
 function namespaceForKey(namespacePrefixKey) {
-  const NAMESPACES = /* @__PURE__ */ new Map([["svg", Namespace.SVG], ["math", Namespace.Math]]);
+  const NAMESPACES = /* @__PURE__ */ new Map([
+    ["svg", Namespace.SVG],
+    ["math", Namespace.Math]
+  ]);
   if (namespacePrefixKey === null) {
     return Namespace.HTML;
   }
   return NAMESPACES.get(namespacePrefixKey) ?? Namespace.HTML;
 }
 function keyForNamespace(namespace) {
-  const NAMESPACES = /* @__PURE__ */ new Map([["svg", Namespace.SVG], ["math", Namespace.Math]]);
+  const NAMESPACES = /* @__PURE__ */ new Map([
+    ["svg", Namespace.SVG],
+    ["math", Namespace.Math]
+  ]);
   for (const [k, n] of NAMESPACES.entries()) {
     if (n === namespace) {
       return k;
@@ -9989,38 +10337,51 @@ var ElementAttributes = class {
 function getAttributeNameLiterals(namespace, name) {
   const nameLiteral = literal(name);
   if (namespace) {
-    return [literal(0), literal(namespace), nameLiteral];
+    return [literal(
+      0
+      /* core.AttributeMarker.NamespaceURI */
+    ), literal(namespace), nameLiteral];
   }
   return [nameLiteral];
 }
-function serializeAttributes({
-  attributes,
-  bindings,
-  classes,
-  i18n: i18n2,
-  projectAs,
-  styles,
-  template: template2
-}) {
+function serializeAttributes({ attributes, bindings, classes, i18n: i18n2, projectAs, styles, template: template2 }) {
   const attrArray = [...attributes];
   if (projectAs !== null) {
     const parsedR3Selector = parseSelectorToR3Selector(projectAs)[0];
-    attrArray.push(literal(5), literalOrArrayLiteral(parsedR3Selector));
+    attrArray.push(literal(
+      5
+      /* core.AttributeMarker.ProjectAs */
+    ), literalOrArrayLiteral(parsedR3Selector));
   }
   if (classes.length > 0) {
-    attrArray.push(literal(1), ...classes);
+    attrArray.push(literal(
+      1
+      /* core.AttributeMarker.Classes */
+    ), ...classes);
   }
   if (styles.length > 0) {
-    attrArray.push(literal(2), ...styles);
+    attrArray.push(literal(
+      2
+      /* core.AttributeMarker.Styles */
+    ), ...styles);
   }
   if (bindings.length > 0) {
-    attrArray.push(literal(3), ...bindings);
+    attrArray.push(literal(
+      3
+      /* core.AttributeMarker.Bindings */
+    ), ...bindings);
   }
   if (template2.length > 0) {
-    attrArray.push(literal(4), ...template2);
+    attrArray.push(literal(
+      4
+      /* core.AttributeMarker.Template */
+    ), ...template2);
   }
   if (i18n2.length > 0) {
-    attrArray.push(literal(6), ...i18n2);
+    attrArray.push(literal(
+      6
+      /* core.AttributeMarker.I18n */
+    ), ...i18n2);
   }
   return literalArr(attrArray);
 }
@@ -10230,10 +10591,7 @@ function resolveDeferTargetNames(job) {
         if (ref.target !== "") {
           continue;
         }
-        scope.targets.set(ref.name, {
-          xref: op.xref,
-          slot: op.handle
-        });
+        scope.targets.set(ref.name, { xref: op.xref, slot: op.handle });
       }
     }
     scopes.set(view.xref, scope);
@@ -10273,10 +10631,7 @@ function resolveDeferTargetNames(job) {
         while (view !== null) {
           const scope = getScopeForView2(view);
           if (scope.targets.has(op.trigger.targetName)) {
-            const {
-              xref,
-              slot
-            } = scope.targets.get(op.trigger.targetName);
+            const { xref, slot } = scope.targets.get(op.trigger.targetName);
             op.trigger.targetXref = xref;
             op.trigger.targetView = view.xref;
             op.trigger.targetSlotViewSteps = step;
@@ -10309,7 +10664,11 @@ function resolveDeferTargetNames(job) {
 var Scope$1 = class Scope {
   targets = /* @__PURE__ */ new Map();
 };
-var REPLACEMENTS = /* @__PURE__ */ new Map([[OpKind.ElementEnd, [OpKind.ElementStart, OpKind.Element]], [OpKind.ContainerEnd, [OpKind.ContainerStart, OpKind.Container]], [OpKind.I18nEnd, [OpKind.I18nStart, OpKind.I18n]]]);
+var REPLACEMENTS = /* @__PURE__ */ new Map([
+  [OpKind.ElementEnd, [OpKind.ElementStart, OpKind.Element]],
+  [OpKind.ContainerEnd, [OpKind.ContainerStart, OpKind.Container]],
+  [OpKind.I18nEnd, [OpKind.I18nStart, OpKind.I18n]]
+]);
 var IGNORED_OP_KINDS = /* @__PURE__ */ new Set([OpKind.Pipe]);
 function collapseEmptyInstructions(job) {
   for (const unit of job.units) {
@@ -10333,9 +10692,7 @@ function collapseEmptyInstructions(job) {
 function expandSafeReads(job) {
   for (const unit of job.units) {
     for (const op of unit.ops()) {
-      transformExpressionsInOp(op, (e) => safeTransform(e, {
-        job
-      }), VisitorContextFlag.None);
+      transformExpressionsInOp(op, (e) => safeTransform(e, { job }), VisitorContextFlag.None);
       transformExpressionsInOp(op, ternaryTransform, VisitorContextFlag.None);
     }
   }
@@ -10346,7 +10703,8 @@ function needsTemporaryInSafeAccess(e) {
   } else if (e instanceof BinaryOperatorExpr) {
     return needsTemporaryInSafeAccess(e.lhs) || needsTemporaryInSafeAccess(e.rhs);
   } else if (e instanceof ConditionalExpr) {
-    if (e.falseCase && needsTemporaryInSafeAccess(e.falseCase)) return true;
+    if (e.falseCase && needsTemporaryInSafeAccess(e.falseCase))
+      return true;
     return needsTemporaryInSafeAccess(e.condition) || needsTemporaryInSafeAccess(e.trueCase);
   } else if (e instanceof NotExpr) {
     return needsTemporaryInSafeAccess(e.condition);
@@ -10578,9 +10936,7 @@ function formatValue(value) {
   if (value.flags & I18nParamValueFlags.OpenTag && value.flags & I18nParamValueFlags.CloseTag) {
     return `${formatValue(__spreadProps(__spreadValues({}, value), {
       flags: value.flags & ~I18nParamValueFlags.CloseTag
-    }))}${formatValue(__spreadProps(__spreadValues({}, value), {
-      flags: value.flags & ~I18nParamValueFlags.OpenTag
-    }))}`;
+    }))}${formatValue(__spreadProps(__spreadValues({}, value), { flags: value.flags & ~I18nParamValueFlags.OpenTag }))}`;
   }
   if (value.flags === I18nParamValueFlags.None) {
     return `${value.value}`;
@@ -10678,7 +11034,11 @@ function generateProjectionDefs(job) {
   }
 }
 function generateVariables(job) {
-  recursivelyProcessView(job.root, null);
+  recursivelyProcessView(
+    job.root,
+    /* there is no parent scope for the root view */
+    null
+  );
 }
 function recursivelyProcessView(view, parentScope) {
   const scope = getScopeForView(view, parentScope);
@@ -10833,10 +11193,7 @@ function parseHostStyleProperties(job) {
       if (!isCssCustomProperty(op.name)) {
         op.name = hyphenate$1(op.name);
       }
-      const {
-        property: property2,
-        suffix
-      } = parseProperty(op.name);
+      const { property: property2, suffix } = parseProperty(op.name);
       op.name = property2;
       op.unit = suffix;
     } else if (op.name.startsWith(STYLE_BANG)) {
@@ -10871,10 +11228,7 @@ function parseProperty(name) {
     suffix = name.slice(unitIndex + 1);
     property2 = name.substring(0, unitIndex);
   }
-  return {
-    property: property2,
-    suffix
-  };
+  return { property: property2, suffix };
 }
 function mapLiteral(obj, quoted = false) {
   return literalMap(Object.keys(obj).map((key) => ({
@@ -10908,7 +11262,11 @@ var IcuSerializerVisitor = class {
     return this.formatPh(ph.name);
   }
   formatPh(value) {
-    return `{${formatI18nPlaceholderName(value, false)}}`;
+    return `{${formatI18nPlaceholderName(
+      value,
+      /* useCamelCase */
+      false
+    )}}`;
   }
 };
 var serializer = new IcuSerializerVisitor();
@@ -11171,7 +11529,8 @@ var RecursiveVisitor2 = class {
     let results = [];
     let t = this;
     function visit(children) {
-      if (children) results.push(visitAll(t, children, context));
+      if (children)
+        results.push(visitAll(t, children, context));
     }
     cb(visit);
     return Array.prototype.concat.apply([], results);
@@ -13337,15 +13696,25 @@ var CharacterReferenceType;
   CharacterReferenceType2["HEX"] = "hexadecimal";
   CharacterReferenceType2["DEC"] = "decimal";
 })(CharacterReferenceType || (CharacterReferenceType = {}));
-var SUPPORTED_BLOCKS = ["@if", "@else", "@for", "@switch", "@case", "@default", "@empty", "@defer", "@placeholder", "@loading", "@error"];
-var INTERPOLATION = {
-  start: "{{",
-  end: "}}"
-};
+var SUPPORTED_BLOCKS = [
+  "@if",
+  "@else",
+  // Covers `@else if` as well
+  "@for",
+  "@switch",
+  "@case",
+  "@default",
+  "@empty",
+  "@defer",
+  "@placeholder",
+  "@loading",
+  "@error"
+];
 var _Tokenizer = class {
   _getTagDefinition;
   _cursor;
   _tokenizeIcu;
+  _interpolationConfig;
   _leadingTriviaCodePoints;
   _currentTokenStart = null;
   _currentTokenType = null;
@@ -13360,9 +13729,15 @@ var _Tokenizer = class {
   tokens = [];
   errors = [];
   nonNormalizedIcuExpressions = [];
+  /**
+   * @param _file The html source file being tokenized.
+   * @param _getTagDefinition A function that will retrieve a tag definition for a given tag name.
+   * @param options Configuration of the tokenization.
+   */
   constructor(_file, _getTagDefinition, options) {
     this._getTagDefinition = _getTagDefinition;
     this._tokenizeIcu = options.tokenizeExpansionForms || false;
+    this._interpolationConfig = options.interpolationConfig || DEFAULT_INTERPOLATION_CONFIG;
     this._leadingTriviaCodePoints = options.leadingTriviaChars && options.leadingTriviaChars.map((c) => c.codePointAt(0) || 0);
     const range = options.range || {
       endPos: _file.content.length,
@@ -13406,7 +13781,9 @@ var _Tokenizer = class {
           } else {
             this._consumeTagOpen(start);
           }
-        } else if (this._tokenizeLet && this._cursor.peek() === $AT && !this._inInterpolation && this._isLetStart()) {
+        } else if (this._tokenizeLet && // Use `peek` instead of `attempCharCode` since we
+        // don't want to advance in case it's not `@let`.
+        this._cursor.peek() === $AT && !this._inInterpolation && this._isLetStart()) {
           this._consumeLetDeclaration(start);
         } else if (this._tokenizeBlocks && this._isBlockStart()) {
           this._consumeBlockStart(start);
@@ -13419,7 +13796,10 @@ var _Tokenizer = class {
         this.handleError(e);
       }
     }
-    this._beginToken(41);
+    this._beginToken(
+      41
+      /* TokenType.EOF */
+    );
     this._endToken([]);
   }
   _getBlockName() {
@@ -13453,7 +13833,10 @@ var _Tokenizer = class {
       }
     }
     if (this._attemptCharCode($LBRACE)) {
-      this._beginToken(25);
+      this._beginToken(
+        25
+        /* TokenType.BLOCK_OPEN_END */
+      );
       this._endToken([]);
     } else {
       startToken.type = 28;
@@ -13466,7 +13849,10 @@ var _Tokenizer = class {
   _consumeBlockParameters() {
     this._attemptCharCodeUntilFn(isBlockParameterChar);
     while (this._cursor.peek() !== $RPAREN && this._cursor.peek() !== $EOF) {
-      this._beginToken(27);
+      this._beginToken(
+        27
+        /* TokenType.BLOCK_PARAMETER */
+      );
       const start = this._cursor.clone();
       let inQuote = null;
       let openParens = 0;
@@ -13513,7 +13899,10 @@ var _Tokenizer = class {
     this._consumeLetDeclarationValue();
     const endChar = this._cursor.peek();
     if (endChar === $SEMICOLON) {
-      this._beginToken(31);
+      this._beginToken(
+        31
+        /* TokenType.LET_END */
+      );
       this._endToken([]);
       this._cursor.advance();
     } else {
@@ -13525,7 +13914,8 @@ var _Tokenizer = class {
     const nameCursor = this._cursor.clone();
     let allowDigit = false;
     this._attemptCharCodeUntilFn((code) => {
-      if (isAsciiLetter(code) || code === $$ || code === $_ || allowDigit && isDigit(code)) {
+      if (isAsciiLetter(code) || code === $$ || code === $_ || // `@let` names can't start with a digit, but digits are valid anywhere else in the name.
+      allowDigit && isDigit(code)) {
         allowDigit = true;
         return false;
       }
@@ -13555,6 +13945,10 @@ var _Tokenizer = class {
     }
     this._endToken([this._cursor.getChars(start)]);
   }
+  /**
+   * @returns whether an ICU token has been created
+   * @internal
+   */
   _tokenizeExpansionForm() {
     if (this.isExpansionFormStart()) {
       this._consumeExpansionFormStart();
@@ -13707,7 +14101,10 @@ var _Tokenizer = class {
     return this._cursor.peek() === $AT && this._peekStr("@let");
   }
   _consumeEntity(textTokenType) {
-    this._beginToken(9);
+    this._beginToken(
+      9
+      /* TokenType.ENCODED_ENTITY */
+    );
     const start = this._cursor.clone();
     this._cursor.advance();
     if (this._attemptCharCode($HASH)) {
@@ -13746,7 +14143,10 @@ var _Tokenizer = class {
     }
   }
   _consumeRawText(consumeEntities, endMarkerPredicate) {
-    this._beginToken(consumeEntities ? 6 : 7);
+    this._beginToken(
+      consumeEntities ? 6 : 7
+      /* TokenType.RAW_TEXT */
+    );
     const parts = [];
     while (true) {
       const tagCloseStart = this._cursor.clone();
@@ -13758,8 +14158,14 @@ var _Tokenizer = class {
       if (consumeEntities && this._cursor.peek() === $AMPERSAND) {
         this._endToken([this._processCarriageReturns(parts.join(""))]);
         parts.length = 0;
-        this._consumeEntity(6);
-        this._beginToken(6);
+        this._consumeEntity(
+          6
+          /* TokenType.ESCAPABLE_RAW_TEXT */
+        );
+        this._beginToken(
+          6
+          /* TokenType.ESCAPABLE_RAW_TEXT */
+        );
       } else {
         parts.push(this._readChar());
       }
@@ -13771,7 +14177,10 @@ var _Tokenizer = class {
     this._requireCharCode($MINUS);
     this._endToken([]);
     this._consumeRawText(false, () => this._attemptStr("-->"));
-    this._beginToken(11);
+    this._beginToken(
+      11
+      /* TokenType.COMMENT_END */
+    );
     this._requireStr("-->");
     this._endToken([]);
   }
@@ -13780,7 +14189,10 @@ var _Tokenizer = class {
     this._requireStr("CDATA[");
     this._endToken([]);
     this._consumeRawText(false, () => this._attemptStr("]]>"));
-    this._beginToken(13);
+    this._beginToken(
+      13
+      /* TokenType.CDATA_END */
+    );
     this._requireStr("]]>");
     this._endToken([]);
   }
@@ -13873,14 +14285,20 @@ var _Tokenizer = class {
   }
   _consumeRawTextWithTagClose(openToken, tagName, consumeEntities) {
     this._consumeRawText(consumeEntities, () => {
-      if (!this._attemptCharCode($LT)) return false;
-      if (!this._attemptCharCode($SLASH)) return false;
+      if (!this._attemptCharCode($LT))
+        return false;
+      if (!this._attemptCharCode($SLASH))
+        return false;
       this._attemptCharCodeUntilFn(isNotWhitespace);
-      if (!this._attemptStrCaseInsensitive(tagName)) return false;
+      if (!this._attemptStrCaseInsensitive(tagName))
+        return false;
       this._attemptCharCodeUntilFn(isNotWhitespace);
       return this._attemptCharCode($GT);
     });
-    this._beginToken(openToken.type === 33 ? 36 : 3);
+    this._beginToken(
+      openToken.type === 33 ? 36 : 3
+      /* TokenType.TAG_CLOSE */
+    );
     this._requireCharCodeUntilFn((code) => code === $GT, 3);
     this._cursor.advance();
     this._endToken(openToken.parts);
@@ -13923,7 +14341,10 @@ var _Tokenizer = class {
     if (attrNameStart === $SQ || attrNameStart === $DQ) {
       throw this._createError(_unexpectedCharacterErrorMsg(attrNameStart), this._cursor.getSpan());
     }
-    this._beginToken(14);
+    this._beginToken(
+      14
+      /* TokenType.ATTR_NAME */
+    );
     let nameEndPredicate;
     if (this._openDirectiveCount > 0) {
       let openParens = 0;
@@ -13969,7 +14390,10 @@ var _Tokenizer = class {
     }
   }
   _consumeQuote(quoteChar) {
-    this._beginToken(15);
+    this._beginToken(
+      15
+      /* TokenType.ATTR_QUOTE */
+    );
     this._requireCharCode(quoteChar);
     this._endToken([String.fromCodePoint(quoteChar)]);
   }
@@ -14008,11 +14432,20 @@ var _Tokenizer = class {
     this._endToken(prefixAndName);
   }
   _consumeExpansionFormStart() {
-    this._beginToken(19);
+    this._beginToken(
+      19
+      /* TokenType.EXPANSION_FORM_START */
+    );
     this._requireCharCode($LBRACE);
     this._endToken([]);
-    this._expansionCaseStack.push(19);
-    this._beginToken(7);
+    this._expansionCaseStack.push(
+      19
+      /* TokenType.EXPANSION_FORM_START */
+    );
+    this._beginToken(
+      7
+      /* TokenType.RAW_TEXT */
+    );
     const condition = this._readUntil($COMMA);
     const normalizedCondition = this._processCarriageReturns(condition);
     if (this._i18nNormalizeLineEndingsInICUs) {
@@ -14025,42 +14458,74 @@ var _Tokenizer = class {
     }
     this._requireCharCode($COMMA);
     this._attemptCharCodeUntilFn(isNotWhitespace);
-    this._beginToken(7);
+    this._beginToken(
+      7
+      /* TokenType.RAW_TEXT */
+    );
     const type = this._readUntil($COMMA);
     this._endToken([type]);
     this._requireCharCode($COMMA);
     this._attemptCharCodeUntilFn(isNotWhitespace);
   }
   _consumeExpansionCaseStart() {
-    this._beginToken(20);
+    this._beginToken(
+      20
+      /* TokenType.EXPANSION_CASE_VALUE */
+    );
     const value = this._readUntil($LBRACE).trim();
     this._endToken([value]);
     this._attemptCharCodeUntilFn(isNotWhitespace);
-    this._beginToken(21);
+    this._beginToken(
+      21
+      /* TokenType.EXPANSION_CASE_EXP_START */
+    );
     this._requireCharCode($LBRACE);
     this._endToken([]);
     this._attemptCharCodeUntilFn(isNotWhitespace);
-    this._expansionCaseStack.push(21);
+    this._expansionCaseStack.push(
+      21
+      /* TokenType.EXPANSION_CASE_EXP_START */
+    );
   }
   _consumeExpansionCaseEnd() {
-    this._beginToken(22);
+    this._beginToken(
+      22
+      /* TokenType.EXPANSION_CASE_EXP_END */
+    );
     this._requireCharCode($RBRACE);
     this._endToken([]);
     this._attemptCharCodeUntilFn(isNotWhitespace);
     this._expansionCaseStack.pop();
   }
   _consumeExpansionFormEnd() {
-    this._beginToken(23);
+    this._beginToken(
+      23
+      /* TokenType.EXPANSION_FORM_END */
+    );
     this._requireCharCode($RBRACE);
     this._endToken([]);
     this._expansionCaseStack.pop();
   }
+  /**
+   * Consume a string that may contain interpolation expressions.
+   *
+   * The first token consumed will be of `tokenType` and then there will be alternating
+   * `interpolationTokenType` and `tokenType` tokens until the `endPredicate()` returns true.
+   *
+   * If an interpolation token ends prematurely it will have no end marker in its `parts` array.
+   *
+   * @param textTokenType the kind of tokens to interleave around interpolation tokens.
+   * @param interpolationTokenType the kind of tokens that contain interpolation.
+   * @param endPredicate a function that should return true when we should stop consuming.
+   * @param endInterpolation a function that should return true if there is a premature end to an
+   *     interpolation expression - i.e. before we get to the normal interpolation closing marker.
+   */
   _consumeWithInterpolation(textTokenType, interpolationTokenType, endPredicate, endInterpolation) {
     this._beginToken(textTokenType);
     const parts = [];
     while (!endPredicate()) {
       const current = this._cursor.clone();
-      if (this._attemptStr(INTERPOLATION.start)) {
+      if (this._interpolationConfig && this._attemptStr(this._interpolationConfig.start)) {
         this._endToken([this._processCarriageReturns(parts.join(""))], current);
         parts.length = 0;
         this._consumeInterpolation(interpolationTokenType, current, endInterpolation);
@@ -14077,10 +14542,18 @@ var _Tokenizer = class {
     this._inInterpolation = false;
     this._endToken([this._processCarriageReturns(parts.join(""))]);
   }
+  /**
+   * Consume a block of text that has been interpreted as an Angular interpolation.
+   *
+   * @param interpolationTokenType the type of the interpolation token to generate.
+   * @param interpolationStart a cursor that points to the start of this interpolation.
+   * @param prematureEndPredicate a function that should return true if the next characters indicate
+   *     an end to the interpolation before its normal closing marker.
+   */
   _consumeInterpolation(interpolationTokenType, interpolationStart, prematureEndPredicate) {
     const parts = [];
     this._beginToken(interpolationTokenType, interpolationStart);
-    parts.push(INTERPOLATION.start);
+    parts.push(this._interpolationConfig.start);
     const expressionStart = this._cursor.clone();
     let inQuote = null;
     let inComment = false;
@@ -14093,9 +14566,9 @@ var _Tokenizer = class {
         return;
       }
       if (inQuote === null) {
-        if (this._attemptStr(INTERPOLATION.end)) {
+        if (this._attemptStr(this._interpolationConfig.end)) {
           parts.push(this._getProcessedChars(expressionStart, current));
-          parts.push(INTERPOLATION.end);
+          parts.push(this._interpolationConfig.end);
           this._endToken(parts);
           return;
         } else if (this._attemptStr("//")) {
@@ -14129,7 +14602,10 @@ var _Tokenizer = class {
       return;
     }
     this._openDirectiveCount++;
-    this._beginToken(39);
+    this._beginToken(
+      39
+      /* TokenType.DIRECTIVE_OPEN */
+    );
     this._cursor.advance();
     this._endToken([]);
     this._attemptCharCodeUntilFn(isNotWhitespace);
@@ -14144,7 +14620,10 @@ var _Tokenizer = class {
       }
       throw this._createError(_unexpectedCharacterErrorMsg(this._cursor.peek()), this._cursor.getSpan(start));
     }
-    this._beginToken(40);
+    this._beginToken(
+      40
+      /* TokenType.DIRECTIVE_CLOSE */
+    );
     this._cursor.advance();
     this._endToken([]);
     this._attemptCharCodeUntilFn(isNotWhitespace);
@@ -14169,6 +14648,10 @@ var _Tokenizer = class {
     }
     return false;
   }
+  /**
+   * Returns true if the current cursor is pointing to the start of a tag
+   * (opening/closing/comments/cdata/etc).
+   */
   _isTagStart() {
     if (this._cursor.peek() === $LT) {
       const tmp = this._cursor.clone();
@@ -14198,10 +14681,13 @@ var _Tokenizer = class {
     if (this._cursor.peek() !== $LBRACE) {
       return false;
     }
-    const start = this._cursor.clone();
-    const isInterpolation = this._attemptStr(INTERPOLATION.start);
-    this._cursor = start;
-    return !isInterpolation;
+    if (this._interpolationConfig) {
+      const start = this._cursor.clone();
+      const isInterpolation = this._attemptStr(this._interpolationConfig.start);
+      this._cursor = start;
+      return !isInterpolation;
+    }
+    return true;
   }
 };
 function isNotWhitespace(code) {
@@ -14384,6 +14870,11 @@ var EscapedCharacterCursor = class _EscapedCharacterCursor extends PlainCharacte
     }
     return chars;
   }
+  /**
+   * Process the escape sequence that starts at the current position in the text.
+   *
+   * This method is called to ensure that `peek` has the unescaped value of escape sequences.
+   */
   processEscapeSequence() {
     const peek = () => this.internalState.peek;
     if (peek() === $BACKSLASH) {
@@ -14499,6 +14990,7 @@ var _TreeBuilder = class __TreeBuilder {
   tokens;
   tagDefinitionResolver;
   _index = -1;
+  // `_peek` will be initialized by the call to `_advance()` in the constructor.
   _peek;
   _containerStack = [];
   rootNodes = [];
@@ -14570,11 +15062,20 @@ var _TreeBuilder = class __TreeBuilder {
   }
   _consumeCdata(_startToken) {
     this._consumeText(this._advance());
-    this._advanceIf(13);
+    this._advanceIf(
+      13
+      /* TokenType.CDATA_END */
+    );
   }
   _consumeComment(token) {
-    const text2 = this._advanceIf(7);
-    const endToken = this._advanceIf(11);
+    const text2 = this._advanceIf(
+      7
+      /* TokenType.RAW_TEXT */
+    );
+    const endToken = this._advanceIf(
+      11
+      /* TokenType.COMMENT_END */
+    );
     const value = text2 != null ? text2.parts[0].trim() : null;
     const sourceSpan = endToken == null ? token.sourceSpan : new ParseSourceSpan(token.sourceSpan.start, endToken.sourceSpan.end, token.sourceSpan.fullStart);
     this._addToParent(new Comment2(value, sourceSpan));
@@ -14585,7 +15086,8 @@ var _TreeBuilder = class __TreeBuilder {
     const cases = [];
     while (this._peek.type === 20) {
       const expCase = this._parseExpansionCase();
-      if (!expCase) return;
+      if (!expCase)
+        return;
       cases.push(expCase);
     }
     if (this._peek.type !== 23) {
@@ -14604,13 +15106,10 @@ var _TreeBuilder = class __TreeBuilder {
     }
     const start = this._advance();
     const exp = this._collectExpansionExpTokens(start);
-    if (!exp) return null;
+    if (!exp)
+      return null;
     const end = this._advance();
-    exp.push({
-      type: 41,
-      parts: [],
-      sourceSpan: end.sourceSpan
-    });
+    exp.push({ type: 41, parts: [], sourceSpan: end.sourceSpan });
     const expansionCaseParser = new __TreeBuilder(exp, this.tagDefinitionResolver);
     expansionCaseParser.build();
     if (expansionCaseParser.errors.length > 0) {
@@ -14623,22 +15122,34 @@ var _TreeBuilder = class __TreeBuilder {
   }
   _collectExpansionExpTokens(start) {
     const exp = [];
-    const expansionFormStack = [21];
+    const expansionFormStack = [
+      21
+      /* TokenType.EXPANSION_CASE_EXP_START */
+    ];
     while (true) {
       if (this._peek.type === 19 || this._peek.type === 21) {
         expansionFormStack.push(this._peek.type);
       }
       if (this._peek.type === 22) {
-        if (lastOnStack(expansionFormStack, 21)) {
+        if (lastOnStack(
+          expansionFormStack,
+          21
+          /* TokenType.EXPANSION_CASE_EXP_START */
+        )) {
           expansionFormStack.pop();
-          if (expansionFormStack.length === 0) return exp;
+          if (expansionFormStack.length === 0)
+            return exp;
         } else {
           this.errors.push(TreeError.create(null, start.sourceSpan, `Invalid ICU message. Missing '}'.`));
           return null;
         }
       }
       if (this._peek.type === 23) {
-        if (lastOnStack(expansionFormStack, 19)) {
+        if (lastOnStack(
+          expansionFormStack,
+          19
+          /* TokenType.EXPANSION_FORM_START */
+        )) {
           expansionFormStack.pop();
         } else {
           this.errors.push(TreeError.create(null, start.sourceSpan, `Invalid ICU message. Missing '}'.`));
@@ -14660,11 +15171,7 @@ var _TreeBuilder = class __TreeBuilder {
       const parent = this._getContainer();
       if (parent != null && parent.children.length === 0 && this._getTagDefinition(parent)?.ignoreFirstLf) {
         text2 = text2.substring(1);
-        tokens[0] = {
-          type: token.type,
-          sourceSpan: token.sourceSpan,
-          parts: [text2]
-        };
+        tokens[0] = { type: token.type, sourceSpan: token.sourceSpan, parts: [text2] };
       }
     }
     while (this._peek.type === 8 || this._peek.type === 5 || this._peek.type === 9) {
@@ -14794,6 +15301,12 @@ var _TreeBuilder = class __TreeBuilder {
       this.errors.push(TreeError.create(fullName, endTagToken.sourceSpan, errMsg));
     }
   }
+  /**
+   * Closes the nearest element with the tag name `fullName` in the parse tree.
+   * `endSourceSpan` is the span of the closing tag, or null if the element does
+   * not have a closing tag (for example, this happens when an incomplete
+   * opening tag is recovered).
+   */
   _popContainer(expectedName, expectedType, endSourceSpan) {
     let unexpectedCloseTagDetected = false;
     for (let stackIndex = this._containerStack.length - 1; stackIndex >= 0; stackIndex--) {
@@ -15035,6 +15548,9 @@ var WhitespaceVisitor = class {
   preserveSignificantWhitespace;
   originalNodeMap;
   requireContext;
+  // How many ICU expansions which are currently being visited. ICUs can be nested, so this
+  // tracks the current depth of nesting. If this depth is greater than 0, then this visitor is
+  // currently processing content inside an ICU expansion.
   icuExpansionDepth = 0;
   constructor(preserveSignificantWhitespace, originalNodeMap, requireContext = true) {
     this.preserveSignificantWhitespace = preserveSignificantWhitespace;
@@ -15058,7 +15574,8 @@ var WhitespaceVisitor = class {
     const isNotBlank = text2.value.match(NO_WS_REGEXP);
     const hasExpansionSibling = context && (context.prev instanceof Expansion || context.next instanceof Expansion);
     const inIcuExpansion = this.icuExpansionDepth > 0;
-    if (inIcuExpansion && this.preserveSignificantWhitespace) return text2;
+    if (inIcuExpansion && this.preserveSignificantWhitespace)
+      return text2;
     if (isNotBlank || hasExpansionSibling) {
       const tokens = text2.tokens.map((token) => token.type === 5 ? createWhitespaceProcessedTextToken(token) : token);
       if (!this.preserveSignificantWhitespace && tokens.length > 0) {
@@ -15126,15 +15643,19 @@ var WhitespaceVisitor = class {
   }
 };
 function trimLeadingWhitespace(token, context) {
-  if (token.type !== 5) return token;
+  if (token.type !== 5)
+    return token;
   const isFirstTokenInTag = !context?.prev;
-  if (!isFirstTokenInTag) return token;
+  if (!isFirstTokenInTag)
+    return token;
   return transformTextToken(token, (text2) => text2.trimStart());
 }
 function trimTrailingWhitespace(token, context) {
-  if (token.type !== 5) return token;
+  if (token.type !== 5)
+    return token;
   const isLastTokenInTag = !context?.next;
-  if (!isLastTokenInTag) return token;
+  if (!isLastTokenInTag)
+    return token;
   return transformTextToken(token, (text2) => text2.trimEnd());
 }
 function trimLeadingAndTrailingWhitespace(text2, context) {
@@ -15144,27 +15665,11 @@ function trimLeadingAndTrailingWhitespace(text2, context) {
   const maybeTrimmed = isLastTokenInTag ? maybeTrimmedStart.trimEnd() : maybeTrimmedStart;
   return maybeTrimmed;
 }
-function createWhitespaceProcessedTextToken({
-  type,
-  parts,
-  sourceSpan
-}) {
-  return {
-    type,
-    parts: [processWhitespace(parts[0])],
-    sourceSpan
-  };
+function createWhitespaceProcessedTextToken({ type, parts, sourceSpan }) {
+  return { type, parts: [processWhitespace(parts[0])], sourceSpan };
 }
-function transformTextToken({
-  type,
-  parts,
-  sourceSpan
-}, transform2) {
-  return {
-    type,
-    parts: [transform2(parts[0])],
-    sourceSpan
-  };
+function transformTextToken({ type, parts, sourceSpan }, transform2) {
+  return { type, parts: [transform2(parts[0])], sourceSpan };
 }
 function processWhitespace(text2) {
   return replaceNgsp(text2).replace(WS_REPLACE_REGEXP, " ");
@@ -15172,10 +15677,7 @@ function processWhitespace(text2) {
 function visitAllWithSiblings(visitor, nodes) {
   const result = [];
   nodes.forEach((ast, i) => {
-    const context = {
-      prev: nodes[i - 1],
-      next: nodes[i + 1]
-    };
+    const context = { prev: nodes[i - 1], next: nodes[i + 1] };
     const astResult = ast.visit(visitor, context);
     if (astResult) {
       result.push(astResult);
@@ -15192,9 +15694,7 @@ var TokenType;
   TokenType2[TokenType2["String"] = 4] = "String";
   TokenType2[TokenType2["Operator"] = 5] = "Operator";
   TokenType2[TokenType2["Number"] = 6] = "Number";
-  TokenType2[TokenType2["RegExpBody"] = 7] = "RegExpBody";
-  TokenType2[TokenType2["RegExpFlags"] = 8] = "RegExpFlags";
-  TokenType2[TokenType2["Error"] = 9] = "Error";
+  TokenType2[TokenType2["Error"] = 7] = "Error";
 })(TokenType || (TokenType = {}));
 var StringTokenKind;
 (function(StringTokenKind2) {
@@ -15202,7 +15702,21 @@ var StringTokenKind;
   StringTokenKind2[StringTokenKind2["TemplateLiteralPart"] = 1] = "TemplateLiteralPart";
   StringTokenKind2[StringTokenKind2["TemplateLiteralEnd"] = 2] = "TemplateLiteralEnd";
 })(StringTokenKind || (StringTokenKind = {}));
-var KEYWORDS = ["var", "let", "as", "null", "undefined", "true", "false", "if", "else", "this", "typeof", "void", "in"];
+var KEYWORDS = [
+  "var",
+  "let",
+  "as",
+  "null",
+  "undefined",
+  "true",
+  "false",
+  "if",
+  "else",
+  "this",
+  "typeof",
+  "void",
+  "in"
+];
 var Lexer = class {
   tokenize(text2) {
     return new _Scanner(text2).scan();
@@ -15275,12 +15789,6 @@ var Token = class {
   isError() {
     return this.type === TokenType.Error;
   }
-  isRegExpBody() {
-    return this.type === TokenType.RegExpBody;
-  }
-  isRegExpFlags() {
-    return this.type === TokenType.RegExpFlags;
-  }
   toNumber() {
     return this.type === TokenType.Number ? this.numValue : -1;
   }
@@ -15302,8 +15810,6 @@ var Token = class {
       case TokenType.PrivateIdentifier:
       case TokenType.String:
       case TokenType.Error:
-      case TokenType.RegExpBody:
-      case TokenType.RegExpFlags:
         return this.strValue;
       case TokenType.Number:
         return this.numValue.toString();
@@ -15339,12 +15845,6 @@ function newNumberToken(index, end, n) {
 }
 function newErrorToken(index, end, message) {
   return new Token(index, end, TokenType.Error, 0, message);
-}
-function newRegExpBodyToken(index, end, text2) {
-  return new Token(index, end, TokenType.RegExpBody, 0, text2);
-}
-function newRegExpFlagsToken(index, end, text2) {
-  return new Token(index, end, TokenType.RegExpFlags, 0, text2);
 }
 var EOF = new Token(-1, -1, TokenType.Character, 0, "");
 var _Scanner = class {
@@ -15424,7 +15924,7 @@ var _Scanner = class {
       case $MINUS:
         return this.scanComplexOperator(start, "-", $EQ, "=");
       case $SLASH:
-        return this.isStartOfRegex() ? this.scanRegex(index) : this.scanComplexOperator(start, "/", $EQ, "=");
+        return this.scanComplexOperator(start, "/", $EQ, "=");
       case $PERCENT:
         return this.scanComplexOperator(start, "%", $EQ, "=");
       case $CARET:
@@ -15444,7 +15944,8 @@ var _Scanner = class {
       case $BAR:
         return this.scanComplexOperator(start, "|", $BAR, "|", $EQ, "=");
       case $NBSP:
-        while (isWhitespace(this.peek)) this.advance();
+        while (isWhitespace(this.peek))
+          this.advance();
         return this.scanToken();
     }
     this.advance();
@@ -15472,6 +15973,16 @@ var _Scanner = class {
     }
     return newCharacterToken(start, this.index, code);
   }
+  /**
+   * Tokenize a 2/3 char long operator
+   *
+   * @param start start index in the expression
+   * @param one first symbol (always part of the operator)
+   * @param twoCode code point for the second symbol
+   * @param two second symbol (part of the operator when the second code point matches)
+   * @param threeCode code point for the third symbol
+   * @param three third symbol (part of the operator when provided and matches source expression)
+   */
   scanComplexOperator(start, one, twoCode, two, threeCode, three) {
     this.advance();
     let str = one;
@@ -15488,17 +15999,20 @@ var _Scanner = class {
   scanIdentifier() {
     const start = this.index;
     this.advance();
-    while (isIdentifierPart(this.peek)) this.advance();
+    while (isIdentifierPart(this.peek))
+      this.advance();
     const str = this.input.substring(start, this.index);
     return KEYWORDS.indexOf(str) > -1 ? newKeywordToken(start, this.index, str) : newIdentifierToken(start, this.index, str);
   }
+  /** Scans an ECMAScript private identifier. */
   scanPrivateIdentifier() {
     const start = this.index;
     this.advance();
     if (!isIdentifierStart(this.peek)) {
       return this.error("Invalid character [#]", -1);
     }
-    while (isIdentifierPart(this.peek)) this.advance();
+    while (isIdentifierPart(this.peek))
+      this.advance();
     const identifierName2 = this.input.substring(start, this.index);
     return newPrivateIdentifierToken(start, this.index, identifierName2);
   }
@@ -15517,8 +16031,10 @@ var _Scanner = class {
         simple = false;
       } else if (isExponentStart(this.peek)) {
         this.advance();
-        if (isExponentSign(this.peek)) this.advance();
-        if (!isDigit(this.peek)) return this.error("Invalid exponent", -1);
+        if (isExponentSign(this.peek))
+          this.advance();
+        if (!isDigit(this.peek))
+          return this.error("Invalid exponent", -1);
         simple = false;
       } else {
         break;
@@ -15644,60 +16160,6 @@ var _Scanner = class {
     }
     return newOperatorToken(start, this.index, operator);
   }
-  isStartOfRegex() {
-    if (this.tokens.length === 0) {
-      return true;
-    }
-    const prevToken = this.tokens[this.tokens.length - 1];
-    if (prevToken.isOperator("!")) {
-      const beforePrevToken = this.tokens.length > 1 ? this.tokens[this.tokens.length - 2] : null;
-      const isNegation = beforePrevToken === null || beforePrevToken.type !== TokenType.Identifier && !beforePrevToken.isCharacter($RPAREN) && !beforePrevToken.isCharacter($RBRACKET);
-      return isNegation;
-    }
-    return prevToken.type === TokenType.Operator || prevToken.isCharacter($LPAREN) || prevToken.isCharacter($LBRACKET) || prevToken.isCharacter($COMMA) || prevToken.isCharacter($COLON);
-  }
-  scanRegex(tokenStart) {
-    this.advance();
-    const textStart = this.index;
-    let inEscape = false;
-    let inCharacterClass = false;
-    while (true) {
-      const peek = this.peek;
-      if (peek === $EOF) {
-        return this.error("Unterminated regular expression", 0);
-      }
-      if (inEscape) {
-        inEscape = false;
-      } else if (peek === $BACKSLASH) {
-        inEscape = true;
-      } else if (peek === $LBRACKET) {
-        inCharacterClass = true;
-      } else if (peek === $RBRACKET) {
-        inCharacterClass = false;
-      } else if (peek === $SLASH && !inCharacterClass) {
-        break;
-      }
-      this.advance();
-    }
-    const value = this.input.substring(textStart, this.index);
-    this.advance();
-    const bodyToken = newRegExpBodyToken(tokenStart, this.index, value);
-    const flagsToken = this.scanRegexFlags(this.index);
-    if (flagsToken !== null) {
-      this.tokens.push(bodyToken);
-      return flagsToken;
-    }
-    return bodyToken;
-  }
-  scanRegexFlags(start) {
-    if (!isAsciiLetter(this.peek)) {
-      return null;
-    }
-    while (isAsciiLetter(this.peek)) {
-      this.advance();
-    }
-    return newRegExpFlagsToken(start, this.index, this.input.substring(start, this.index));
-  }
 };
 function isIdentifierStart(code) {
   return $a <= code && code <= $z || $A <= code && code <= $Z || code == $_ || code == $$;
@@ -15764,19 +16226,17 @@ var Parser2 = class {
     this._lexer = _lexer;
     this._supportsDirectPipeReferences = _supportsDirectPipeReferences;
   }
-  parseAction(input, parseSourceSpan, absoluteOffset) {
+  parseAction(input, parseSourceSpan, absoluteOffset, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
     const errors = [];
-    this._checkNoInterpolation(errors, input, parseSourceSpan);
-    const {
-      stripped: sourceToLex
-    } = this._stripComments(input);
+    this._checkNoInterpolation(errors, input, parseSourceSpan, interpolationConfig);
+    const { stripped: sourceToLex } = this._stripComments(input);
     const tokens = this._lexer.tokenize(sourceToLex);
     const ast = new _ParseAST(input, parseSourceSpan, absoluteOffset, tokens, 1, errors, 0, this._supportsDirectPipeReferences).parseChain();
     return new ASTWithSource(ast, input, getLocation(parseSourceSpan), absoluteOffset, errors);
   }
-  parseBinding(input, parseSourceSpan, absoluteOffset) {
+  parseBinding(input, parseSourceSpan, absoluteOffset, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
     const errors = [];
-    const ast = this._parseBindingAst(input, parseSourceSpan, absoluteOffset, errors);
+    const ast = this._parseBindingAst(input, parseSourceSpan, absoluteOffset, interpolationConfig, errors);
     return new ASTWithSource(ast, input, getLocation(parseSourceSpan), absoluteOffset, errors);
   }
   checkSimpleExpression(ast) {
@@ -15784,23 +16244,48 @@ var Parser2 = class {
     ast.visit(checker);
     return checker.errors;
   }
-  parseSimpleBinding(input, parseSourceSpan, absoluteOffset) {
+  // Host bindings parsed here
+  parseSimpleBinding(input, parseSourceSpan, absoluteOffset, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
     const errors = [];
-    const ast = this._parseBindingAst(input, parseSourceSpan, absoluteOffset, errors);
+    const ast = this._parseBindingAst(input, parseSourceSpan, absoluteOffset, interpolationConfig, errors);
     const simplExpressionErrors = this.checkSimpleExpression(ast);
     if (simplExpressionErrors.length > 0) {
       errors.push(getParseError(`Host binding expression cannot contain ${simplExpressionErrors.join(" ")}`, input, "", parseSourceSpan));
     }
     return new ASTWithSource(ast, input, getLocation(parseSourceSpan), absoluteOffset, errors);
   }
-  _parseBindingAst(input, parseSourceSpan, absoluteOffset, errors) {
-    this._checkNoInterpolation(errors, input, parseSourceSpan);
-    const {
-      stripped: sourceToLex
-    } = this._stripComments(input);
+  _parseBindingAst(input, parseSourceSpan, absoluteOffset, interpolationConfig, errors) {
+    this._checkNoInterpolation(errors, input, parseSourceSpan, interpolationConfig);
+    const { stripped: sourceToLex } = this._stripComments(input);
     const tokens = this._lexer.tokenize(sourceToLex);
     return new _ParseAST(input, parseSourceSpan, absoluteOffset, tokens, 0, errors, 0, this._supportsDirectPipeReferences).parseChain();
   }
+  /**
+   * Parse microsyntax template expression and return a list of bindings or
+   * parsing errors in case the given expression is invalid.
+   *
+   * For example,
+   * ```html
+   *   <div *ngFor="let item of items">
+   *         ^      ^ absoluteValueOffset for `templateValue`
+   *         absoluteKeyOffset for `templateKey`
+   * ```
+   * contains three bindings:
+   * 1. ngFor -> null
+   * 2. item -> NgForOfContext.$implicit
+   * 3. ngForOf -> items
+   *
+   * This is apparent from the de-sugared template:
+   * ```html
+   *   <ng-template ngFor let-item [ngForOf]="items">
+   * ```
+   *
+   * @param templateKey name of directive, without the * prefix. For example: ngIf, ngFor
+   * @param templateValue RHS of the microsyntax attribute
+   * @param templateUrl template filename if it's external, component filename if it's inline
+   * @param absoluteKeyOffset start of the `templateKey`
+   * @param absoluteValueOffset start of the `templateValue`
+   */
   parseTemplateBindings(templateKey, templateValue, parseSourceSpan, absoluteKeyOffset, absoluteValueOffset) {
     const tokens = this._lexer.tokenize(templateValue);
     const errors = [];
@@ -15810,22 +16295,16 @@ var Parser2 = class {
       span: new AbsoluteSourceSpan(absoluteKeyOffset, absoluteKeyOffset + templateKey.length)
     });
   }
-  parseInterpolation(input, parseSourceSpan, absoluteOffset, interpolatedTokens) {
+  parseInterpolation(input, parseSourceSpan, absoluteOffset, interpolatedTokens, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
     const errors = [];
-    const {
-      strings,
-      expressions,
-      offsets
-    } = this.splitInterpolation(input, parseSourceSpan, errors, interpolatedTokens);
-    if (expressions.length === 0) return null;
+    const { strings, expressions, offsets } = this.splitInterpolation(input, parseSourceSpan, errors, interpolatedTokens, interpolationConfig);
+    if (expressions.length === 0)
+      return null;
     const expressionNodes = [];
     for (let i = 0; i < expressions.length; ++i) {
       const expressionSpan = interpolatedTokens?.[i * 2 + 1]?.sourceSpan;
       const expressionText = expressions[i].text;
-      const {
-        stripped: sourceToLex,
-        hasComments
-      } = this._stripComments(expressionText);
+      const { stripped: sourceToLex, hasComments } = this._stripComments(expressionText);
       const tokens = this._lexer.tokenize(sourceToLex);
       if (hasComments && sourceToLex.trim().length === 0 && tokens.length === 0) {
         errors.push(getParseError("Interpolation expression cannot only contain a comment", input, `at column ${expressions[i].start} in`, parseSourceSpan));
@@ -15836,10 +16315,13 @@ var Parser2 = class {
     }
     return this.createInterpolationAst(strings.map((s) => s.text), expressionNodes, input, getLocation(parseSourceSpan), absoluteOffset, errors);
   }
+  /**
+   * Similar to `parseInterpolation`, but treats the provided string as a single expression
+   * element that would normally appear within the interpolation prefix and suffix (`{{` and `}}`).
+   * This is used for parsing the switch expression in ICUs.
+   */
   parseInterpolationExpression(expression, parseSourceSpan, absoluteOffset) {
-    const {
-      stripped: sourceToLex
-    } = this._stripComments(expression);
+    const { stripped: sourceToLex } = this._stripComments(expression);
     const tokens = this._lexer.tokenize(sourceToLex);
     const errors = [];
     const ast = new _ParseAST(expression, parseSourceSpan, absoluteOffset, tokens, 0, errors, 0, this._supportsDirectPipeReferences).parseChain();
@@ -15851,7 +16333,14 @@ var Parser2 = class {
     const interpolation = new Interpolation$1(span, span.toAbsolute(absoluteOffset), strings, expressions);
     return new ASTWithSource(interpolation, input, location, absoluteOffset, errors);
   }
-  splitInterpolation(input, parseSourceSpan, errors, interpolatedTokens) {
+  /**
+   * Splits a string of text into "raw" text segments and expressions present in interpolations in
+   * the string.
+   * Returns `null` if there are no interpolations, otherwise a
+   * `SplitInterpolation` with splits that look like
+   *   <raw text> <expression> <raw text> ... <raw text> <expression> <raw text>
+   */
+  splitInterpolation(input, parseSourceSpan, errors, interpolatedTokens, interpolationConfig = DEFAULT_INTERPOLATION_CONFIG) {
     const strings = [];
     const expressions = [];
     const offsets = [];
@@ -15859,8 +16348,7 @@ var Parser2 = class {
     let i = 0;
     let atInterpolation = false;
     let extendLastString = false;
-    const interpStart = "{{";
-    const interpEnd = "}}";
+    let { start: interpStart, end: interpEnd } = interpolationConfig;
     while (i < input.length) {
       if (!atInterpolation) {
         const start = i;
@@ -15869,11 +16357,7 @@ var Parser2 = class {
           i = input.length;
         }
         const text2 = input.substring(start, i);
-        strings.push({
-          text: text2,
-          start,
-          end: i
-        });
+        strings.push({ text: text2, start, end: i });
         atInterpolation = true;
       } else {
         const fullStart = i;
@@ -15889,11 +16373,7 @@ var Parser2 = class {
         if (text2.trim().length === 0) {
           errors.push(getParseError("Blank expressions are not allowed in interpolated strings", input, `at column ${i} in`, parseSourceSpan));
         }
-        expressions.push({
-          text: text2,
-          start: fullStart,
-          end: fullEnd
-        });
+        expressions.push({ text: text2, start: fullStart, end: fullEnd });
         const startInOriginalTemplate = inputToTemplateIndexMap?.get(fullStart) ?? fullStart;
         const offset = startInOriginalTemplate + interpStart.length;
         offsets.push(offset);
@@ -15907,11 +16387,7 @@ var Parser2 = class {
         piece.text += input.substring(i);
         piece.end = input.length;
       } else {
-        strings.push({
-          text: input.substring(i),
-          start: i,
-          end: input.length
-        });
+        strings.push({ text: input.substring(i), start: i, end: input.length });
       }
     }
     return new SplitInterpolation(strings, expressions, offsets);
@@ -15922,20 +16398,15 @@ var Parser2 = class {
   }
   _stripComments(input) {
     const i = this._commentStart(input);
-    return i != null ? {
-      stripped: input.substring(0, i),
-      hasComments: true
-    } : {
-      stripped: input,
-      hasComments: false
-    };
+    return i != null ? { stripped: input.substring(0, i), hasComments: true } : { stripped: input, hasComments: false };
   }
   _commentStart(input) {
     let outerQuote = null;
     for (let i = 0; i < input.length - 1; i++) {
       const char = input.charCodeAt(i);
       const nextChar = input.charCodeAt(i + 1);
-      if (char === $SLASH && nextChar == $SLASH && outerQuote == null) return i;
+      if (char === $SLASH && nextChar == $SLASH && outerQuote == null)
+        return i;
       if (outerQuote === char) {
         outerQuote = null;
       } else if (outerQuote == null && isQuote(char)) {
@@ -15944,25 +16415,29 @@ var Parser2 = class {
     }
     return null;
   }
-  _checkNoInterpolation(errors, input, parseSourceSpan) {
+  _checkNoInterpolation(errors, input, parseSourceSpan, { start, end }) {
     let startIndex = -1;
     let endIndex = -1;
     for (const charIndex of this._forEachUnquotedChar(input, 0)) {
       if (startIndex === -1) {
-        if (input.startsWith("{{")) {
+        if (input.startsWith(start)) {
           startIndex = charIndex;
         }
       } else {
-        endIndex = this._getInterpolationEndIndex(input, "}}", charIndex);
+        endIndex = this._getInterpolationEndIndex(input, end, charIndex);
         if (endIndex > -1) {
           break;
         }
       }
     }
     if (startIndex > -1 && endIndex > -1) {
-      errors.push(getParseError(`Got interpolation ({{}}) where expression was expected`, input, `at column ${startIndex} in`, parseSourceSpan));
+      errors.push(getParseError(`Got interpolation (${start}${end}) where expression was expected`, input, `at column ${startIndex} in`, parseSourceSpan));
     }
   }
+  /**
+   * Finds the index of the end of an interpolation expression
+   * while ignoring comments and quoted content.
+   */
   _getInterpolationEndIndex(input, expressionEnd, start) {
     for (const charIndex of this._forEachUnquotedChar(input, start)) {
       if (input.startsWith(expressionEnd, charIndex)) {
@@ -15974,6 +16449,11 @@ var Parser2 = class {
     }
     return -1;
   }
+  /**
+   * Generator used to iterate over the character indexes of a string that are outside of quotes.
+   * @param input String to loop through.
+   * @param start Index within the string at which to start.
+   */
   *_forEachUnquotedChar(input, start) {
     let currentQuote = null;
     let escapeCount = 0;
@@ -15993,7 +16473,6 @@ var ParseContextFlags;
   ParseContextFlags2[ParseContextFlags2["None"] = 0] = "None";
   ParseContextFlags2[ParseContextFlags2["Writable"] = 1] = "Writable";
 })(ParseContextFlags || (ParseContextFlags = {}));
-var SUPPORTED_REGEX_FLAGS = /* @__PURE__ */ new Set(["d", "g", "i", "m", "s", "u", "v", "y"]);
 var _ParseAST = class {
   input;
   parseSourceSpan;
@@ -16007,6 +16486,10 @@ var _ParseAST = class {
   rbracketsExpected = 0;
   rbracesExpected = 0;
   context = ParseContextFlags.None;
+  // Cache of expression start and input indeces to the absolute source span they map to, used to
+  // prevent creating superfluous source spans in `sourceSpan`.
+  // A serial of the expression start and input index is used for mapping because both are stateful
+  // and may change for subsequent expressions visited by the parser.
   sourceSpanCache = /* @__PURE__ */ new Map();
   index = 0;
   constructor(input, parseSourceSpan, absoluteOffset, tokens, parseFlags, errors, offset, supportsDirectPipeReferences) {
@@ -16026,12 +16509,21 @@ var _ParseAST = class {
   get next() {
     return this.peek(0);
   }
+  /** Whether all the parser input has been processed. */
   get atEOF() {
     return this.index >= this.tokens.length;
   }
+  /**
+   * Index of the next token to be processed, or the end of the last token if all have been
+   * processed.
+   */
   get inputIndex() {
     return this.atEOF ? this.currentEndIndex : this.next.index + this.offset;
   }
+  /**
+   * End index of the last processed token, or the start of the first token if none have been
+   * processed.
+   */
   get currentEndIndex() {
     if (this.index > 0) {
       const curToken = this.peek(-1);
@@ -16042,9 +16534,20 @@ var _ParseAST = class {
     }
     return this.next.index + this.offset;
   }
+  /**
+   * Returns the absolute offset of the start of the current token.
+   */
   get currentAbsoluteOffset() {
     return this.absoluteOffset + this.inputIndex;
   }
+  /**
+   * Retrieve a `ParseSpan` from `start` to the current position (or to `artificialEndIndex` if
+   * provided).
+   *
+   * @param start Position from which the `ParseSpan` will start.
+   * @param artificialEndIndex Optional ending index to be used if provided (and if greater than the
+   *     natural ending index)
+   */
   span(start, artificialEndIndex) {
     let endIndex = this.currentEndIndex;
     if (artificialEndIndex !== void 0 && artificialEndIndex > this.currentEndIndex) {
@@ -16067,6 +16570,9 @@ var _ParseAST = class {
   advance() {
     this.index++;
   }
+  /**
+   * Executes a callback in the provided context.
+   */
   withContext(context, cb) {
     this.context |= context;
     const ret = cb();
@@ -16087,8 +16593,15 @@ var _ParseAST = class {
   peekKeywordAs() {
     return this.next.isKeywordAs();
   }
+  /**
+   * Consumes an expected character, otherwise emits an error about the missing expected character
+   * and skips over the token stream until reaching a recoverable point.
+   *
+   * See `this.error` and `this.skip` for more details.
+   */
   expectCharacter(code) {
-    if (this.consumeOptionalCharacter(code)) return;
+    if (this.consumeOptionalCharacter(code))
+      return;
     this.error(`Missing expected ${String.fromCharCode(code)}`);
   }
   consumeOptionalOperator(op) {
@@ -16103,7 +16616,8 @@ var _ParseAST = class {
     return token.type === TokenType.Operator && Binary.isAssignmentOperation(token.strValue);
   }
   expectOperator(operator) {
-    if (this.consumeOptionalOperator(operator)) return;
+    if (this.consumeOptionalOperator(operator))
+      return;
     this.error(`Missing expected operator ${operator}`);
   }
   prettyPrintToken(tok) {
@@ -16160,7 +16674,8 @@ var _ParseAST = class {
       const artificialEnd = this.offset + this.input.length;
       return new EmptyExpr$1(this.span(artificialStart, artificialEnd), this.sourceSpan(artificialStart, artificialEnd));
     }
-    if (exprs.length == 1) return exprs[0];
+    if (exprs.length == 1)
+      return exprs[0];
     return new Chain(this.span(start), this.sourceSpan(start), exprs);
   }
   parsePipe() {
@@ -16447,8 +16962,6 @@ var _ParseAST = class {
     } else if (this.next.isPrivateIdentifier()) {
       this._reportErrorForPrivateIdentifier(this.next, null);
       return new EmptyExpr$1(this.span(start), this.sourceSpan(start));
-    } else if (this.next.isRegExpBody()) {
-      return this.parseRegularExpressionLiteral();
     } else if (this.index >= this.tokens.length) {
       this.error(`Unexpected end of expression: ${this.input}`);
       return new EmptyExpr$1(this.span(start), this.sourceSpan(start));
@@ -16479,10 +16992,7 @@ var _ParseAST = class {
         const keyStart = this.inputIndex;
         const quoted = this.next.isString();
         const key = this.expectIdentifierOrKeywordOrString();
-        const literalMapKey = {
-          key,
-          quoted
-        };
+        const literalMapKey = { key, quoted };
         keys.push(literalMapKey);
         if (quoted) {
           this.expectCharacter($COLON);
@@ -16548,13 +17058,18 @@ var _ParseAST = class {
     return isSafe ? new SafeCall(span, sourceSpan, receiver, args, argumentSpan) : new Call(span, sourceSpan, receiver, args, argumentSpan);
   }
   parseCallArguments() {
-    if (this.next.isCharacter($RPAREN)) return [];
+    if (this.next.isCharacter($RPAREN))
+      return [];
     const positionals = [];
     do {
       positionals.push(this.parsePipe());
     } while (this.consumeOptionalCharacter($COMMA));
     return positionals;
   }
+  /**
+   * Parses an identifier, a keyword, a string with an optional `-` in between,
+   * and returns the string along with its absolute source span.
+   */
   expectTemplateBindingKey() {
     let result = "";
     let operatorFound = false;
@@ -16571,6 +17086,27 @@ var _ParseAST = class {
       span: new AbsoluteSourceSpan(start, start + result.length)
     };
   }
+  /**
+   * Parse microsyntax template expression and return a list of bindings or
+   * parsing errors in case the given expression is invalid.
+   *
+   * For example,
+   * ```html
+   *   <div *ngFor="let item of items; index as i; trackBy: func">
+   * ```
+   * contains five bindings:
+   * 1. ngFor -> null
+   * 2. item -> NgForOfContext.$implicit
+   * 3. ngForOf -> items
+   * 4. i -> NgForOfContext.index
+   * 5. ngForTrackBy -> func
+   *
+   * For a full description of the microsyntax grammar, see
+   * https://gist.github.com/mhevery/d3530294cff2e4a1b3fe15ff75d08855
+   *
+   * @param templateKey name of the microsyntax directive, like ngIf, ngFor,
+   * without the *, along with its absolute span.
+   */
   parseTemplateBindings(templateKey) {
     const bindings = [];
     bindings.push(...this.parseDirectiveKeywordBindings(templateKey));
@@ -16618,6 +17154,21 @@ var _ParseAST = class {
       return new EmptyExpr$1(this.span(start), this.sourceSpan(start));
     });
   }
+  /**
+   * Parse a directive keyword, followed by a mandatory expression.
+   * For example, "of items", "trackBy: func".
+   * The bindings are: ngForOf -> items, ngForTrackBy -> func
+   * There could be an optional "as" binding that follows the expression.
+   * For example,
+   * ```
+   *   *ngFor="let item of items | slice:0:1 as collection".
+   *                    ^^ ^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^
+   *               keyword    bound target   optional 'as' binding
+   * ```
+   *
+   * @param key binding key, for example, ngFor, ngIf, ngForOf, along with its
+   * absolute span.
+   */
   parseDirectiveKeywordBindings(key) {
     const bindings = [];
     this.consumeOptionalCharacter($COLON);
@@ -16635,18 +17186,37 @@ var _ParseAST = class {
     }
     return bindings;
   }
+  /**
+   * Return the expression AST for the bound target of a directive keyword
+   * binding. For example,
+   * ```
+   *   *ngIf="condition | pipe"
+   *          ^^^^^^^^^^^^^^^^ bound target for "ngIf"
+   *   *ngFor="let item of items"
+   *                       ^^^^^ bound target for "ngForOf"
+   * ```
+   */
   getDirectiveBoundTarget() {
     if (this.next === EOF || this.peekKeywordAs() || this.peekKeywordLet()) {
       return null;
     }
     const ast = this.parsePipe();
-    const {
-      start,
-      end
-    } = ast.span;
+    const { start, end } = ast.span;
     const value = this.input.substring(start, end);
     return new ASTWithSource(ast, value, getLocation(this.parseSourceSpan), this.absoluteOffset + start, this.errors);
   }
+  /**
+   * Return the binding for a variable declared using `as`. Note that the order
+   * of the key-value pair in this declaration is reversed. For example,
+   * ```
+   *   *ngFor="let item of items; index as i"
+   *                              ^^^^^    ^
+   *                              value    key
+   * ```
+   *
+   * @param value name of the value in the declaration, "ngIf" in the example
+   * above, along with its absolute span.
+   */
   parseAsBinding(value) {
     if (!this.peekKeywordAs()) {
       return null;
@@ -16657,6 +17227,15 @@ var _ParseAST = class {
     const sourceSpan = new AbsoluteSourceSpan(value.span.start, this.currentAbsoluteOffset);
     return new VariableBinding(sourceSpan, key, value);
   }
+  /**
+   * Return the binding for a variable declared using `let`. For example,
+   * ```
+   *   *ngFor="let item of items; let i=index;"
+   *           ^^^^^^^^           ^^^^^^^^^^^
+   * ```
+   * In the first binding, `item` is bound to `NgForOfContext.$implicit`.
+   * In the second binding, `i` is bound to `NgForOfContext.index`.
+   */
   parseLetBinding() {
     if (!this.peekKeywordLet()) {
       return null;
@@ -16717,35 +17296,16 @@ var _ParseAST = class {
     }
     return new TemplateLiteral(this.span(start), this.sourceSpan(start), elements, expressions);
   }
-  parseRegularExpressionLiteral() {
-    const bodyToken = this.next;
-    this.advance();
-    if (!bodyToken.isRegExpBody()) {
-      return new EmptyExpr$1(this.span(this.inputIndex), this.sourceSpan(this.inputIndex));
-    }
-    let flagsToken = null;
-    if (this.next.isRegExpFlags()) {
-      flagsToken = this.next;
-      this.advance();
-      const seenFlags = /* @__PURE__ */ new Set();
-      for (let i = 0; i < flagsToken.strValue.length; i++) {
-        const char = flagsToken.strValue[i];
-        if (!SUPPORTED_REGEX_FLAGS.has(char)) {
-          this.error(`Unsupported regular expression flag "${char}". The supported flags are: ` + Array.from(SUPPORTED_REGEX_FLAGS, (f) => `"${f}"`).join(", "), flagsToken.index + i);
-        } else if (seenFlags.has(char)) {
-          this.error(`Duplicate regular expression flag "${char}"`, flagsToken.index + i);
-        } else {
-          seenFlags.add(char);
-        }
-      }
-    }
-    const start = bodyToken.index;
-    const end = flagsToken ? flagsToken.end : bodyToken.end;
-    return new RegularExpressionLiteral(this.span(start, end), this.sourceSpan(start, end), bodyToken.strValue, flagsToken ? flagsToken.strValue : null);
-  }
+  /**
+   * Consume the optional statement terminator: semicolon or comma.
+   */
   consumeStatementTerminator() {
     this.consumeOptionalCharacter($SEMICOLON) || this.consumeOptionalCharacter($COMMA);
   }
+  /**
+   * Records an error and skips over the token stream until reaching a recoverable point. See
+   * `this.skip` for more details on token skipping.
+   */
   error(message, index = this.index) {
     this.errors.push(getParseError(message, this.input, this.getErrorLocationText(index), this.parseSourceSpan));
     this.skip();
@@ -16753,6 +17313,11 @@ var _ParseAST = class {
   getErrorLocationText(index) {
     return index < this.tokens.length ? `at column ${this.tokens[index].index + 1} in` : `at the end of the expression`;
   }
+  /**
+   * Records an error for an unexpected private identifier being discovered.
+   * @param token Token representing a private identifier.
+   * @param extraMessage Optional additional message being appended to the error.
+   */
   _reportErrorForPrivateIdentifier(token, extraMessage) {
     let errorMessage = `Private identifiers are not supported. Unexpected private identifier: ${token}`;
     if (extraMessage !== null) {
@@ -16760,6 +17325,30 @@ var _ParseAST = class {
     }
     this.error(errorMessage);
   }
+  /**
+   * Error recovery should skip tokens until it encounters a recovery point.
+   *
+   * The following are treated as unconditional recovery points:
+   *   - end of input
+   *   - ';' (parseChain() is always the root production, and it expects a ';')
+   *   - '|' (since pipes may be chained and each pipe expression may be treated independently)
+   *
+   * The following are conditional recovery points:
+   *   - ')', '}', ']' if one of calling productions is expecting one of these symbols
+   *     - This allows skip() to recover from errors such as '(a.) + 1' allowing more of the AST to
+   *       be retained (it doesn't skip any tokens as the ')' is retained because of the '(' begins
+   *       an '(' <expr> ')' production).
+   *       The recovery points of grouping symbols must be conditional as they must be skipped if
+   *       none of the calling productions are not expecting the closing token else we will never
+   *       make progress in the case of an extraneous group closing symbol (such as a stray ')').
+   *       That is, we skip a closing symbol if we are not in a grouping production.
+   *   - Assignment in a `Writable` context
+   *     - In this context, we are able to recover after seeing the `=` operator, which
+   *       signals the presence of an independent rvalue expression following the `=` operator.
+   *
+   * If a production expects one of these token it increments the corresponding nesting count,
+   * and then decrements it just prior to checking if the token is in the input.
+   */
   skip() {
     let n = this.next;
     while (this.index < this.tokens.length && !n.isCharacter($SEMICOLON) && !n.isOperator("|") && (this.rparensExpected <= 0 || !n.isCharacter($RPAREN)) && (this.rbracesExpected <= 0 || !n.isCharacter($RBRACE)) && (this.rbracketsExpected <= 0 || !n.isCharacter($RBRACKET)) && (!(this.context & ParseContextFlags.Writable) || !this.isAssignmentOperator(n))) {
@@ -16841,7 +17430,8 @@ var SerializeExpressionVisitor = class {
     return `{${zip(ast.keys.map((literal2) => literal2.quoted ? `'${literal2.key}'` : literal2.key), ast.values.map((value) => value.visit(this, context))).map(([key, value]) => `${key}: ${value}`).join(", ")}}`;
   }
   visitLiteralPrimitive(ast) {
-    if (ast.value === null) return "null";
+    if (ast.value === null)
+      return "null";
     switch (typeof ast.value) {
       case "number":
       case "boolean":
@@ -16888,9 +17478,6 @@ var SerializeExpressionVisitor = class {
   visitVoidExpression(ast, context) {
     return `void ${ast.expression.visit(this, context)}`;
   }
-  visitRegularExpressionLiteral(ast, context) {
-    return `/${ast.body}/${ast.flags || ""}`;
-  }
   visitASTWithSource(ast, context) {
     return ast.ast.visit(this, context);
   }
@@ -16916,14 +17503,17 @@ var SerializeExpressionVisitor = class {
   }
 };
 function zip(left, right) {
-  if (left.length !== right.length) throw new Error("Array lengths must match");
+  if (left.length !== right.length)
+    throw new Error("Array lengths must match");
   return left.map((l, i) => [l, right[i]]);
 }
 function interleave(left, right) {
   const result = [];
   for (let index = 0; index < Math.max(left.length, right.length); index++) {
-    if (index < left.length) result.push(left[index]);
-    if (index < right.length) result.push(right[index]);
+    if (index < left.length)
+      result.push(left[index]);
+    if (index < right.length)
+      result.push(right[index]);
   }
   return result;
 }
@@ -16933,14 +17523,135 @@ function SECURITY_SCHEMA() {
     _SECURITY_SCHEMA = {};
     registerContext(SecurityContext.HTML, ["iframe|srcdoc", "*|innerHTML", "*|outerHTML"]);
     registerContext(SecurityContext.STYLE, ["*|style"]);
-    registerContext(SecurityContext.URL, ["*|formAction", "area|href", "a|href", "a|xlink:href", "form|action", "annotation|href", "annotation|xlink:href", "annotation-xml|href", "annotation-xml|xlink:href", "maction|href", "maction|xlink:href", "malignmark|href", "malignmark|xlink:href", "math|href", "math|xlink:href", "mroot|href", "mroot|xlink:href", "msqrt|href", "msqrt|xlink:href", "merror|href", "merror|xlink:href", "mfrac|href", "mfrac|xlink:href", "mglyph|href", "mglyph|xlink:href", "msub|href", "msub|xlink:href", "msup|href", "msup|xlink:href", "msubsup|href", "msubsup|xlink:href", "mmultiscripts|href", "mmultiscripts|xlink:href", "mprescripts|href", "mprescripts|xlink:href", "mi|href", "mi|xlink:href", "mn|href", "mn|xlink:href", "mo|href", "mo|xlink:href", "mpadded|href", "mpadded|xlink:href", "mphantom|href", "mphantom|xlink:href", "mrow|href", "mrow|xlink:href", "ms|href", "ms|xlink:href", "mspace|href", "mspace|xlink:href", "mstyle|href", "mstyle|xlink:href", "mtable|href", "mtable|xlink:href", "mtd|href", "mtd|xlink:href", "mtr|href", "mtr|xlink:href", "mtext|href", "mtext|xlink:href", "mover|href", "mover|xlink:href", "munder|href", "munder|xlink:href", "munderover|href", "munderover|xlink:href", "semantics|href", "semantics|xlink:href", "none|href", "none|xlink:href", "img|src", "video|src"]);
-    registerContext(SecurityContext.RESOURCE_URL, ["base|href", "embed|src", "frame|src", "iframe|src", "link|href", "object|codebase", "object|data", "script|src"]);
-    registerContext(SecurityContext.ATTRIBUTE_NO_BINDING, ["animate|attributeName", "set|attributeName", "animateMotion|attributeName", "animateTransform|attributeName", "unknown|attributeName", "iframe|sandbox", "iframe|allow", "iframe|allowFullscreen", "iframe|referrerPolicy", "iframe|csp", "iframe|fetchPriority", "unknown|sandbox", "unknown|allow", "unknown|allowFullscreen", "unknown|referrerPolicy", "unknown|csp", "unknown|fetchPriority"]);
+    registerContext(SecurityContext.URL, [
+      "*|formAction",
+      "area|href",
+      "area|ping",
+      "audio|src",
+      "a|href",
+      "a|xlink:href",
+      "a|ping",
+      "blockquote|cite",
+      "body|background",
+      "del|cite",
+      "form|action",
+      "img|src",
+      "input|src",
+      "ins|cite",
+      "q|cite",
+      "source|src",
+      "track|src",
+      "video|poster",
+      "video|src",
+      // MathML namespace
+      // https://crsrc.org/c/third_party/blink/renderer/core/sanitizer/sanitizer.cc;l=753-768;drc=b3eb16372dcd3317d65e9e0265015e322494edcd;bpv=1;bpt=1
+      "annotation|href",
+      "annotation|xlink:href",
+      "annotation-xml|href",
+      "annotation-xml|xlink:href",
+      "maction|href",
+      "maction|xlink:href",
+      "malignmark|href",
+      "malignmark|xlink:href",
+      "math|href",
+      "math|xlink:href",
+      "mroot|href",
+      "mroot|xlink:href",
+      "msqrt|href",
+      "msqrt|xlink:href",
+      "merror|href",
+      "merror|xlink:href",
+      "mfrac|href",
+      "mfrac|xlink:href",
+      "mglyph|href",
+      "mglyph|xlink:href",
+      "msub|href",
+      "msub|xlink:href",
+      "msup|href",
+      "msup|xlink:href",
+      "msubsup|href",
+      "msubsup|xlink:href",
+      "mmultiscripts|href",
+      "mmultiscripts|xlink:href",
+      "mprescripts|href",
+      "mprescripts|xlink:href",
+      "mi|href",
+      "mi|xlink:href",
+      "mn|href",
+      "mn|xlink:href",
+      "mo|href",
+      "mo|xlink:href",
+      "mpadded|href",
+      "mpadded|xlink:href",
+      "mphantom|href",
+      "mphantom|xlink:href",
+      "mrow|href",
+      "mrow|xlink:href",
+      "ms|href",
+      "ms|xlink:href",
+      "mspace|href",
+      "mspace|xlink:href",
+      "mstyle|href",
+      "mstyle|xlink:href",
+      "mtable|href",
+      "mtable|xlink:href",
+      "mtd|href",
+      "mtd|xlink:href",
+      "mtr|href",
+      "mtr|xlink:href",
+      "mtext|href",
+      "mtext|xlink:href",
+      "mover|href",
+      "mover|xlink:href",
+      "munder|href",
+      "munder|xlink:href",
+      "munderover|href",
+      "munderover|xlink:href",
+      "semantics|href",
+      "semantics|xlink:href",
+      "none|href",
+      "none|xlink:href"
+    ]);
+    registerContext(SecurityContext.RESOURCE_URL, [
+      "applet|code",
+      "applet|codebase",
+      "base|href",
+      "embed|src",
+      "frame|src",
+      "head|profile",
+      "html|manifest",
+      "iframe|src",
+      "link|href",
+      "media|src",
+      "object|codebase",
+      "object|data",
+      "script|src"
+    ]);
+    registerContext(SecurityContext.ATTRIBUTE_NO_BINDING, [
+      "animate|attributeName",
+      "set|attributeName",
+      "animateMotion|attributeName",
+      "animateTransform|attributeName",
+      "unknown|attributeName",
+      "iframe|sandbox",
+      "iframe|allow",
+      "iframe|allowFullscreen",
+      "iframe|referrerPolicy",
+      "iframe|csp",
+      "iframe|fetchPriority",
+      "unknown|sandbox",
+      "unknown|allow",
+      "unknown|allowFullscreen",
+      "unknown|referrerPolicy",
+      "unknown|csp",
+      "unknown|fetchPriority"
+    ]);
   }
   return _SECURITY_SCHEMA;
 }
 function registerContext(ctx, specs) {
-  for (const spec of specs) _SECURITY_SCHEMA[spec.toLowerCase()] = ctx;
+  for (const spec of specs)
+    _SECURITY_SCHEMA[spec.toLowerCase()] = ctx;
 }
 var ElementSchemaRegistry = class {
 };
@@ -16948,7 +17659,192 @@ var BOOLEAN = "boolean";
 var NUMBER = "number";
 var STRING = "string";
 var OBJECT = "object";
-var SCHEMA = ["[Element]|textContent,%ariaActiveDescendantElement,%ariaAtomic,%ariaAutoComplete,%ariaBusy,%ariaChecked,%ariaColCount,%ariaColIndex,%ariaColIndexText,%ariaColSpan,%ariaControlsElements,%ariaCurrent,%ariaDescribedByElements,%ariaDescription,%ariaDetailsElements,%ariaDisabled,%ariaErrorMessageElements,%ariaExpanded,%ariaFlowToElements,%ariaHasPopup,%ariaHidden,%ariaInvalid,%ariaKeyShortcuts,%ariaLabel,%ariaLabelledByElements,%ariaLevel,%ariaLive,%ariaModal,%ariaMultiLine,%ariaMultiSelectable,%ariaOrientation,%ariaOwnsElements,%ariaPlaceholder,%ariaPosInSet,%ariaPressed,%ariaReadOnly,%ariaRelevant,%ariaRequired,%ariaRoleDescription,%ariaRowCount,%ariaRowIndex,%ariaRowIndexText,%ariaRowSpan,%ariaSelected,%ariaSetSize,%ariaSort,%ariaValueMax,%ariaValueMin,%ariaValueNow,%ariaValueText,%classList,className,elementTiming,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*fullscreenchange,*fullscreenerror,*search,*webkitfullscreenchange,*webkitfullscreenerror,outerHTML,%part,#scrollLeft,#scrollTop,slot,*message,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored", "[HTMLElement]^[Element]|accessKey,autocapitalize,!autofocus,contentEditable,dir,!draggable,enterKeyHint,!hidden,!inert,innerText,inputMode,lang,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate,virtualKeyboardPolicy", "abbr,address,article,aside,b,bdi,bdo,cite,content,code,dd,dfn,dt,em,figcaption,figure,footer,header,hgroup,i,kbd,main,mark,nav,noscript,rb,rp,rt,rtc,ruby,s,samp,search,section,small,strong,sub,sup,u,var,wbr^[HTMLElement]|accessKey,autocapitalize,!autofocus,contentEditable,dir,!draggable,enterKeyHint,!hidden,innerText,inputMode,lang,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate,virtualKeyboardPolicy", "media^[HTMLElement]|!autoplay,!controls,%controlsList,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,*waitingforkey,#playbackRate,preload,!preservesPitch,src,%srcObject,#volume", ":svg:^[HTMLElement]|!autofocus,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,%style,#tabIndex", ":svg:graphics^:svg:|", ":svg:animation^:svg:|*begin,*end,*repeat", ":svg:geometry^:svg:|", ":svg:componentTransferFunction^:svg:|", ":svg:gradient^:svg:|", ":svg:textContent^:svg:graphics|", ":svg:textPositioning^:svg:textContent|", "a^[HTMLElement]|charset,coords,download,hash,host,hostname,href,hreflang,name,password,pathname,ping,port,protocol,referrerPolicy,rel,%relList,rev,search,shape,target,text,type,username", "area^[HTMLElement]|alt,coords,download,hash,host,hostname,href,!noHref,password,pathname,ping,port,protocol,referrerPolicy,rel,%relList,search,shape,target,username", "audio^media|", "br^[HTMLElement]|clear", "base^[HTMLElement]|href,target", "body^[HTMLElement]|aLink,background,bgColor,link,*afterprint,*beforeprint,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*messageerror,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,text,vLink", "button^[HTMLElement]|!disabled,formAction,formEnctype,formMethod,!formNoValidate,formTarget,name,type,value", "canvas^[HTMLElement]|#height,#width", "content^[HTMLElement]|select", "dl^[HTMLElement]|!compact", "data^[HTMLElement]|value", "datalist^[HTMLElement]|", "details^[HTMLElement]|!open", "dialog^[HTMLElement]|!open,returnValue", "dir^[HTMLElement]|!compact", "div^[HTMLElement]|align", "embed^[HTMLElement]|align,height,name,src,type,width", "fieldset^[HTMLElement]|!disabled,name", "font^[HTMLElement]|color,face,size", "form^[HTMLElement]|acceptCharset,action,autocomplete,encoding,enctype,method,name,!noValidate,target", "frame^[HTMLElement]|frameBorder,longDesc,marginHeight,marginWidth,name,!noResize,scrolling,src", "frameset^[HTMLElement]|cols,*afterprint,*beforeprint,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*messageerror,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,rows", "hr^[HTMLElement]|align,color,!noShade,size,width", "head^[HTMLElement]|", "h1,h2,h3,h4,h5,h6^[HTMLElement]|align", "html^[HTMLElement]|version", "iframe^[HTMLElement]|align,allow,!allowFullscreen,!allowPaymentRequest,csp,frameBorder,height,loading,longDesc,marginHeight,marginWidth,name,referrerPolicy,%sandbox,scrolling,src,srcdoc,width", "img^[HTMLElement]|align,alt,border,%crossOrigin,decoding,#height,#hspace,!isMap,loading,longDesc,lowsrc,name,referrerPolicy,sizes,src,srcset,useMap,#vspace,#width", "input^[HTMLElement]|accept,align,alt,autocomplete,!checked,!defaultChecked,defaultValue,dirName,!disabled,%files,formAction,formEnctype,formMethod,!formNoValidate,formTarget,#height,!incremental,!indeterminate,max,#maxLength,min,#minLength,!multiple,name,pattern,placeholder,!readOnly,!required,selectionDirection,#selectionEnd,#selectionStart,#size,src,step,type,useMap,value,%valueAsDate,#valueAsNumber,#width", "li^[HTMLElement]|type,#value", "label^[HTMLElement]|htmlFor", "legend^[HTMLElement]|align", "link^[HTMLElement]|as,charset,%crossOrigin,!disabled,href,hreflang,imageSizes,imageSrcset,integrity,media,referrerPolicy,rel,%relList,rev,%sizes,target,type", "map^[HTMLElement]|name", "marquee^[HTMLElement]|behavior,bgColor,direction,height,#hspace,#loop,#scrollAmount,#scrollDelay,!trueSpeed,#vspace,width", "menu^[HTMLElement]|!compact", "meta^[HTMLElement]|content,httpEquiv,media,name,scheme", "meter^[HTMLElement]|#high,#low,#max,#min,#optimum,#value", "ins,del^[HTMLElement]|cite,dateTime", "ol^[HTMLElement]|!compact,!reversed,#start,type", "object^[HTMLElement]|align,archive,border,code,codeBase,codeType,data,!declare,height,#hspace,name,standby,type,useMap,#vspace,width", "optgroup^[HTMLElement]|!disabled,label", "option^[HTMLElement]|!defaultSelected,!disabled,label,!selected,text,value", "output^[HTMLElement]|defaultValue,%htmlFor,name,value", "p^[HTMLElement]|align", "param^[HTMLElement]|name,type,value,valueType", "picture^[HTMLElement]|", "pre^[HTMLElement]|#width", "progress^[HTMLElement]|#max,#value", "q,blockquote,cite^[HTMLElement]|", "script^[HTMLElement]|!async,charset,%crossOrigin,!defer,event,htmlFor,integrity,!noModule,%referrerPolicy,src,text,type", "select^[HTMLElement]|autocomplete,!disabled,#length,!multiple,name,!required,#selectedIndex,#size,value", "selectedcontent^[HTMLElement]|", "slot^[HTMLElement]|name", "source^[HTMLElement]|#height,media,sizes,src,srcset,type,#width", "span^[HTMLElement]|", "style^[HTMLElement]|!disabled,media,type", "search^[HTMLELement]|", "caption^[HTMLElement]|align", "th,td^[HTMLElement]|abbr,align,axis,bgColor,ch,chOff,#colSpan,headers,height,!noWrap,#rowSpan,scope,vAlign,width", "col,colgroup^[HTMLElement]|align,ch,chOff,#span,vAlign,width", "table^[HTMLElement]|align,bgColor,border,%caption,cellPadding,cellSpacing,frame,rules,summary,%tFoot,%tHead,width", "tr^[HTMLElement]|align,bgColor,ch,chOff,vAlign", "tfoot,thead,tbody^[HTMLElement]|align,ch,chOff,vAlign", "template^[HTMLElement]|", "textarea^[HTMLElement]|autocomplete,#cols,defaultValue,dirName,!disabled,#maxLength,#minLength,name,placeholder,!readOnly,!required,#rows,selectionDirection,#selectionEnd,#selectionStart,value,wrap", "time^[HTMLElement]|dateTime", "title^[HTMLElement]|text", "track^[HTMLElement]|!default,kind,label,src,srclang", "ul^[HTMLElement]|!compact,type", "unknown^[HTMLElement]|", "video^media|!disablePictureInPicture,#height,*enterpictureinpicture,*leavepictureinpicture,!playsInline,poster,#width", ":svg:a^:svg:graphics|", ":svg:animate^:svg:animation|", ":svg:animateMotion^:svg:animation|", ":svg:animateTransform^:svg:animation|", ":svg:circle^:svg:geometry|", ":svg:clipPath^:svg:graphics|", ":svg:defs^:svg:graphics|", ":svg:desc^:svg:|", ":svg:discard^:svg:|", ":svg:ellipse^:svg:geometry|", ":svg:feBlend^:svg:|", ":svg:feColorMatrix^:svg:|", ":svg:feComponentTransfer^:svg:|", ":svg:feComposite^:svg:|", ":svg:feConvolveMatrix^:svg:|", ":svg:feDiffuseLighting^:svg:|", ":svg:feDisplacementMap^:svg:|", ":svg:feDistantLight^:svg:|", ":svg:feDropShadow^:svg:|", ":svg:feFlood^:svg:|", ":svg:feFuncA^:svg:componentTransferFunction|", ":svg:feFuncB^:svg:componentTransferFunction|", ":svg:feFuncG^:svg:componentTransferFunction|", ":svg:feFuncR^:svg:componentTransferFunction|", ":svg:feGaussianBlur^:svg:|", ":svg:feImage^:svg:|", ":svg:feMerge^:svg:|", ":svg:feMergeNode^:svg:|", ":svg:feMorphology^:svg:|", ":svg:feOffset^:svg:|", ":svg:fePointLight^:svg:|", ":svg:feSpecularLighting^:svg:|", ":svg:feSpotLight^:svg:|", ":svg:feTile^:svg:|", ":svg:feTurbulence^:svg:|", ":svg:filter^:svg:|", ":svg:foreignObject^:svg:graphics|", ":svg:g^:svg:graphics|", ":svg:image^:svg:graphics|decoding", ":svg:line^:svg:geometry|", ":svg:linearGradient^:svg:gradient|", ":svg:mpath^:svg:|", ":svg:marker^:svg:|", ":svg:mask^:svg:|", ":svg:metadata^:svg:|", ":svg:path^:svg:geometry|", ":svg:pattern^:svg:|", ":svg:polygon^:svg:geometry|", ":svg:polyline^:svg:geometry|", ":svg:radialGradient^:svg:gradient|", ":svg:rect^:svg:geometry|", ":svg:svg^:svg:graphics|#currentScale,#zoomAndPan", ":svg:script^:svg:|type", ":svg:set^:svg:animation|", ":svg:stop^:svg:|", ":svg:style^:svg:|!disabled,media,title,type", ":svg:switch^:svg:graphics|", ":svg:symbol^:svg:|", ":svg:tspan^:svg:textPositioning|", ":svg:text^:svg:textPositioning|", ":svg:textPath^:svg:textContent|", ":svg:title^:svg:|", ":svg:use^:svg:graphics|", ":svg:view^:svg:|#zoomAndPan", "data^[HTMLElement]|value", "keygen^[HTMLElement]|!autofocus,challenge,!disabled,form,keytype,name", "menuitem^[HTMLElement]|type,label,icon,!disabled,!checked,radiogroup,!default", "summary^[HTMLElement]|", "time^[HTMLElement]|dateTime", ":svg:cursor^:svg:|", ":math:^[HTMLElement]|!autofocus,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforeinput,*beforematch,*beforetoggle,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contentvisibilityautostatechange,*contextlost,*contextmenu,*contextrestored,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*scrollend,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,%style,#tabIndex", ":math:math^:math:|", ":math:maction^:math:|", ":math:menclose^:math:|", ":math:merror^:math:|", ":math:mfenced^:math:|", ":math:mfrac^:math:|", ":math:mi^:math:|", ":math:mmultiscripts^:math:|", ":math:mn^:math:|", ":math:mo^:math:|", ":math:mover^:math:|", ":math:mpadded^:math:|", ":math:mphantom^:math:|", ":math:mroot^:math:|", ":math:mrow^:math:|", ":math:ms^:math:|", ":math:mspace^:math:|", ":math:msqrt^:math:|", ":math:mstyle^:math:|", ":math:msub^:math:|", ":math:msubsup^:math:|", ":math:msup^:math:|", ":math:mtable^:math:|", ":math:mtd^:math:|", ":math:mtext^:math:|", ":math:mtr^:math:|", ":math:munder^:math:|", ":math:munderover^:math:|", ":math:semantics^:math:|"];
+var SCHEMA = [
+  "[Element]|textContent,%ariaAtomic,%ariaAutoComplete,%ariaBusy,%ariaChecked,%ariaColCount,%ariaColIndex,%ariaColSpan,%ariaCurrent,%ariaDescription,%ariaDisabled,%ariaExpanded,%ariaHasPopup,%ariaHidden,%ariaInvalid,%ariaKeyShortcuts,%ariaLabel,%ariaLevel,%ariaLive,%ariaModal,%ariaMultiLine,%ariaMultiSelectable,%ariaOrientation,%ariaPlaceholder,%ariaPosInSet,%ariaPressed,%ariaReadOnly,%ariaRelevant,%ariaRequired,%ariaRoleDescription,%ariaRowCount,%ariaRowIndex,%ariaRowSpan,%ariaSelected,%ariaSetSize,%ariaSort,%ariaValueMax,%ariaValueMin,%ariaValueNow,%ariaValueText,%classList,className,elementTiming,id,innerHTML,*beforecopy,*beforecut,*beforepaste,*fullscreenchange,*fullscreenerror,*search,*webkitfullscreenchange,*webkitfullscreenerror,outerHTML,%part,#scrollLeft,#scrollTop,slot,*message,*mozfullscreenchange,*mozfullscreenerror,*mozpointerlockchange,*mozpointerlockerror,*webglcontextcreationerror,*webglcontextlost,*webglcontextrestored",
+  "[HTMLElement]^[Element]|accessKey,autocapitalize,!autofocus,contentEditable,dir,!draggable,enterKeyHint,!hidden,!inert,innerText,inputMode,lang,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate,virtualKeyboardPolicy",
+  "abbr,address,article,aside,b,bdi,bdo,cite,content,code,dd,dfn,dt,em,figcaption,figure,footer,header,hgroup,i,kbd,main,mark,nav,noscript,rb,rp,rt,rtc,ruby,s,samp,search,section,small,strong,sub,sup,u,var,wbr^[HTMLElement]|accessKey,autocapitalize,!autofocus,contentEditable,dir,!draggable,enterKeyHint,!hidden,innerText,inputMode,lang,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,outerText,!spellcheck,%style,#tabIndex,title,!translate,virtualKeyboardPolicy",
+  "media^[HTMLElement]|!autoplay,!controls,%controlsList,%crossOrigin,#currentTime,!defaultMuted,#defaultPlaybackRate,!disableRemotePlayback,!loop,!muted,*encrypted,*waitingforkey,#playbackRate,preload,!preservesPitch,src,%srcObject,#volume",
+  ":svg:^[HTMLElement]|!autofocus,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contextmenu,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,%style,#tabIndex",
+  ":svg:graphics^:svg:|",
+  ":svg:animation^:svg:|*begin,*end,*repeat",
+  ":svg:geometry^:svg:|",
+  ":svg:componentTransferFunction^:svg:|",
+  ":svg:gradient^:svg:|",
+  ":svg:textContent^:svg:graphics|",
+  ":svg:textPositioning^:svg:textContent|",
+  "a^[HTMLElement]|charset,coords,download,hash,host,hostname,href,hreflang,name,password,pathname,ping,port,protocol,referrerPolicy,rel,%relList,rev,search,shape,target,text,type,username",
+  "area^[HTMLElement]|alt,coords,download,hash,host,hostname,href,!noHref,password,pathname,ping,port,protocol,referrerPolicy,rel,%relList,search,shape,target,username",
+  "audio^media|",
+  "br^[HTMLElement]|clear",
+  "base^[HTMLElement]|href,target",
+  "body^[HTMLElement]|aLink,background,bgColor,link,*afterprint,*beforeprint,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*messageerror,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,text,vLink",
+  "button^[HTMLElement]|!disabled,formAction,formEnctype,formMethod,!formNoValidate,formTarget,name,type,value",
+  "canvas^[HTMLElement]|#height,#width",
+  "content^[HTMLElement]|select",
+  "dl^[HTMLElement]|!compact",
+  "data^[HTMLElement]|value",
+  "datalist^[HTMLElement]|",
+  "details^[HTMLElement]|!open",
+  "dialog^[HTMLElement]|!open,returnValue",
+  "dir^[HTMLElement]|!compact",
+  "div^[HTMLElement]|align",
+  "embed^[HTMLElement]|align,height,name,src,type,width",
+  "fieldset^[HTMLElement]|!disabled,name",
+  "font^[HTMLElement]|color,face,size",
+  "form^[HTMLElement]|acceptCharset,action,autocomplete,encoding,enctype,method,name,!noValidate,target",
+  "frame^[HTMLElement]|frameBorder,longDesc,marginHeight,marginWidth,name,!noResize,scrolling,src",
+  "frameset^[HTMLElement]|cols,*afterprint,*beforeprint,*beforeunload,*blur,*error,*focus,*hashchange,*languagechange,*load,*message,*messageerror,*offline,*online,*pagehide,*pageshow,*popstate,*rejectionhandled,*resize,*scroll,*storage,*unhandledrejection,*unload,rows",
+  "hr^[HTMLElement]|align,color,!noShade,size,width",
+  "head^[HTMLElement]|",
+  "h1,h2,h3,h4,h5,h6^[HTMLElement]|align",
+  "html^[HTMLElement]|version",
+  "iframe^[HTMLElement]|align,allow,!allowFullscreen,!allowPaymentRequest,csp,frameBorder,height,loading,longDesc,marginHeight,marginWidth,name,referrerPolicy,%sandbox,scrolling,src,srcdoc,width",
+  "img^[HTMLElement]|align,alt,border,%crossOrigin,decoding,#height,#hspace,!isMap,loading,longDesc,lowsrc,name,referrerPolicy,sizes,src,srcset,useMap,#vspace,#width",
+  "input^[HTMLElement]|accept,align,alt,autocomplete,!checked,!defaultChecked,defaultValue,dirName,!disabled,%files,formAction,formEnctype,formMethod,!formNoValidate,formTarget,#height,!incremental,!indeterminate,max,#maxLength,min,#minLength,!multiple,name,pattern,placeholder,!readOnly,!required,selectionDirection,#selectionEnd,#selectionStart,#size,src,step,type,useMap,value,%valueAsDate,#valueAsNumber,#width",
+  "li^[HTMLElement]|type,#value",
+  "label^[HTMLElement]|htmlFor",
+  "legend^[HTMLElement]|align",
+  "link^[HTMLElement]|as,charset,%crossOrigin,!disabled,href,hreflang,imageSizes,imageSrcset,integrity,media,referrerPolicy,rel,%relList,rev,%sizes,target,type",
+  "map^[HTMLElement]|name",
+  "marquee^[HTMLElement]|behavior,bgColor,direction,height,#hspace,#loop,#scrollAmount,#scrollDelay,!trueSpeed,#vspace,width",
+  "menu^[HTMLElement]|!compact",
+  "meta^[HTMLElement]|content,httpEquiv,media,name,scheme",
+  "meter^[HTMLElement]|#high,#low,#max,#min,#optimum,#value",
+  "ins,del^[HTMLElement]|cite,dateTime",
+  "ol^[HTMLElement]|!compact,!reversed,#start,type",
+  "object^[HTMLElement]|align,archive,border,code,codeBase,codeType,data,!declare,height,#hspace,name,standby,type,useMap,#vspace,width",
+  "optgroup^[HTMLElement]|!disabled,label",
+  "option^[HTMLElement]|!defaultSelected,!disabled,label,!selected,text,value",
+  "output^[HTMLElement]|defaultValue,%htmlFor,name,value",
+  "p^[HTMLElement]|align",
+  "param^[HTMLElement]|name,type,value,valueType",
+  "picture^[HTMLElement]|",
+  "pre^[HTMLElement]|#width",
+  "progress^[HTMLElement]|#max,#value",
+  "q,blockquote,cite^[HTMLElement]|",
+  "script^[HTMLElement]|!async,charset,%crossOrigin,!defer,event,htmlFor,integrity,!noModule,%referrerPolicy,src,text,type",
+  "select^[HTMLElement]|autocomplete,!disabled,#length,!multiple,name,!required,#selectedIndex,#size,value",
+  "selectedcontent^[HTMLElement]|",
+  "slot^[HTMLElement]|name",
+  "source^[HTMLElement]|#height,media,sizes,src,srcset,type,#width",
+  "span^[HTMLElement]|",
+  "style^[HTMLElement]|!disabled,media,type",
+  "search^[HTMLELement]|",
+  "caption^[HTMLElement]|align",
+  "th,td^[HTMLElement]|abbr,align,axis,bgColor,ch,chOff,#colSpan,headers,height,!noWrap,#rowSpan,scope,vAlign,width",
+  "col,colgroup^[HTMLElement]|align,ch,chOff,#span,vAlign,width",
+  "table^[HTMLElement]|align,bgColor,border,%caption,cellPadding,cellSpacing,frame,rules,summary,%tFoot,%tHead,width",
+  "tr^[HTMLElement]|align,bgColor,ch,chOff,vAlign",
+  "tfoot,thead,tbody^[HTMLElement]|align,ch,chOff,vAlign",
+  "template^[HTMLElement]|",
+  "textarea^[HTMLElement]|autocomplete,#cols,defaultValue,dirName,!disabled,#maxLength,#minLength,name,placeholder,!readOnly,!required,#rows,selectionDirection,#selectionEnd,#selectionStart,value,wrap",
+  "time^[HTMLElement]|dateTime",
+  "title^[HTMLElement]|text",
+  "track^[HTMLElement]|!default,kind,label,src,srclang",
+  "ul^[HTMLElement]|!compact,type",
+  "unknown^[HTMLElement]|",
+  "video^media|!disablePictureInPicture,#height,*enterpictureinpicture,*leavepictureinpicture,!playsInline,poster,#width",
+  ":svg:a^:svg:graphics|",
+  ":svg:animate^:svg:animation|",
+  ":svg:animateMotion^:svg:animation|",
+  ":svg:animateTransform^:svg:animation|",
+  ":svg:circle^:svg:geometry|",
+  ":svg:clipPath^:svg:graphics|",
+  ":svg:defs^:svg:graphics|",
+  ":svg:desc^:svg:|",
+  ":svg:discard^:svg:|",
+  ":svg:ellipse^:svg:geometry|",
+  ":svg:feBlend^:svg:|",
+  ":svg:feColorMatrix^:svg:|",
+  ":svg:feComponentTransfer^:svg:|",
+  ":svg:feComposite^:svg:|",
+  ":svg:feConvolveMatrix^:svg:|",
+  ":svg:feDiffuseLighting^:svg:|",
+  ":svg:feDisplacementMap^:svg:|",
+  ":svg:feDistantLight^:svg:|",
+  ":svg:feDropShadow^:svg:|",
+  ":svg:feFlood^:svg:|",
+  ":svg:feFuncA^:svg:componentTransferFunction|",
+  ":svg:feFuncB^:svg:componentTransferFunction|",
+  ":svg:feFuncG^:svg:componentTransferFunction|",
+  ":svg:feFuncR^:svg:componentTransferFunction|",
+  ":svg:feGaussianBlur^:svg:|",
+  ":svg:feImage^:svg:|",
+  ":svg:feMerge^:svg:|",
+  ":svg:feMergeNode^:svg:|",
+  ":svg:feMorphology^:svg:|",
+  ":svg:feOffset^:svg:|",
+  ":svg:fePointLight^:svg:|",
+  ":svg:feSpecularLighting^:svg:|",
+  ":svg:feSpotLight^:svg:|",
+  ":svg:feTile^:svg:|",
+  ":svg:feTurbulence^:svg:|",
+  ":svg:filter^:svg:|",
+  ":svg:foreignObject^:svg:graphics|",
+  ":svg:g^:svg:graphics|",
+  ":svg:image^:svg:graphics|decoding",
+  ":svg:line^:svg:geometry|",
+  ":svg:linearGradient^:svg:gradient|",
+  ":svg:mpath^:svg:|",
+  ":svg:marker^:svg:|",
+  ":svg:mask^:svg:|",
+  ":svg:metadata^:svg:|",
+  ":svg:path^:svg:geometry|",
+  ":svg:pattern^:svg:|",
+  ":svg:polygon^:svg:geometry|",
+  ":svg:polyline^:svg:geometry|",
+  ":svg:radialGradient^:svg:gradient|",
+  ":svg:rect^:svg:geometry|",
+  ":svg:svg^:svg:graphics|#currentScale,#zoomAndPan",
+  ":svg:script^:svg:|type",
+  ":svg:set^:svg:animation|",
+  ":svg:stop^:svg:|",
+  ":svg:style^:svg:|!disabled,media,title,type",
+  ":svg:switch^:svg:graphics|",
+  ":svg:symbol^:svg:|",
+  ":svg:tspan^:svg:textPositioning|",
+  ":svg:text^:svg:textPositioning|",
+  ":svg:textPath^:svg:textContent|",
+  ":svg:title^:svg:|",
+  ":svg:use^:svg:graphics|",
+  ":svg:view^:svg:|#zoomAndPan",
+  "data^[HTMLElement]|value",
+  "keygen^[HTMLElement]|!autofocus,challenge,!disabled,form,keytype,name",
+  "menuitem^[HTMLElement]|type,label,icon,!disabled,!checked,radiogroup,!default",
+  "summary^[HTMLElement]|",
+  "time^[HTMLElement]|dateTime",
+  ":svg:cursor^:svg:|",
+  ":math:^[HTMLElement]|!autofocus,nonce,*abort,*animationend,*animationiteration,*animationstart,*auxclick,*beforeinput,*beforematch,*beforetoggle,*beforexrselect,*blur,*cancel,*canplay,*canplaythrough,*change,*click,*close,*contentvisibilityautostatechange,*contextlost,*contextmenu,*contextrestored,*copy,*cuechange,*cut,*dblclick,*drag,*dragend,*dragenter,*dragleave,*dragover,*dragstart,*drop,*durationchange,*emptied,*ended,*error,*focus,*formdata,*gotpointercapture,*input,*invalid,*keydown,*keypress,*keyup,*load,*loadeddata,*loadedmetadata,*loadstart,*lostpointercapture,*mousedown,*mouseenter,*mouseleave,*mousemove,*mouseout,*mouseover,*mouseup,*mousewheel,*paste,*pause,*play,*playing,*pointercancel,*pointerdown,*pointerenter,*pointerleave,*pointermove,*pointerout,*pointerover,*pointerrawupdate,*pointerup,*progress,*ratechange,*reset,*resize,*scroll,*scrollend,*securitypolicyviolation,*seeked,*seeking,*select,*selectionchange,*selectstart,*slotchange,*stalled,*submit,*suspend,*timeupdate,*toggle,*transitioncancel,*transitionend,*transitionrun,*transitionstart,*volumechange,*waiting,*webkitanimationend,*webkitanimationiteration,*webkitanimationstart,*webkittransitionend,*wheel,%style,#tabIndex",
+  ":math:math^:math:|",
+  ":math:maction^:math:|",
+  ":math:menclose^:math:|",
+  ":math:merror^:math:|",
+  ":math:mfenced^:math:|",
+  ":math:mfrac^:math:|",
+  ":math:mi^:math:|",
+  ":math:mmultiscripts^:math:|",
+  ":math:mn^:math:|",
+  ":math:mo^:math:|",
+  ":math:mover^:math:|",
+  ":math:mpadded^:math:|",
+  ":math:mphantom^:math:|",
+  ":math:mroot^:math:|",
+  ":math:mrow^:math:|",
+  ":math:ms^:math:|",
+  ":math:mspace^:math:|",
+  ":math:msqrt^:math:|",
+  ":math:mstyle^:math:|",
+  ":math:msub^:math:|",
+  ":math:msubsup^:math:|",
+  ":math:msup^:math:|",
+  ":math:mtable^:math:|",
+  ":math:mtd^:math:|",
+  ":math:mtext^:math:|",
+  ":math:mtr^:math:|",
+  ":math:munder^:math:|",
+  ":math:munderover^:math:|",
+  ":math:semantics^:math:|"
+];
 var _ATTR_TO_PROP = new Map(Object.entries({
   "class": "className",
   "for": "htmlFor",
@@ -16956,37 +17852,28 @@ var _ATTR_TO_PROP = new Map(Object.entries({
   "innerHtml": "innerHTML",
   "readonly": "readOnly",
   "tabindex": "tabIndex",
-  "aria-activedescendant": "ariaActiveDescendantElement",
+  // https://www.w3.org/TR/wai-aria-1.2/#accessibilityroleandproperties-correspondence
   "aria-atomic": "ariaAtomic",
   "aria-autocomplete": "ariaAutoComplete",
   "aria-busy": "ariaBusy",
   "aria-checked": "ariaChecked",
   "aria-colcount": "ariaColCount",
   "aria-colindex": "ariaColIndex",
-  "aria-colindextext": "ariaColIndexText",
   "aria-colspan": "ariaColSpan",
-  "aria-controls": "ariaControlsElements",
   "aria-current": "ariaCurrent",
-  "aria-describedby": "ariaDescribedByElements",
-  "aria-description": "ariaDescription",
-  "aria-details": "ariaDetailsElements",
   "aria-disabled": "ariaDisabled",
-  "aria-errormessage": "ariaErrorMessageElements",
   "aria-expanded": "ariaExpanded",
-  "aria-flowto": "ariaFlowToElements",
   "aria-haspopup": "ariaHasPopup",
   "aria-hidden": "ariaHidden",
   "aria-invalid": "ariaInvalid",
   "aria-keyshortcuts": "ariaKeyShortcuts",
   "aria-label": "ariaLabel",
-  "aria-labelledby": "ariaLabelledByElements",
   "aria-level": "ariaLevel",
   "aria-live": "ariaLive",
   "aria-modal": "ariaModal",
   "aria-multiline": "ariaMultiLine",
   "aria-multiselectable": "ariaMultiSelectable",
   "aria-orientation": "ariaOrientation",
-  "aria-owns": "ariaOwnsElements",
   "aria-placeholder": "ariaPlaceholder",
   "aria-posinset": "ariaPosInSet",
   "aria-pressed": "ariaPressed",
@@ -16995,7 +17882,6 @@ var _ATTR_TO_PROP = new Map(Object.entries({
   "aria-roledescription": "ariaRoleDescription",
   "aria-rowcount": "ariaRowCount",
   "aria-rowindex": "ariaRowIndex",
-  "aria-rowindextext": "ariaRowIndexText",
   "aria-rowspan": "ariaRowSpan",
   "aria-selected": "ariaSelected",
   "aria-setsize": "ariaSetSize",
@@ -17011,6 +17897,8 @@ var _PROP_TO_ATTR = Array.from(_ATTR_TO_PROP).reduce((inverted, [propertyName, a
 }, /* @__PURE__ */ new Map());
 var DomElementSchemaRegistry = class extends ElementSchemaRegistry {
   _schema = /* @__PURE__ */ new Map();
+  // We don't allow binding to events for security reasons. Allowing event bindings would almost
+  // certainly introduce bad XSS vulnerabilities. Instead, we store events in a separate schema.
   _eventSchema = /* @__PURE__ */ new Map();
   constructor() {
     super();
@@ -17084,6 +17972,16 @@ var DomElementSchemaRegistry = class extends ElementSchemaRegistry {
     }
     return this._schema.has(tagName.toLowerCase());
   }
+  /**
+   * securityContext returns the security context for the given property on the given DOM tag.
+   *
+   * Tag and property name are statically known and cannot change at runtime, i.e. it is not
+   * possible to bind a value into a changing attribute or tag name.
+   *
+   * The filtering is based on a list of allowed tags|attributes. All attributes in the schema
+   * above are assumed to have the 'NONE' security context, i.e. that they are safe inert
+   * string values. Only specific well known attack vectors are assigned their appropriate context.
+   */
   securityContext(tagName, propName, isAttribute) {
     if (isAttribute) {
       propName = this.getMappedPropName(propName);
@@ -17107,27 +18005,17 @@ var DomElementSchemaRegistry = class extends ElementSchemaRegistry {
     if (name.toLowerCase().startsWith("on")) {
       const msg = `Binding to event property '${name}' is disallowed for security reasons, please use (${name.slice(2)})=...
 If '${name}' is a directive input, make sure the directive is imported by the current module.`;
-      return {
-        error: true,
-        msg
-      };
+      return { error: true, msg };
     } else {
-      return {
-        error: false
-      };
+      return { error: false };
     }
   }
   validateAttribute(name) {
     if (name.toLowerCase().startsWith("on")) {
       const msg = `Binding to event attribute '${name}' is disallowed for security reasons, please use (${name.slice(2)})=...`;
-      return {
-        error: true,
-        msg
-      };
+      return { error: true, msg };
     } else {
-      return {
-        error: false
-      };
+      return { error: false };
     }
   }
   allKnownElementNames() {
@@ -17157,10 +18045,7 @@ If '${name}' is a directive input, make sure the directive is imported by the cu
         }
       }
     }
-    return {
-      error: errorMsg,
-      value: strVal + unit
-    };
+    return { error: errorMsg, value: strVal + unit };
   }
 };
 function _isPixelDimensionStyle(prop) {
@@ -17207,16 +18092,7 @@ var HtmlTagDefinition = class {
   ignoreFirstLf;
   canSelfClose;
   preventNamespaceInheritance;
-  constructor({
-    closedByChildren,
-    implicitNamespacePrefix,
-    contentType = TagContentType.PARSABLE_DATA,
-    closedByParent = false,
-    isVoid = false,
-    ignoreFirstLf = false,
-    preventNamespaceInheritance = false,
-    canSelfClose = false
-  } = {}) {
+  constructor({ closedByChildren, implicitNamespacePrefix, contentType = TagContentType.PARSABLE_DATA, closedByParent = false, isVoid = false, ignoreFirstLf = false, preventNamespaceInheritance = false, canSelfClose = false } = {}) {
     if (closedByChildren && closedByChildren.length > 0) {
       closedByChildren.forEach((tagName) => this.closedByChildren[tagName] = true);
     }
@@ -17243,100 +18119,75 @@ var DEFAULT_TAG_DEFINITION;
 var TAG_DEFINITIONS;
 function getHtmlTagDefinition(tagName) {
   if (!TAG_DEFINITIONS) {
-    DEFAULT_TAG_DEFINITION = new HtmlTagDefinition({
-      canSelfClose: true
-    });
+    DEFAULT_TAG_DEFINITION = new HtmlTagDefinition({ canSelfClose: true });
     TAG_DEFINITIONS = Object.assign(/* @__PURE__ */ Object.create(null), {
-      "base": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "meta": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "area": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "embed": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "link": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "img": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "input": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "param": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "hr": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "br": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "source": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "track": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "wbr": new HtmlTagDefinition({
-        isVoid: true
-      }),
+      "base": new HtmlTagDefinition({ isVoid: true }),
+      "meta": new HtmlTagDefinition({ isVoid: true }),
+      "area": new HtmlTagDefinition({ isVoid: true }),
+      "embed": new HtmlTagDefinition({ isVoid: true }),
+      "link": new HtmlTagDefinition({ isVoid: true }),
+      "img": new HtmlTagDefinition({ isVoid: true }),
+      "input": new HtmlTagDefinition({ isVoid: true }),
+      "param": new HtmlTagDefinition({ isVoid: true }),
+      "hr": new HtmlTagDefinition({ isVoid: true }),
+      "br": new HtmlTagDefinition({ isVoid: true }),
+      "source": new HtmlTagDefinition({ isVoid: true }),
+      "track": new HtmlTagDefinition({ isVoid: true }),
+      "wbr": new HtmlTagDefinition({ isVoid: true }),
       "p": new HtmlTagDefinition({
-        closedByChildren: ["address", "article", "aside", "blockquote", "div", "dl", "fieldset", "footer", "form", "h1", "h2", "h3", "h4", "h5", "h6", "header", "hgroup", "hr", "main", "nav", "ol", "p", "pre", "section", "table", "ul"],
+        closedByChildren: [
+          "address",
+          "article",
+          "aside",
+          "blockquote",
+          "div",
+          "dl",
+          "fieldset",
+          "footer",
+          "form",
+          "h1",
+          "h2",
+          "h3",
+          "h4",
+          "h5",
+          "h6",
+          "header",
+          "hgroup",
+          "hr",
+          "main",
+          "nav",
+          "ol",
+          "p",
+          "pre",
+          "section",
+          "table",
+          "ul"
+        ],
         closedByParent: true
       }),
-      "thead": new HtmlTagDefinition({
-        closedByChildren: ["tbody", "tfoot"]
-      }),
-      "tbody": new HtmlTagDefinition({
-        closedByChildren: ["tbody", "tfoot"],
-        closedByParent: true
-      }),
-      "tfoot": new HtmlTagDefinition({
-        closedByChildren: ["tbody"],
-        closedByParent: true
-      }),
-      "tr": new HtmlTagDefinition({
-        closedByChildren: ["tr"],
-        closedByParent: true
-      }),
-      "td": new HtmlTagDefinition({
-        closedByChildren: ["td", "th"],
-        closedByParent: true
-      }),
-      "th": new HtmlTagDefinition({
-        closedByChildren: ["td", "th"],
-        closedByParent: true
-      }),
-      "col": new HtmlTagDefinition({
-        isVoid: true
-      }),
-      "svg": new HtmlTagDefinition({
-        implicitNamespacePrefix: "svg"
-      }),
+      "thead": new HtmlTagDefinition({ closedByChildren: ["tbody", "tfoot"] }),
+      "tbody": new HtmlTagDefinition({ closedByChildren: ["tbody", "tfoot"], closedByParent: true }),
+      "tfoot": new HtmlTagDefinition({ closedByChildren: ["tbody"], closedByParent: true }),
+      "tr": new HtmlTagDefinition({ closedByChildren: ["tr"], closedByParent: true }),
+      "td": new HtmlTagDefinition({ closedByChildren: ["td", "th"], closedByParent: true }),
+      "th": new HtmlTagDefinition({ closedByChildren: ["td", "th"], closedByParent: true }),
+      "col": new HtmlTagDefinition({ isVoid: true }),
+      "svg": new HtmlTagDefinition({ implicitNamespacePrefix: "svg" }),
       "foreignObject": new HtmlTagDefinition({
+        // Usually the implicit namespace here would be redundant since it will be inherited from
+        // the parent `svg`, but we have to do it for `foreignObject`, because the way the parser
+        // works is that the parent node of an end tag is its own start tag which means that
+        // the `preventNamespaceInheritance` on `foreignObject` would have it default to the
+        // implicit namespace which is `html`, unless specified otherwise.
         implicitNamespacePrefix: "svg",
+        // We want to prevent children of foreignObject from inheriting its namespace, because
+        // the point of the element is to allow nodes from other namespaces to be inserted.
         preventNamespaceInheritance: true
       }),
-      "math": new HtmlTagDefinition({
-        implicitNamespacePrefix: "math"
-      }),
-      "li": new HtmlTagDefinition({
-        closedByChildren: ["li"],
-        closedByParent: true
-      }),
-      "dt": new HtmlTagDefinition({
-        closedByChildren: ["dt", "dd"]
-      }),
-      "dd": new HtmlTagDefinition({
-        closedByChildren: ["dt", "dd"],
-        closedByParent: true
-      }),
+      "math": new HtmlTagDefinition({ implicitNamespacePrefix: "math" }),
+      "li": new HtmlTagDefinition({ closedByChildren: ["li"], closedByParent: true }),
+      "dt": new HtmlTagDefinition({ closedByChildren: ["dt", "dd"] }),
+      "dd": new HtmlTagDefinition({ closedByChildren: ["dt", "dd"], closedByParent: true }),
       "rb": new HtmlTagDefinition({
         closedByChildren: ["rb", "rt", "rtc", "rp"],
         closedByParent: true
@@ -17345,35 +18196,23 @@ function getHtmlTagDefinition(tagName) {
         closedByChildren: ["rb", "rt", "rtc", "rp"],
         closedByParent: true
       }),
-      "rtc": new HtmlTagDefinition({
-        closedByChildren: ["rb", "rtc", "rp"],
-        closedByParent: true
-      }),
+      "rtc": new HtmlTagDefinition({ closedByChildren: ["rb", "rtc", "rp"], closedByParent: true }),
       "rp": new HtmlTagDefinition({
         closedByChildren: ["rb", "rt", "rtc", "rp"],
         closedByParent: true
       }),
-      "optgroup": new HtmlTagDefinition({
-        closedByChildren: ["optgroup"],
-        closedByParent: true
-      }),
+      "optgroup": new HtmlTagDefinition({ closedByChildren: ["optgroup"], closedByParent: true }),
       "option": new HtmlTagDefinition({
         closedByChildren: ["option", "optgroup"],
         closedByParent: true
       }),
-      "pre": new HtmlTagDefinition({
-        ignoreFirstLf: true
-      }),
-      "listing": new HtmlTagDefinition({
-        ignoreFirstLf: true
-      }),
-      "style": new HtmlTagDefinition({
-        contentType: TagContentType.RAW_TEXT
-      }),
-      "script": new HtmlTagDefinition({
-        contentType: TagContentType.RAW_TEXT
-      }),
+      "pre": new HtmlTagDefinition({ ignoreFirstLf: true }),
+      "listing": new HtmlTagDefinition({ ignoreFirstLf: true }),
+      "style": new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
+      "script": new HtmlTagDefinition({ contentType: TagContentType.RAW_TEXT }),
       "title": new HtmlTagDefinition({
+        // The browser supports two separate `title` tags which have to use
+        // a different content type: `HTMLTitleElement` and `SVGTitleElement`
         contentType: {
           default: TagContentType.ESCAPABLE_RAW_TEXT,
           svg: TagContentType.PARSABLE_DATA
@@ -17386,9 +18225,7 @@ function getHtmlTagDefinition(tagName) {
     });
     new DomElementSchemaRegistry().allKnownElementNames().forEach((knownTagName) => {
       if (!TAG_DEFINITIONS[knownTagName] && getNsPrefix(knownTagName) === null) {
-        TAG_DEFINITIONS[knownTagName] = new HtmlTagDefinition({
-          canSelfClose: false
-        });
+        TAG_DEFINITIONS[knownTagName] = new HtmlTagDefinition({ canSelfClose: false });
       }
     });
   }
@@ -17427,7 +18264,9 @@ var TAG_TO_PLACEHOLDER_NAMES = {
   "UL": "UNORDERED_LIST"
 };
 var PlaceholderRegistry = class {
+  // Count the occurrence of the base name top generate a unique name
   _placeHolderNameCounts = {};
+  // Maps signature to placeholder names
   _signatureToName = {};
   getStartTagPlaceholderName(tag, attrs, isVoid) {
     const signature = this._hashTag(tag, attrs, isVoid);
@@ -17482,6 +18321,7 @@ var PlaceholderRegistry = class {
     this._signatureToName[signature] = placeholder;
     return placeholder;
   }
+  // Generate a hash for a tag - does not take attribute order into account
   _hashTag(tag, attrs, isVoid) {
     const start = `<${tag}`;
     const strAttrs = Object.keys(attrs).sort().map((name) => ` ${name}=${attrs[name]}`).join("");
@@ -17513,8 +18353,8 @@ var PlaceholderRegistry = class {
   }
 };
 var _expParser = new Parser2(new Lexer());
-function createI18nMessageFactory(retainEmptyTokens, preserveExpressionWhitespace) {
-  const visitor = new _I18nVisitor(_expParser, retainEmptyTokens, preserveExpressionWhitespace);
+function createI18nMessageFactory(interpolationConfig, containerBlocks, retainEmptyTokens, preserveExpressionWhitespace) {
+  const visitor = new _I18nVisitor(_expParser, interpolationConfig, containerBlocks, retainEmptyTokens, preserveExpressionWhitespace);
   return (nodes, meaning, description, customId, visitNodeFn) => visitor.toI18nMessage(nodes, meaning, description, customId, visitNodeFn);
 }
 function noopVisitNodeFn(_html, i18n2) {
@@ -17522,10 +18362,14 @@ function noopVisitNodeFn(_html, i18n2) {
 }
 var _I18nVisitor = class {
   _expressionParser;
+  _interpolationConfig;
+  _containerBlocks;
   _retainEmptyTokens;
   _preserveExpressionWhitespace;
-  constructor(_expressionParser, _retainEmptyTokens, _preserveExpressionWhitespace) {
+  constructor(_expressionParser, _interpolationConfig, _containerBlocks, _retainEmptyTokens, _preserveExpressionWhitespace) {
     this._expressionParser = _expressionParser;
+    this._interpolationConfig = _interpolationConfig;
+    this._containerBlocks = _containerBlocks;
     this._retainEmptyTokens = _retainEmptyTokens;
     this._preserveExpressionWhitespace = _preserveExpressionWhitespace;
   }
@@ -17588,7 +18432,7 @@ var _I18nVisitor = class {
   }
   visitBlock(block, context) {
     const children = visitAll(this, block.children, context);
-    if (block.name === "switch") {
+    if (this._containerBlocks.has(block.name)) {
       return new Container(children, block.sourceSpan);
     }
     const parameters = block.parameters.map((param) => param.expression);
@@ -17644,6 +18488,14 @@ var _I18nVisitor = class {
     const i18nNode = new TagPlaceholder(nodeName, attrs, startPhName, closePhName, children, isVoid, node.sourceSpan, node.startSourceSpan, node.endSourceSpan);
     return context.visitNodeFn(node, i18nNode);
   }
+  /**
+   * Convert, text and interpolated tokens up into text and placeholder pieces.
+   *
+   * @param tokens The text and interpolated tokens.
+   * @param sourceSpan The span of the whole of the `text` string.
+   * @param context The current context of the visitor, used to compute and store placeholders.
+   * @param previousI18n Any i18n metadata associated with this `text` from a previous pass.
+   */
   _visitTextWithInterpolation(tokens, sourceSpan, context, previousI18n) {
     const nodes = [];
     let hasInterpolation = false;
@@ -17694,9 +18546,18 @@ var _I18nVisitor = class {
       return nodes[0];
     }
   }
+  // Normalize expression whitespace by parsing and re-serializing it. This makes
+  // message IDs more durable to insignificant whitespace changes.
   normalizeExpression(token) {
     const expression = token.parts[1];
-    const expr = this._expressionParser.parseBinding(expression, token.sourceSpan, token.sourceSpan.start.offset);
+    const expr = this._expressionParser.parseBinding(
+      expression,
+      /* location */
+      token.sourceSpan,
+      /* absoluteOffset */
+      token.sourceSpan.start.offset,
+      this._interpolationConfig
+    );
     return serialize(expr);
   }
 };
@@ -17738,7 +18599,18 @@ var _CUSTOM_PH_EXP = /\/\/[\s\S]*i18n[\s\S]*\([\s\S]*ph[\s\S]*=[\s\S]*("|')([\s\
 function extractPlaceholderName(input) {
   return input.split(_CUSTOM_PH_EXP)[2];
 }
-var TRUSTED_TYPES_SINKS = /* @__PURE__ */ new Set(["iframe|srcdoc", "*|innerhtml", "*|outerhtml", "embed|src", "object|codebase", "object|data"]);
+var TRUSTED_TYPES_SINKS = /* @__PURE__ */ new Set([
+  // NOTE: All strings in this set *must* be lowercase!
+  // TrustedHTML
+  "iframe|srcdoc",
+  "*|innerhtml",
+  "*|outerhtml",
+  // NB: no TrustedScript here, as the corresponding tags are stripped by the compiler.
+  // TrustedScriptURL
+  "embed|src",
+  "object|codebase",
+  "object|data"
+]);
 function isTrustedTypesSink(tagName, propName) {
   tagName = tagName.toLowerCase();
   propName = propName.toLowerCase();
@@ -17757,25 +18629,32 @@ var setI18nRefs = (originalNodeMap) => {
   };
 };
 var I18nMetaVisitor = class {
+  interpolationConfig;
   keepI18nAttrs;
   enableI18nLegacyMessageIdFormat;
+  containerBlocks;
   preserveSignificantWhitespace;
   retainEmptyTokens;
+  // whether visited nodes contain i18n information
   hasI18nMeta = false;
   _errors = [];
-  constructor(keepI18nAttrs = false, enableI18nLegacyMessageIdFormat = false, preserveSignificantWhitespace = true, retainEmptyTokens = !preserveSignificantWhitespace) {
+  constructor(interpolationConfig = DEFAULT_INTERPOLATION_CONFIG, keepI18nAttrs = false, enableI18nLegacyMessageIdFormat = false, containerBlocks = DEFAULT_CONTAINER_BLOCKS, preserveSignificantWhitespace = true, retainEmptyTokens = !preserveSignificantWhitespace) {
+    this.interpolationConfig = interpolationConfig;
     this.keepI18nAttrs = keepI18nAttrs;
     this.enableI18nLegacyMessageIdFormat = enableI18nLegacyMessageIdFormat;
+    this.containerBlocks = containerBlocks;
     this.preserveSignificantWhitespace = preserveSignificantWhitespace;
     this.retainEmptyTokens = retainEmptyTokens;
   }
   _generateI18nMessage(nodes, meta = "", visitNodeFn) {
-    const {
-      meaning,
-      description,
-      customId
-    } = this._parseMetadata(meta);
-    const createI18nMessage2 = createI18nMessageFactory(this.retainEmptyTokens, this.preserveSignificantWhitespace);
+    const { meaning, description, customId } = this._parseMetadata(meta);
+    const createI18nMessage2 = createI18nMessageFactory(
+      this.interpolationConfig,
+      this.containerBlocks,
+      this.retainEmptyTokens,
+      /* preserveExpressionWhitespace */
+      this.preserveSignificantWhitespace
+    );
     const message = createI18nMessage2(nodes, meaning, description, customId, visitNodeFn);
     this._setMessageId(message, meta);
     this._setLegacyIds(message, meta);
@@ -17883,14 +18762,35 @@ var I18nMetaVisitor = class {
     }
     visitAll(this, node.children, message);
   }
+  /**
+   * Parse the general form `meta` passed into extract the explicit metadata needed to create a
+   * `Message`.
+   *
+   * There are three possibilities for the `meta` variable
+   * 1) a string from an `i18n` template attribute: parse it to extract the metadata values.
+   * 2) a `Message` from a previous processing pass: reuse the metadata values in the message.
+   * 4) other: ignore this and just process the message metadata as normal
+   *
+   * @param meta the bucket that holds information about the message
+   * @returns the parsed metadata.
+   */
   _parseMetadata(meta) {
     return typeof meta === "string" ? parseI18nMeta(meta) : meta instanceof Message ? meta : {};
   }
+  /**
+   * Generate (or restore) message id if not specified already.
+   */
   _setMessageId(message, meta) {
     if (!message.id) {
       message.id = meta instanceof Message && meta.id || decimalDigest(message);
     }
   }
+  /**
+   * Update the `message` with a `legacyId` if necessary.
+   *
+   * @param message the message whose legacy id should be set
+   * @param meta information about the message being processed
+   */
   _setLegacyIds(message, meta) {
     if (this.enableI18nLegacyMessageIdFormat) {
       message.legacyIds = [computeDigest(message), computeDecimalDigest(message)];
@@ -17917,30 +18817,17 @@ function parseI18nMeta(meta = "") {
     [meaningAndDesc, customId] = idIndex > -1 ? [meta.slice(0, idIndex), meta.slice(idIndex + 2)] : [meta, ""];
     [meaning, description] = descIndex > -1 ? [meaningAndDesc.slice(0, descIndex), meaningAndDesc.slice(descIndex + 1)] : ["", meaningAndDesc];
   }
-  return {
-    customId,
-    meaning,
-    description
-  };
+  return { customId, meaning, description };
 }
 function i18nMetaToJSDoc(meta) {
   const tags = [];
   if (meta.description) {
-    tags.push({
-      tagName: "desc",
-      text: meta.description
-    });
+    tags.push({ tagName: "desc", text: meta.description });
   } else {
-    tags.push({
-      tagName: "suppress",
-      text: "{msgDescriptions}"
-    });
+    tags.push({ tagName: "suppress", text: "{msgDescriptions}" });
   }
   if (meta.meaning) {
-    tags.push({
-      tagName: "meaning",
-      text: meta.meaning
-    });
+    tags.push({ tagName: "meaning", text: meta.meaning });
   }
   return jsDocComment(tags);
 }
@@ -17949,12 +18836,26 @@ function createGoogleGetMsgStatements(variable$1, message, closureVar, placehold
   const messageString = serializeI18nMessageForGetMsg(message);
   const args = [literal(messageString)];
   if (Object.keys(placeholderValues).length) {
-    args.push(mapLiteral(formatI18nPlaceholderNamesInMap(placeholderValues, true), true));
+    args.push(mapLiteral(
+      formatI18nPlaceholderNamesInMap(
+        placeholderValues,
+        true
+        /* useCamelCase */
+      ),
+      true
+      /* quoted */
+    ));
     args.push(mapLiteral({
       original_code: literalMap(Object.keys(placeholderValues).map((param) => ({
         key: formatI18nPlaceholderName(param),
         quoted: true,
-        value: message.placeholders[param] ? literal(message.placeholders[param].sourceSpan.toString()) : literal(message.placeholderToMessage[param].nodes.map((node) => node.sourceSpan.toString()).join(""))
+        value: message.placeholders[param] ? (
+          // Get source span for typical placeholder if it exists.
+          literal(message.placeholders[param].sourceSpan.toString())
+        ) : (
+          // Otherwise must be an ICU expression, get it's source span.
+          literal(message.placeholderToMessage[param].nodes.map((node) => node.sourceSpan.toString()).join(""))
+        )
       })))
     }));
   }
@@ -17994,10 +18895,7 @@ function serializeI18nMessageForGetMsg(message) {
   return message.nodes.map((node) => node.visit(serializerVisitor, null)).join("");
 }
 function createLocalizeStatements(variable2, message, params) {
-  const {
-    messageParts,
-    placeHolders
-  } = serializeI18nMessageForLocalize(message);
+  const { messageParts, placeHolders } = serializeI18nMessageForLocalize(message);
   const sourceSpan = getSourceSpan(message);
   const expressions = placeHolders.map((ph) => params[ph.text]);
   const localizedString$1 = localizedString(message, messageParts, placeHolders, expressions, sourceSpan);
@@ -18044,7 +18942,11 @@ var LocalizeSerializerVisitor = class {
     this.pieces.push(this.createPlaceholderPiece(ph.name, ph.sourceSpan, this.placeholderToMessage[ph.name]));
   }
   createPlaceholderPiece(name, sourceSpan, associatedMessage) {
-    return new PlaceholderPiece(formatI18nPlaceholderName(name, false), sourceSpan, associatedMessage);
+    return new PlaceholderPiece(formatI18nPlaceholderName(
+      name,
+      /* useCamelCase */
+      false
+    ), sourceSpan, associatedMessage);
   }
 };
 function serializeI18nMessageForLocalize(message) {
@@ -18078,10 +18980,7 @@ function processMessagePieces(pieces) {
   if (pieces[pieces.length - 1] instanceof PlaceholderPiece) {
     messageParts.push(createEmptyMessagePart(pieces[pieces.length - 1].sourceSpan.end));
   }
-  return {
-    messageParts,
-    placeHolders
-  };
+  return { messageParts, placeHolders };
 }
 function createEmptyMessagePart(location) {
   return new LiteralPiece("", new ParseSourceSpan(location, location));
@@ -18126,10 +19025,7 @@ function collectI18nConsts(job) {
     for (const op of unit.create) {
       if (op.kind === OpKind.I18nMessage) {
         if (op.messagePlaceholder === null) {
-          const {
-            mainVar,
-            statements
-          } = collectMessage(job, fileBasedI18nSuffix, messages, op);
+          const { mainVar, statements } = collectMessage(job, fileBasedI18nSuffix, messages, op);
           if (op.i18nBlock !== null) {
             const i18nConst = job.addConst(mainVar, statements);
             messageConstIndices.set(op.i18nBlock, i18nConst);
@@ -18193,10 +19089,7 @@ function collectMessage(job, fileBasedI18nSuffix, messages, messageOp) {
   const subMessagePlaceholders = /* @__PURE__ */ new Map();
   for (const subMessageId of messageOp.subMessages) {
     const subMessage = messages.get(subMessageId);
-    const {
-      mainVar: subMessageVar,
-      statements: subMessageStatements
-    } = collectMessage(job, fileBasedI18nSuffix, messages, subMessage);
+    const { mainVar: subMessageVar, statements: subMessageStatements } = collectMessage(job, fileBasedI18nSuffix, messages, subMessage);
     statements.push(...subMessageStatements);
     const subMessages = subMessagePlaceholders.get(subMessage.messagePlaceholder) ?? [];
     subMessages.push(subMessageVar);
@@ -18209,18 +19102,23 @@ function collectMessage(job, fileBasedI18nSuffix, messages, messageOp) {
   let transformFn = void 0;
   if (messageOp.needsPostprocessing || messageOp.postprocessingParams.size > 0) {
     const postprocessingParams = Object.fromEntries([...messageOp.postprocessingParams.entries()].sort());
-    const formattedPostprocessingParams = formatI18nPlaceholderNamesInMap(postprocessingParams, false);
+    const formattedPostprocessingParams = formatI18nPlaceholderNamesInMap(
+      postprocessingParams,
+      /* useCamelCase */
+      false
+    );
     const extraTransformFnParams = [];
     if (messageOp.postprocessingParams.size > 0) {
-      extraTransformFnParams.push(mapLiteral(formattedPostprocessingParams, true));
+      extraTransformFnParams.push(mapLiteral(
+        formattedPostprocessingParams,
+        /* quoted */
+        true
+      ));
     }
     transformFn = (expr) => importExpr(Identifiers.i18nPostprocess).callFn([expr, ...extraTransformFnParams]);
   }
   statements.push(...getTranslationDeclStmts(messageOp.message, mainVar, closureVar, messageOp.params, transformFn));
-  return {
-    mainVar,
-    statements
-  };
+  return { mainVar, statements };
 }
 function addSubMessageParams(messageOp, subMessagePlaceholders) {
   for (const [placeholder, subMessages] of subMessagePlaceholders) {
@@ -18234,7 +19132,14 @@ function addSubMessageParams(messageOp, subMessagePlaceholders) {
 }
 function getTranslationDeclStmts(message, variable2, closureVar, params, transformFn) {
   const paramsObject = Object.fromEntries(params);
-  const statements = [declareI18nVariable(variable2), ifStmt(createClosureModeGuard(), createGoogleGetMsgStatements(variable2, message, closureVar, paramsObject), createLocalizeStatements(variable2, message, formatI18nPlaceholderNamesInMap(paramsObject, false)))];
+  const statements = [
+    declareI18nVariable(variable2),
+    ifStmt(createClosureModeGuard(), createGoogleGetMsgStatements(variable2, message, closureVar, paramsObject), createLocalizeStatements(variable2, message, formatI18nPlaceholderNamesInMap(
+      paramsObject,
+      /* useCamelCase */
+      false
+    )))
+  ];
   if (transformFn) {
     statements.push(new ExpressionStatement(variable2.set(transformFn(variable2))));
   }
@@ -18460,13 +19365,15 @@ function parseExtractedStyles(job) {
   }
 }
 function nameFunctionsAndVariables(job) {
-  addNamesToView(job.root, job.componentName, {
-    index: 0
-  }, job.compatibility === CompatibilityMode.TemplateDefinitionBuilder);
+  addNamesToView(job.root, job.componentName, { index: 0 }, job.compatibility === CompatibilityMode.TemplateDefinitionBuilder);
 }
 function addNamesToView(unit, baseName, state, compatibility) {
   if (unit.fnName === null) {
-    unit.fnName = unit.job.pool.uniqueName(sanitizeIdentifier(`${baseName}_${unit.job.fnSuffix}`), false);
+    unit.fnName = unit.job.pool.uniqueName(
+      sanitizeIdentifier(`${baseName}_${unit.job.fnSuffix}`),
+      /* alwaysIncludeSuffix */
+      false
+    );
   }
   const varNames = /* @__PURE__ */ new Map();
   for (const op of unit.ops()) {
@@ -18726,48 +19633,43 @@ function basicListenerKindTest(op) {
 function nonInterpolationPropertyKindTest(op) {
   return (op.kind === OpKind.Property || op.kind === OpKind.TwoWayProperty) && !(op.expression instanceof Interpolation2);
 }
-var CREATE_ORDERING = [{
-  test: (op) => op.kind === OpKind.Listener && op.hostListener && op.isLegacyAnimationListener
-}, {
-  test: basicListenerKindTest
-}];
-var UPDATE_ORDERING = [{
-  test: kindTest(OpKind.StyleMap),
-  transform: keepLast
-}, {
-  test: kindTest(OpKind.ClassMap),
-  transform: keepLast
-}, {
-  test: kindTest(OpKind.StyleProp)
-}, {
-  test: kindTest(OpKind.ClassProp)
-}, {
-  test: kindWithInterpolationTest(OpKind.Attribute, true)
-}, {
-  test: kindWithInterpolationTest(OpKind.Property, true)
-}, {
-  test: nonInterpolationPropertyKindTest
-}, {
-  test: kindWithInterpolationTest(OpKind.Attribute, false)
-}];
-var UPDATE_HOST_ORDERING = [{
-  test: kindWithInterpolationTest(OpKind.DomProperty, true)
-}, {
-  test: kindWithInterpolationTest(OpKind.DomProperty, false)
-}, {
-  test: kindTest(OpKind.Attribute)
-}, {
-  test: kindTest(OpKind.StyleMap),
-  transform: keepLast
-}, {
-  test: kindTest(OpKind.ClassMap),
-  transform: keepLast
-}, {
-  test: kindTest(OpKind.StyleProp)
-}, {
-  test: kindTest(OpKind.ClassProp)
-}];
-var handledOpKinds = /* @__PURE__ */ new Set([OpKind.Listener, OpKind.TwoWayListener, OpKind.AnimationListener, OpKind.StyleMap, OpKind.ClassMap, OpKind.StyleProp, OpKind.ClassProp, OpKind.Property, OpKind.TwoWayProperty, OpKind.DomProperty, OpKind.Attribute, OpKind.Animation]);
+var CREATE_ORDERING = [
+  { test: (op) => op.kind === OpKind.Listener && op.hostListener && op.isLegacyAnimationListener },
+  { test: basicListenerKindTest }
+];
+var UPDATE_ORDERING = [
+  { test: kindTest(OpKind.StyleMap), transform: keepLast },
+  { test: kindTest(OpKind.ClassMap), transform: keepLast },
+  { test: kindTest(OpKind.StyleProp) },
+  { test: kindTest(OpKind.ClassProp) },
+  { test: kindWithInterpolationTest(OpKind.Attribute, true) },
+  { test: kindWithInterpolationTest(OpKind.Property, true) },
+  { test: nonInterpolationPropertyKindTest },
+  { test: kindWithInterpolationTest(OpKind.Attribute, false) }
+];
+var UPDATE_HOST_ORDERING = [
+  { test: kindWithInterpolationTest(OpKind.DomProperty, true) },
+  { test: kindWithInterpolationTest(OpKind.DomProperty, false) },
+  { test: kindTest(OpKind.Attribute) },
+  { test: kindTest(OpKind.StyleMap), transform: keepLast },
+  { test: kindTest(OpKind.ClassMap), transform: keepLast },
+  { test: kindTest(OpKind.StyleProp) },
+  { test: kindTest(OpKind.ClassProp) }
+];
+var handledOpKinds = /* @__PURE__ */ new Set([
+  OpKind.Listener,
+  OpKind.TwoWayListener,
+  OpKind.AnimationListener,
+  OpKind.StyleMap,
+  OpKind.ClassMap,
+  OpKind.StyleProp,
+  OpKind.ClassProp,
+  OpKind.Property,
+  OpKind.TwoWayProperty,
+  OpKind.DomProperty,
+  OpKind.Attribute,
+  OpKind.Animation
+]);
 function orderOps(job) {
   for (const unit of job.units) {
     orderWithin(unit.create, CREATE_ORDERING);
@@ -18944,7 +19846,11 @@ function propagateI18nBlocksForView(view, i18nBlock, i18nPlaceholder, subTemplat
 function wrapTemplateWithI18n(unit, parentI18n) {
   if (unit.create.head.next?.kind !== OpKind.I18nStart) {
     const id = unit.job.allocateXrefId();
-    OpList.insertAfter(createI18nStartOp(id, parentI18n.message, parentI18n.root, null), unit.create.head);
+    OpList.insertAfter(
+      // Nested ng-template i18n start/end ops should not receive source spans.
+      createI18nStartOp(id, parentI18n.message, parentI18n.root, null),
+      unit.create.head
+    );
     OpList.insertBefore(createI18nEndOp(id, null), unit.create.tail);
   }
 }
@@ -18975,6 +19881,7 @@ var PureFunctionConstant = class extends GenericKeyFn {
       return super.keyOf(expr);
     }
   }
+  // TODO: Use the new pool method `getSharedFunctionReference`
   toSharedConstantDeclaration(declName, keyExpr) {
     const fnParams = [];
     for (let idx = 0; idx < this.numArgs; idx++) {
@@ -19034,23 +19941,6 @@ function transformLiteralMap(expr) {
   }
   return new PureFunctionExpr(literalMap(derivedEntries), nonConstantArgs);
 }
-function optimizeRegularExpressions(job) {
-  for (const view of job.units) {
-    for (const op of view.ops()) {
-      transformExpressionsInOp(op, (expr) => {
-        if (expr instanceof RegularExpressionLiteralExpr && (expr.flags === null || !expr.flags.includes("g"))) {
-          return job.pool.getSharedConstant(new RegularExpressionConstant(), expr);
-        }
-        return expr;
-      }, VisitorContextFlag.None);
-    }
-  }
-}
-var RegularExpressionConstant = class extends GenericKeyFn {
-  toSharedConstantDeclaration(declName, keyExpr) {
-    return new DeclareVarStmt(declName, keyExpr, void 0, StmtModifier.Final);
-  }
-};
 function element(slot, tag, constIndex, localRefIndex, sourceSpan) {
   return elementOrContainerBase(Identifiers.element, slot, tag, constIndex, localRefIndex, sourceSpan);
 }
@@ -19063,14 +19953,25 @@ function elementOrContainerBase(instruction, slot, tag, constIndex, localRefInde
     args.push(literal(tag));
   }
   if (localRefIndex !== null) {
-    args.push(literal(constIndex), literal(localRefIndex));
+    args.push(
+      literal(constIndex),
+      // might be null, but that's okay.
+      literal(localRefIndex)
+    );
   } else if (constIndex !== null) {
     args.push(literal(constIndex));
   }
   return call(instruction, args, sourceSpan);
 }
 function templateBase(instruction, slot, templateFnRef, decls, vars, tag, constIndex, localRefs, sourceSpan) {
-  const args = [literal(slot), templateFnRef, literal(decls), literal(vars), literal(tag), literal(constIndex)];
+  const args = [
+    literal(slot),
+    templateFnRef,
+    literal(decls),
+    literal(vars),
+    literal(tag),
+    literal(constIndex)
+  ];
   if (localRefs !== null) {
     args.push(literal(localRefs));
     args.push(importExpr(Identifiers.templateRefExtractor));
@@ -19096,10 +19997,26 @@ function elementEnd(sourceSpan) {
   return call(Identifiers.elementEnd, [], sourceSpan);
 }
 function elementContainerStart(slot, constIndex, localRefIndex, sourceSpan) {
-  return elementOrContainerBase(Identifiers.elementContainerStart, slot, null, constIndex, localRefIndex, sourceSpan);
+  return elementOrContainerBase(
+    Identifiers.elementContainerStart,
+    slot,
+    /* tag */
+    null,
+    constIndex,
+    localRefIndex,
+    sourceSpan
+  );
 }
 function elementContainer(slot, constIndex, localRefIndex, sourceSpan) {
-  return elementOrContainerBase(Identifiers.elementContainer, slot, null, constIndex, localRefIndex, sourceSpan);
+  return elementOrContainerBase(
+    Identifiers.elementContainer,
+    slot,
+    /* tag */
+    null,
+    constIndex,
+    localRefIndex,
+    sourceSpan
+  );
 }
 function elementContainerEnd() {
   return call(Identifiers.elementContainerEnd, [], null);
@@ -19164,48 +20081,151 @@ function text(slot, initialValue, sourceSpan) {
   return call(Identifiers.text, args, sourceSpan);
 }
 function defer(selfSlot, primarySlot, dependencyResolverFn, loadingSlot, placeholderSlot, errorSlot, loadingConfig, placeholderConfig, enableTimerScheduling, sourceSpan, flags) {
-  const args = [literal(selfSlot), literal(primarySlot), dependencyResolverFn ?? literal(null), literal(loadingSlot), literal(placeholderSlot), literal(errorSlot), loadingConfig ?? literal(null), placeholderConfig ?? literal(null), enableTimerScheduling ? importExpr(Identifiers.deferEnableTimerScheduling) : literal(null), literal(flags)];
+  const args = [
+    literal(selfSlot),
+    literal(primarySlot),
+    dependencyResolverFn ?? literal(null),
+    literal(loadingSlot),
+    literal(placeholderSlot),
+    literal(errorSlot),
+    loadingConfig ?? literal(null),
+    placeholderConfig ?? literal(null),
+    enableTimerScheduling ? importExpr(Identifiers.deferEnableTimerScheduling) : literal(null),
+    literal(flags)
+  ];
   let expr;
   while ((expr = args[args.length - 1]) !== null && expr instanceof LiteralExpr && expr.value === null) {
     args.pop();
   }
   return call(Identifiers.defer, args, sourceSpan);
 }
-var deferTriggerToR3TriggerInstructionsMap = /* @__PURE__ */ new Map([[DeferTriggerKind.Idle, {
-  ["none"]: Identifiers.deferOnIdle,
-  ["prefetch"]: Identifiers.deferPrefetchOnIdle,
-  ["hydrate"]: Identifiers.deferHydrateOnIdle
-}], [DeferTriggerKind.Immediate, {
-  ["none"]: Identifiers.deferOnImmediate,
-  ["prefetch"]: Identifiers.deferPrefetchOnImmediate,
-  ["hydrate"]: Identifiers.deferHydrateOnImmediate
-}], [DeferTriggerKind.Timer, {
-  ["none"]: Identifiers.deferOnTimer,
-  ["prefetch"]: Identifiers.deferPrefetchOnTimer,
-  ["hydrate"]: Identifiers.deferHydrateOnTimer
-}], [DeferTriggerKind.Hover, {
-  ["none"]: Identifiers.deferOnHover,
-  ["prefetch"]: Identifiers.deferPrefetchOnHover,
-  ["hydrate"]: Identifiers.deferHydrateOnHover
-}], [DeferTriggerKind.Interaction, {
-  ["none"]: Identifiers.deferOnInteraction,
-  ["prefetch"]: Identifiers.deferPrefetchOnInteraction,
-  ["hydrate"]: Identifiers.deferHydrateOnInteraction
-}], [DeferTriggerKind.Viewport, {
-  ["none"]: Identifiers.deferOnViewport,
-  ["prefetch"]: Identifiers.deferPrefetchOnViewport,
-  ["hydrate"]: Identifiers.deferHydrateOnViewport
-}], [DeferTriggerKind.Never, {
-  ["none"]: Identifiers.deferHydrateNever,
-  ["prefetch"]: Identifiers.deferHydrateNever,
-  ["hydrate"]: Identifiers.deferHydrateNever
-}]]);
+var deferTriggerToR3TriggerInstructionsMap = /* @__PURE__ */ new Map([
+  [
+    DeferTriggerKind.Idle,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferOnIdle,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferPrefetchOnIdle,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateOnIdle
+    }
+  ],
+  [
+    DeferTriggerKind.Immediate,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferOnImmediate,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferPrefetchOnImmediate,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateOnImmediate
+    }
+  ],
+  [
+    DeferTriggerKind.Timer,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferOnTimer,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferPrefetchOnTimer,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateOnTimer
+    }
+  ],
+  [
+    DeferTriggerKind.Hover,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferOnHover,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferPrefetchOnHover,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateOnHover
+    }
+  ],
+  [
+    DeferTriggerKind.Interaction,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferOnInteraction,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferPrefetchOnInteraction,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateOnInteraction
+    }
+  ],
+  [
+    DeferTriggerKind.Viewport,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferOnViewport,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferPrefetchOnViewport,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateOnViewport
+    }
+  ],
+  [
+    DeferTriggerKind.Never,
+    {
+      [
+        "none"
+        /* ir.DeferOpModifierKind.NONE */
+      ]: Identifiers.deferHydrateNever,
+      [
+        "prefetch"
+        /* ir.DeferOpModifierKind.PREFETCH */
+      ]: Identifiers.deferHydrateNever,
+      [
+        "hydrate"
+        /* ir.DeferOpModifierKind.HYDRATE */
+      ]: Identifiers.deferHydrateNever
+    }
+  ]
+]);
 function deferOn(trigger, args, modifier, sourceSpan) {
   const instructionToCall = deferTriggerToR3TriggerInstructionsMap.get(trigger)?.[modifier];
   if (instructionToCall === void 0) {
     throw new Error(`Unable to determine instruction for trigger ${trigger}`);
   }
-  return call(instructionToCall, args, sourceSpan);
+  return call(instructionToCall, args.map((a) => literal(a)), sourceSpan);
 }
 function projectionDef(def) {
   return call(Identifiers.projectionDef, def ? [def] : [], null);
@@ -19234,7 +20254,14 @@ function i18nStart(slot, constIndex, subTemplateIndex, sourceSpan) {
   return call(Identifiers.i18nStart, args, sourceSpan);
 }
 function conditionalCreate(slot, templateFnRef, decls, vars, tag, constIndex, localRefs, sourceSpan) {
-  const args = [literal(slot), templateFnRef, literal(decls), literal(vars), literal(tag), literal(constIndex)];
+  const args = [
+    literal(slot),
+    templateFnRef,
+    literal(decls),
+    literal(vars),
+    literal(tag),
+    literal(constIndex)
+  ];
   if (localRefs !== null) {
     args.push(literal(localRefs));
     args.push(importExpr(Identifiers.templateRefExtractor));
@@ -19245,7 +20272,14 @@ function conditionalCreate(slot, templateFnRef, decls, vars, tag, constIndex, lo
   return call(Identifiers.conditionalCreate, args, sourceSpan);
 }
 function conditionalBranchCreate(slot, templateFnRef, decls, vars, tag, constIndex, localRefs, sourceSpan) {
-  const args = [literal(slot), templateFnRef, literal(decls), literal(vars), literal(tag), literal(constIndex)];
+  const args = [
+    literal(slot),
+    templateFnRef,
+    literal(decls),
+    literal(vars),
+    literal(tag),
+    literal(constIndex)
+  ];
   if (localRefs !== null) {
     args.push(literal(localRefs));
     args.push(importExpr(Identifiers.templateRefExtractor));
@@ -19256,7 +20290,15 @@ function conditionalBranchCreate(slot, templateFnRef, decls, vars, tag, constInd
   return call(Identifiers.conditionalBranchCreate, args, sourceSpan);
 }
 function repeaterCreate(slot, viewFnName, decls, vars, tag, constIndex, trackByFn, trackByUsesComponentInstance, emptyViewFnName, emptyDecls, emptyVars, emptyTag, emptyConstIndex, sourceSpan) {
-  const args = [literal(slot), variable(viewFnName), literal(decls), literal(vars), literal(tag), literal(constIndex), trackByFn];
+  const args = [
+    literal(slot),
+    variable(viewFnName),
+    literal(decls),
+    literal(vars),
+    literal(tag),
+    literal(constIndex),
+    trackByFn
+  ];
   if (trackByUsesComponentInstance || emptyViewFnName !== null) {
     args.push(literal(trackByUsesComponentInstance));
     if (emptyViewFnName !== null) {
@@ -19310,21 +20352,6 @@ function ariaProperty(name, expression, sourceSpan) {
 }
 function property(name, expression, sanitizer, sourceSpan) {
   return propertyBase(Identifiers.property, name, expression, sanitizer, sourceSpan);
-}
-function control(expression, sanitizer, sourceSpan) {
-  const args = [];
-  if (expression instanceof Interpolation2) {
-    args.push(interpolationToExpression(expression, sourceSpan));
-  } else {
-    args.push(expression);
-  }
-  if (sanitizer !== null) {
-    args.push(sanitizer);
-  }
-  return call(Identifiers.control, args, sourceSpan);
-}
-function controlCreate(sourceSpan) {
-  return call(Identifiers.controlCreate, [], sourceSpan);
 }
 function twoWayProperty(name, expression, sanitizer, sourceSpan) {
   const args = [literal(name), expression];
@@ -19381,10 +20408,26 @@ function domElementEnd(sourceSpan) {
   return call(Identifiers.domElementEnd, [], sourceSpan);
 }
 function domElementContainerStart(slot, constIndex, localRefIndex, sourceSpan) {
-  return elementOrContainerBase(Identifiers.domElementContainerStart, slot, null, constIndex, localRefIndex, sourceSpan);
+  return elementOrContainerBase(
+    Identifiers.domElementContainerStart,
+    slot,
+    /* tag */
+    null,
+    constIndex,
+    localRefIndex,
+    sourceSpan
+  );
 }
 function domElementContainer(slot, constIndex, localRefIndex, sourceSpan) {
-  return elementOrContainerBase(Identifiers.domElementContainer, slot, null, constIndex, localRefIndex, sourceSpan);
+  return elementOrContainerBase(
+    Identifiers.domElementContainer,
+    slot,
+    /* tag */
+    null,
+    constIndex,
+    localRefIndex,
+    sourceSpan
+  );
 }
 function domElementContainerEnd() {
   return call(Identifiers.domElementContainerEnd, [], null);
@@ -19399,7 +20442,12 @@ function domListener(name, handlerFn, eventTargetResolver, sourceSpan) {
 function domTemplate(slot, templateFnRef, decls, vars, tag, constIndex, localRefs, sourceSpan) {
   return templateBase(Identifiers.domTemplate, slot, templateFnRef, decls, vars, tag, constIndex, localRefs, sourceSpan);
 }
-var PIPE_BINDINGS = [Identifiers.pipeBind1, Identifiers.pipeBind2, Identifiers.pipeBind3, Identifiers.pipeBind4];
+var PIPE_BINDINGS = [
+  Identifiers.pipeBind1,
+  Identifiers.pipeBind2,
+  Identifiers.pipeBind3,
+  Identifiers.pipeBind4
+];
 function pipeBind(slot, varOffset, args) {
   if (args.length < 1 || args.length > PIPE_BINDINGS.length) {
     throw new Error(`pipeBind() argument count out of bounds`);
@@ -19486,7 +20534,17 @@ function conditional(condition, contextValue, sourceSpan) {
   return call(Identifiers.conditional, args, sourceSpan);
 }
 var TEXT_INTERPOLATE_CONFIG = {
-  constant: [Identifiers.textInterpolate, Identifiers.textInterpolate1, Identifiers.textInterpolate2, Identifiers.textInterpolate3, Identifiers.textInterpolate4, Identifiers.textInterpolate5, Identifiers.textInterpolate6, Identifiers.textInterpolate7, Identifiers.textInterpolate8],
+  constant: [
+    Identifiers.textInterpolate,
+    Identifiers.textInterpolate1,
+    Identifiers.textInterpolate2,
+    Identifiers.textInterpolate3,
+    Identifiers.textInterpolate4,
+    Identifiers.textInterpolate5,
+    Identifiers.textInterpolate6,
+    Identifiers.textInterpolate7,
+    Identifiers.textInterpolate8
+  ],
   variable: Identifiers.textInterpolateV,
   mapping: (n) => {
     if (n % 2 === 0) {
@@ -19496,7 +20554,17 @@ var TEXT_INTERPOLATE_CONFIG = {
   }
 };
 var VALUE_INTERPOLATE_CONFIG = {
-  constant: [Identifiers.interpolate, Identifiers.interpolate1, Identifiers.interpolate2, Identifiers.interpolate3, Identifiers.interpolate4, Identifiers.interpolate5, Identifiers.interpolate6, Identifiers.interpolate7, Identifiers.interpolate8],
+  constant: [
+    Identifiers.interpolate,
+    Identifiers.interpolate1,
+    Identifiers.interpolate2,
+    Identifiers.interpolate3,
+    Identifiers.interpolate4,
+    Identifiers.interpolate5,
+    Identifiers.interpolate6,
+    Identifiers.interpolate7,
+    Identifiers.interpolate8
+  ],
   variable: Identifiers.interpolateV,
   mapping: (n) => {
     if (n % 2 === 0) {
@@ -19506,7 +20574,17 @@ var VALUE_INTERPOLATE_CONFIG = {
   }
 };
 var PURE_FUNCTION_CONFIG = {
-  constant: [Identifiers.pureFunction0, Identifiers.pureFunction1, Identifiers.pureFunction2, Identifiers.pureFunction3, Identifiers.pureFunction4, Identifiers.pureFunction5, Identifiers.pureFunction6, Identifiers.pureFunction7, Identifiers.pureFunction8],
+  constant: [
+    Identifiers.pureFunction0,
+    Identifiers.pureFunction1,
+    Identifiers.pureFunction2,
+    Identifiers.pureFunction3,
+    Identifiers.pureFunction4,
+    Identifiers.pureFunction5,
+    Identifiers.pureFunction6,
+    Identifiers.pureFunction7,
+    Identifiers.pureFunction8
+  ],
   variable: Identifiers.pureFunctionV,
   mapping: (n) => n
 };
@@ -19527,8 +20605,19 @@ function callVariadicInstructionExpr(config, baseArgs, interpolationArgs, extraA
 function callVariadicInstruction(config, baseArgs, interpolationArgs, extraArgs, sourceSpan) {
   return createStatementOp(callVariadicInstructionExpr(config, baseArgs, interpolationArgs, extraArgs, sourceSpan).toStmt());
 }
-var GLOBAL_TARGET_RESOLVERS = /* @__PURE__ */ new Map([["window", Identifiers.resolveWindow], ["document", Identifiers.resolveDocument], ["body", Identifiers.resolveBody]]);
-var DOM_PROPERTY_REMAPPING = /* @__PURE__ */ new Map([["class", "className"], ["for", "htmlFor"], ["formaction", "formAction"], ["innerHtml", "innerHTML"], ["readonly", "readOnly"], ["tabindex", "tabIndex"]]);
+var GLOBAL_TARGET_RESOLVERS = /* @__PURE__ */ new Map([
+  ["window", Identifiers.resolveWindow],
+  ["document", Identifiers.resolveDocument],
+  ["body", Identifiers.resolveBody]
+]);
+var DOM_PROPERTY_REMAPPING = /* @__PURE__ */ new Map([
+  ["class", "className"],
+  ["for", "htmlFor"],
+  ["formaction", "formAction"],
+  ["innerHtml", "innerHTML"],
+  ["readonly", "readOnly"],
+  ["tabindex", "tabIndex"]
+]);
 function reify(job) {
   for (const unit of job.units) {
     reifyCreateOperations(unit, unit.create);
@@ -19583,7 +20672,11 @@ function reifyCreateOperations(unit, ops) {
           throw new Error(`AssertionError: local refs array should have been extracted into a constant`);
         }
         const childView = unit.job.views.get(op.xref);
-        OpList.replace(op, op.templateKind === TemplateKind.Block || unit.job.mode === TemplateCompilationMode.DomOnly ? domTemplate(op.handle.slot, variable(childView.fnName), childView.decls, childView.vars, op.tag, op.attributes, op.localRefs, op.startSourceSpan) : template(op.handle.slot, variable(childView.fnName), childView.decls, childView.vars, op.tag, op.attributes, op.localRefs, op.startSourceSpan));
+        OpList.replace(
+          op,
+          // Block templates can't have directives so we can always generate them as DOM-only.
+          op.templateKind === TemplateKind.Block || unit.job.mode === TemplateCompilationMode.DomOnly ? domTemplate(op.handle.slot, variable(childView.fnName), childView.decls, childView.vars, op.tag, op.attributes, op.localRefs, op.startSourceSpan) : template(op.handle.slot, variable(childView.fnName), childView.decls, childView.vars, op.tag, op.attributes, op.localRefs, op.startSourceSpan)
+        );
         break;
       case OpKind.DisableBindings:
         OpList.replace(op, disableBindings());
@@ -19601,7 +20694,13 @@ function reifyCreateOperations(unit, ops) {
         OpList.replace(op, animationString(op.animationKind, op.expression, op.sanitizer, op.sourceSpan));
         break;
       case OpKind.Animation:
-        const animationCallbackFn = reifyListenerHandler(unit, op.handlerFnName, op.handlerOps, false);
+        const animationCallbackFn = reifyListenerHandler(
+          unit,
+          op.handlerFnName,
+          op.handlerOps,
+          /* consumesDollarEvent */
+          false
+        );
         OpList.replace(op, animation(op.animationKind, animationCallbackFn, op.sanitizer, op.sourceSpan));
         break;
       case OpKind.AnimationListener:
@@ -19650,31 +20749,17 @@ function reifyCreateOperations(unit, ops) {
           case DeferTriggerKind.Immediate:
             break;
           case DeferTriggerKind.Timer:
-            args = [literal(op.trigger.delay)];
-            break;
-          case DeferTriggerKind.Viewport:
-            if (op.modifier === "hydrate") {
-              args = op.trigger.options ? [op.trigger.options] : [];
-            } else {
-              args = [literal(op.trigger.targetSlot?.slot ?? null)];
-              if (op.trigger.targetSlotViewSteps !== 0) {
-                args.push(literal(op.trigger.targetSlotViewSteps));
-              } else if (op.trigger.options) {
-                args.push(literal(null));
-              }
-              if (op.trigger.options) {
-                args.push(op.trigger.options);
-              }
-            }
+            args = [op.trigger.delay];
             break;
           case DeferTriggerKind.Interaction:
           case DeferTriggerKind.Hover:
+          case DeferTriggerKind.Viewport:
             if (op.modifier === "hydrate") {
               args = [];
             } else {
-              args = [literal(op.trigger.targetSlot?.slot ?? null)];
+              args = [op.trigger.targetSlot?.slot ?? null];
               if (op.trigger.targetSlotViewSteps !== 0) {
-                args.push(literal(op.trigger.targetSlotViewSteps));
+                args.push(op.trigger.targetSlotViewSteps);
               }
             }
             break;
@@ -19759,21 +20844,18 @@ function reifyCreateOperations(unit, ops) {
         OpList.replace(op, repeaterCreate(op.handle.slot, repeaterView.fnName, op.decls, op.vars, op.tag, op.attributes, reifyTrackBy(unit, op), op.usesComponentInstance, emptyViewFnName, emptyDecls, emptyVars, op.emptyTag, op.emptyAttributes, op.wholeSourceSpan));
         break;
       case OpKind.SourceLocation:
-        const locationsLiteral = literalArr(op.locations.map(({
-          targetSlot,
-          offset,
-          line,
-          column
-        }) => {
+        const locationsLiteral = literalArr(op.locations.map(({ targetSlot, offset, line, column }) => {
           if (targetSlot.slot === null) {
             throw new Error("No slot was assigned for source location");
           }
-          return literalArr([literal(targetSlot.slot), literal(offset), literal(line), literal(column)]);
+          return literalArr([
+            literal(targetSlot.slot),
+            literal(offset),
+            literal(line),
+            literal(column)
+          ]);
         }));
         OpList.replace(op, attachSourceLocation(op.templatePath, locationsLiteral));
-        break;
-      case OpKind.ControlCreate:
-        OpList.replace(op, controlCreate(op.sourceSpan));
         break;
       case OpKind.Statement:
         break;
@@ -19791,9 +20873,6 @@ function reifyUpdateOperations(unit, ops) {
         break;
       case OpKind.Property:
         OpList.replace(op, unit.job.mode === TemplateCompilationMode.DomOnly && op.bindingKind !== BindingKind.LegacyAnimation && op.bindingKind !== BindingKind.Animation ? reifyDomProperty(op) : reifyProperty(op));
-        break;
-      case OpKind.Control:
-        OpList.replace(op, reifyControl(op));
         break;
       case OpKind.TwoWayProperty:
         OpList.replace(op, twoWayProperty(op.name, op.expression, op.sanitizer, op.sourceSpan));
@@ -19865,9 +20944,6 @@ function reifyDomProperty(op) {
 }
 function reifyProperty(op) {
   return isAriaAttribute(op.name) ? ariaProperty(op.name, op.expression, op.sourceSpan) : property(op.name, op.expression, op.sanitizer, op.sourceSpan);
-}
-function reifyControl(op) {
-  return control(op.expression, op.sanitizer, op.sourceSpan);
 }
 function reifyIrExpression(expr) {
   if (!isIrExpression(expr)) {
@@ -20093,7 +21169,12 @@ function resolveDeferDepsFns(job) {
             throw new Error("AssertionError: slot must be assigned before extracting defer deps functions");
           }
           const fullPathName = unit.fnName?.replace("_Template", "");
-          op.resolverFn = job.pool.getSharedFunctionReference(op.ownResolverFn, `${fullPathName}_Defer_${op.handle.slot}_DepsFn`, false);
+          op.resolverFn = job.pool.getSharedFunctionReference(
+            op.ownResolverFn,
+            `${fullPathName}_Defer_${op.handle.slot}_DepsFn`,
+            /* Don't use unique names for TDB compatibility */
+            false
+          );
         }
       }
     }
@@ -20146,10 +21227,7 @@ function resolvePlaceholdersForView(job, unit, i18nContexts, elements, pendingSt
         if (!op.context) {
           throw Error("Could not find i18n context for i18n op");
         }
-        currentOps = {
-          i18nBlock: op,
-          i18nContext: i18nContexts.get(op.context)
-        };
+        currentOps = { i18nBlock: op, i18nContext: i18nContexts.get(op.context) };
         break;
       case OpKind.I18nEnd:
         currentOps = null;
@@ -20257,18 +21335,12 @@ function resolvePlaceholdersForView(job, unit, i18nContexts, elements, pendingSt
   }
 }
 function recordElementStart(op, i18nContext, i18nBlock, structuralDirective) {
-  const {
-    startName,
-    closeName
-  } = op.i18nPlaceholder;
+  const { startName, closeName } = op.i18nPlaceholder;
   let flags = I18nParamValueFlags.ElementTag | I18nParamValueFlags.OpenTag;
   let value = op.handle.slot;
   if (structuralDirective !== void 0) {
     flags |= I18nParamValueFlags.TemplateTag;
-    value = {
-      element: value,
-      template: structuralDirective.handle.slot
-    };
+    value = { element: value, template: structuralDirective.handle.slot };
   }
   if (!closeName) {
     flags |= I18nParamValueFlags.CloseTag;
@@ -20276,27 +21348,19 @@ function recordElementStart(op, i18nContext, i18nBlock, structuralDirective) {
   addParam(i18nContext.params, startName, value, i18nBlock.subTemplateIndex, flags);
 }
 function recordElementClose(op, i18nContext, i18nBlock, structuralDirective) {
-  const {
-    closeName
-  } = op.i18nPlaceholder;
+  const { closeName } = op.i18nPlaceholder;
   if (closeName) {
     let flags = I18nParamValueFlags.ElementTag | I18nParamValueFlags.CloseTag;
     let value = op.handle.slot;
     if (structuralDirective !== void 0) {
       flags |= I18nParamValueFlags.TemplateTag;
-      value = {
-        element: value,
-        template: structuralDirective.handle.slot
-      };
+      value = { element: value, template: structuralDirective.handle.slot };
     }
     addParam(i18nContext.params, closeName, value, i18nBlock.subTemplateIndex, flags);
   }
 }
 function recordTemplateStart(job, view, slot, i18nPlaceholder, i18nContext, i18nBlock, structuralDirective) {
-  let {
-    startName,
-    closeName
-  } = i18nPlaceholder;
+  let { startName, closeName } = i18nPlaceholder;
   let flags = I18nParamValueFlags.TemplateTag | I18nParamValueFlags.OpenTag;
   if (!closeName) {
     flags |= I18nParamValueFlags.CloseTag;
@@ -20307,9 +21371,7 @@ function recordTemplateStart(job, view, slot, i18nPlaceholder, i18nContext, i18n
   addParam(i18nContext.params, startName, slot, getSubTemplateIndexForTemplateTag(job, i18nBlock, view), flags);
 }
 function recordTemplateClose(job, view, slot, i18nPlaceholder, i18nContext, i18nBlock, structuralDirective) {
-  const {
-    closeName
-  } = i18nPlaceholder;
+  const { closeName } = i18nPlaceholder;
   const flags = I18nParamValueFlags.TemplateTag | I18nParamValueFlags.CloseTag;
   if (closeName) {
     addParam(i18nContext.params, closeName, slot, getSubTemplateIndexForTemplateTag(job, i18nBlock, view), flags);
@@ -20328,11 +21390,7 @@ function getSubTemplateIndexForTemplateTag(job, i18nOp, view) {
 }
 function addParam(params, placeholder, value, subTemplateIndex, flags) {
   const values = params.get(placeholder) ?? [];
-  values.push({
-    value,
-    subTemplateIndex,
-    flags
-  });
+  values.push({ value, subTemplateIndex, flags });
   params.set(placeholder, values);
 }
 function resolveI18nExpressionPlaceholders(job) {
@@ -20468,8 +21526,18 @@ function processLexicalScope(unit, ops, savedView) {
     });
   }
 }
-var sanitizerFns = /* @__PURE__ */ new Map([[SecurityContext.HTML, Identifiers.sanitizeHtml], [SecurityContext.RESOURCE_URL, Identifiers.sanitizeResourceUrl], [SecurityContext.SCRIPT, Identifiers.sanitizeScript], [SecurityContext.STYLE, Identifiers.sanitizeStyle], [SecurityContext.URL, Identifiers.sanitizeUrl], [SecurityContext.ATTRIBUTE_NO_BINDING, Identifiers.validateAttribute]]);
-var trustedValueFns = /* @__PURE__ */ new Map([[SecurityContext.HTML, Identifiers.trustConstantHtml], [SecurityContext.RESOURCE_URL, Identifiers.trustConstantResourceUrl]]);
+var sanitizerFns = /* @__PURE__ */ new Map([
+  [SecurityContext.HTML, Identifiers.sanitizeHtml],
+  [SecurityContext.RESOURCE_URL, Identifiers.sanitizeResourceUrl],
+  [SecurityContext.SCRIPT, Identifiers.sanitizeScript],
+  [SecurityContext.STYLE, Identifiers.sanitizeStyle],
+  [SecurityContext.URL, Identifiers.sanitizeUrl],
+  [SecurityContext.ATTRIBUTE_NO_BINDING, Identifiers.validateAttribute]
+]);
+var trustedValueFns = /* @__PURE__ */ new Map([
+  [SecurityContext.HTML, Identifiers.trustConstantHtml],
+  [SecurityContext.RESOURCE_URL, Identifiers.trustConstantResourceUrl]
+]);
 function resolveSanitizers(job) {
   for (const unit of job.units) {
     if (job.kind !== CompilationJobKind.Host) {
@@ -20508,11 +21576,13 @@ function getOnlySecurityContext(securityContext) {
 }
 function saveAndRestoreView(job) {
   for (const unit of job.units) {
-    unit.create.prepend([createVariableOp(unit.job.allocateXrefId(), {
-      kind: SemanticVariableKind.SavedView,
-      name: null,
-      view: unit.xref
-    }, new GetCurrentViewExpr(), VariableFlags.None)]);
+    unit.create.prepend([
+      createVariableOp(unit.job.allocateXrefId(), {
+        kind: SemanticVariableKind.SavedView,
+        name: null,
+        view: unit.xref
+      }, new GetCurrentViewExpr(), VariableFlags.None)
+    ]);
     for (const op of unit.create) {
       if (op.kind !== OpKind.Listener && op.kind !== OpKind.TwoWayListener && op.kind !== OpKind.Animation && op.kind !== OpKind.AnimationListener) {
         continue;
@@ -20534,11 +21604,13 @@ function saveAndRestoreView(job) {
   }
 }
 function addSaveRestoreViewOperationToListener(unit, op) {
-  op.handlerOps.prepend([createVariableOp(unit.job.allocateXrefId(), {
-    kind: SemanticVariableKind.Context,
-    name: null,
-    view: unit.xref
-  }, new RestoreViewExpr(unit.xref), VariableFlags.None)]);
+  op.handlerOps.prepend([
+    createVariableOp(unit.job.allocateXrefId(), {
+      kind: SemanticVariableKind.Context,
+      name: null,
+      view: unit.xref
+    }, new RestoreViewExpr(unit.xref), VariableFlags.None)
+  ]);
   for (const handlerOp of op.handlerOps) {
     if (handlerOp.kind === OpKind.Statement && handlerOp.statement instanceof ReturnStatement) {
       handlerOp.statement.value = new ResetViewExpr(handlerOp.statement.value);
@@ -20620,6 +21692,8 @@ function stripNonrequiredParentheses(job) {
             case BinaryOperator.NullishCoalesce:
               checkNullishCoalescingParens(expr, requiredParens);
               break;
+            // these 2 cases can be dropped if the regression introduced in 5.9.2 is fixed
+            // see https://github.com/microsoft/TypeScript/issues/62307
             case BinaryOperator.And:
             case BinaryOperator.Or:
               checkAndOrParens(expr, requiredParens);
@@ -20826,10 +21900,7 @@ function transformTwoWayBindingSet(job) {
           if (!(expr instanceof TwoWayBindingSetExpr)) {
             return expr;
           }
-          const {
-            target,
-            value
-          } = expr;
+          const { target, value } = expr;
           if (target instanceof ReadPropExpr || target instanceof ReadKeyExpr) {
             return twoWayBindingSet(target, value).or(target.set(value));
           }
@@ -20911,8 +21982,6 @@ function varsUsedByOp(op) {
         slots += op.expression.expressions.length;
       }
       return slots;
-    case OpKind.Control:
-      return 2;
     case OpKind.TwoWayProperty:
       return 1;
     case OpKind.StyleProp:
@@ -21124,10 +22193,7 @@ function collectOpInfo(op) {
         fences |= fencesForIrExpression(expr);
     }
   });
-  return {
-    fences,
-    variablesUsed
-  };
+  return { fences, variablesUsed };
 }
 function countVariableUsages(op, varUsages, varRemoteUsage) {
   visitExpressionsInOp(op, (expr, flags) => {
@@ -21245,205 +22311,73 @@ function wrapI18nIcus(job) {
     }
   }
 }
-var phases = [{
-  kind: CompilationJobKind.Tmpl,
-  fn: removeContentSelectors
-}, {
-  kind: CompilationJobKind.Both,
-  fn: optimizeRegularExpressions
-}, {
-  kind: CompilationJobKind.Host,
-  fn: parseHostStyleProperties
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: emitNamespaceChanges
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: propagateI18nBlocks
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: wrapI18nIcus
-}, {
-  kind: CompilationJobKind.Both,
-  fn: deduplicateTextBindings
-}, {
-  kind: CompilationJobKind.Both,
-  fn: specializeStyleBindings
-}, {
-  kind: CompilationJobKind.Both,
-  fn: specializeBindings
-}, {
-  kind: CompilationJobKind.Both,
-  fn: convertAnimations
-}, {
-  kind: CompilationJobKind.Both,
-  fn: extractAttributes
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: createI18nContexts
-}, {
-  kind: CompilationJobKind.Both,
-  fn: parseExtractedStyles
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: removeEmptyBindings
-}, {
-  kind: CompilationJobKind.Both,
-  fn: collapseSingletonInterpolations
-}, {
-  kind: CompilationJobKind.Both,
-  fn: orderOps
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateConditionalExpressions
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: createPipes
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: configureDeferInstructions
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: createVariadicPipes
-}, {
-  kind: CompilationJobKind.Both,
-  fn: generatePureLiteralStructures
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateProjectionDefs
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateLocalLetReferences
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateVariables
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: saveAndRestoreView
-}, {
-  kind: CompilationJobKind.Both,
-  fn: deleteAnyCasts
-}, {
-  kind: CompilationJobKind.Both,
-  fn: resolveDollarEvent
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateTrackVariables
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: removeIllegalLetReferences
-}, {
-  kind: CompilationJobKind.Both,
-  fn: resolveNames
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: resolveDeferTargetNames
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: transformTwoWayBindingSet
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: optimizeTrackFns
-}, {
-  kind: CompilationJobKind.Both,
-  fn: resolveContexts
-}, {
-  kind: CompilationJobKind.Both,
-  fn: resolveSanitizers
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: liftLocalRefs
-}, {
-  kind: CompilationJobKind.Both,
-  fn: expandSafeReads
-}, {
-  kind: CompilationJobKind.Both,
-  fn: stripNonrequiredParentheses
-}, {
-  kind: CompilationJobKind.Both,
-  fn: generateTemporaryVariables
-}, {
-  kind: CompilationJobKind.Both,
-  fn: optimizeVariables
-}, {
-  kind: CompilationJobKind.Both,
-  fn: optimizeStoreLet
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: convertI18nText
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: convertI18nBindings
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: removeUnusedI18nAttributesOps
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: assignI18nSlotDependencies
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: applyI18nExpressions
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: allocateSlots
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: resolveI18nElementPlaceholders
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: resolveI18nExpressionPlaceholders
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: extractI18nMessages
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: collectI18nConsts
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: collectConstExpressions
-}, {
-  kind: CompilationJobKind.Both,
-  fn: collectElementConsts
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: removeI18nContexts
-}, {
-  kind: CompilationJobKind.Both,
-  fn: countVariables
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateAdvance
-}, {
-  kind: CompilationJobKind.Both,
-  fn: nameFunctionsAndVariables
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: resolveDeferDepsFns
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: mergeNextContextExpressions
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: generateNgContainerOps
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: collapseEmptyInstructions
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: attachSourceLocations
-}, {
-  kind: CompilationJobKind.Tmpl,
-  fn: disableBindings$1
-}, {
-  kind: CompilationJobKind.Both,
-  fn: extractPureFunctions
-}, {
-  kind: CompilationJobKind.Both,
-  fn: reify
-}, {
-  kind: CompilationJobKind.Both,
-  fn: chain
-}];
+var phases = [
+  { kind: CompilationJobKind.Tmpl, fn: removeContentSelectors },
+  { kind: CompilationJobKind.Host, fn: parseHostStyleProperties },
+  { kind: CompilationJobKind.Tmpl, fn: emitNamespaceChanges },
+  { kind: CompilationJobKind.Tmpl, fn: propagateI18nBlocks },
+  { kind: CompilationJobKind.Tmpl, fn: wrapI18nIcus },
+  { kind: CompilationJobKind.Both, fn: deduplicateTextBindings },
+  { kind: CompilationJobKind.Both, fn: specializeStyleBindings },
+  { kind: CompilationJobKind.Both, fn: specializeBindings },
+  { kind: CompilationJobKind.Both, fn: convertAnimations },
+  { kind: CompilationJobKind.Both, fn: extractAttributes },
+  { kind: CompilationJobKind.Tmpl, fn: createI18nContexts },
+  { kind: CompilationJobKind.Both, fn: parseExtractedStyles },
+  { kind: CompilationJobKind.Tmpl, fn: removeEmptyBindings },
+  { kind: CompilationJobKind.Both, fn: collapseSingletonInterpolations },
+  { kind: CompilationJobKind.Both, fn: orderOps },
+  { kind: CompilationJobKind.Tmpl, fn: generateConditionalExpressions },
+  { kind: CompilationJobKind.Tmpl, fn: createPipes },
+  { kind: CompilationJobKind.Tmpl, fn: configureDeferInstructions },
+  { kind: CompilationJobKind.Tmpl, fn: createVariadicPipes },
+  { kind: CompilationJobKind.Both, fn: generatePureLiteralStructures },
+  { kind: CompilationJobKind.Tmpl, fn: generateProjectionDefs },
+  { kind: CompilationJobKind.Tmpl, fn: generateLocalLetReferences },
+  { kind: CompilationJobKind.Tmpl, fn: generateVariables },
+  { kind: CompilationJobKind.Tmpl, fn: saveAndRestoreView },
+  { kind: CompilationJobKind.Both, fn: deleteAnyCasts },
+  { kind: CompilationJobKind.Both, fn: resolveDollarEvent },
+  { kind: CompilationJobKind.Tmpl, fn: generateTrackVariables },
+  { kind: CompilationJobKind.Tmpl, fn: removeIllegalLetReferences },
+  { kind: CompilationJobKind.Both, fn: resolveNames },
+  { kind: CompilationJobKind.Tmpl, fn: resolveDeferTargetNames },
+  { kind: CompilationJobKind.Tmpl, fn: transformTwoWayBindingSet },
+  { kind: CompilationJobKind.Tmpl, fn: optimizeTrackFns },
+  { kind: CompilationJobKind.Both, fn: resolveContexts },
+  { kind: CompilationJobKind.Both, fn: resolveSanitizers },
+  { kind: CompilationJobKind.Tmpl, fn: liftLocalRefs },
+  { kind: CompilationJobKind.Both, fn: expandSafeReads },
+  { kind: CompilationJobKind.Both, fn: stripNonrequiredParentheses },
+  { kind: CompilationJobKind.Both, fn: generateTemporaryVariables },
+  { kind: CompilationJobKind.Both, fn: optimizeVariables },
+  { kind: CompilationJobKind.Both, fn: optimizeStoreLet },
+  { kind: CompilationJobKind.Tmpl, fn: convertI18nText },
+  { kind: CompilationJobKind.Tmpl, fn: convertI18nBindings },
+  { kind: CompilationJobKind.Tmpl, fn: removeUnusedI18nAttributesOps },
+  { kind: CompilationJobKind.Tmpl, fn: assignI18nSlotDependencies },
+  { kind: CompilationJobKind.Tmpl, fn: applyI18nExpressions },
+  { kind: CompilationJobKind.Tmpl, fn: allocateSlots },
+  { kind: CompilationJobKind.Tmpl, fn: resolveI18nElementPlaceholders },
+  { kind: CompilationJobKind.Tmpl, fn: resolveI18nExpressionPlaceholders },
+  { kind: CompilationJobKind.Tmpl, fn: extractI18nMessages },
+  { kind: CompilationJobKind.Tmpl, fn: collectI18nConsts },
+  { kind: CompilationJobKind.Tmpl, fn: collectConstExpressions },
+  { kind: CompilationJobKind.Both, fn: collectElementConsts },
+  { kind: CompilationJobKind.Tmpl, fn: removeI18nContexts },
+  { kind: CompilationJobKind.Both, fn: countVariables },
+  { kind: CompilationJobKind.Tmpl, fn: generateAdvance },
+  { kind: CompilationJobKind.Both, fn: nameFunctionsAndVariables },
+  { kind: CompilationJobKind.Tmpl, fn: resolveDeferDepsFns },
+  { kind: CompilationJobKind.Tmpl, fn: mergeNextContextExpressions },
+  { kind: CompilationJobKind.Tmpl, fn: generateNgContainerOps },
+  { kind: CompilationJobKind.Tmpl, fn: collapseEmptyInstructions },
+  { kind: CompilationJobKind.Tmpl, fn: attachSourceLocations },
+  { kind: CompilationJobKind.Tmpl, fn: disableBindings$1 },
+  { kind: CompilationJobKind.Both, fn: extractPureFunctions },
+  { kind: CompilationJobKind.Both, fn: reify },
+  { kind: CompilationJobKind.Both, fn: chain }
+];
 function transform(job, kind) {
   for (const phase of phases) {
     if (phase.kind === kind || phase.kind === CompilationJobKind.Both) {
@@ -21486,13 +22420,23 @@ function emitView(view) {
   }
   const createCond = maybeGenerateRfBlock(1, createStatements);
   const updateCond = maybeGenerateRfBlock(2, updateStatements);
-  return fn([new FnParam("rf"), new FnParam("ctx")], [...createCond, ...updateCond], void 0, void 0, view.fnName);
+  return fn(
+    [new FnParam("rf"), new FnParam("ctx")],
+    [...createCond, ...updateCond],
+    /* type */
+    void 0,
+    /* sourceSpan */
+    void 0,
+    view.fnName
+  );
 }
 function maybeGenerateRfBlock(flag, statements) {
   if (statements.length === 0) {
     return [];
   }
-  return [ifStmt(new BinaryOperatorExpr(BinaryOperator.BitwiseAnd, variable("rf"), literal(flag)), statements)];
+  return [
+    ifStmt(new BinaryOperatorExpr(BinaryOperator.BitwiseAnd, variable("rf"), literal(flag)), statements)
+  ];
 }
 function emitHostBindingFunction(job) {
   if (job.root.fnName === null) {
@@ -21517,7 +22461,15 @@ function emitHostBindingFunction(job) {
   }
   const createCond = maybeGenerateRfBlock(1, createStatements);
   const updateCond = maybeGenerateRfBlock(2, updateStatements);
-  return fn([new FnParam("rf"), new FnParam("ctx")], [...createCond, ...updateCond], void 0, void 0, job.root.fnName);
+  return fn(
+    [new FnParam("rf"), new FnParam("ctx")],
+    [...createCond, ...updateCond],
+    /* type */
+    void 0,
+    /* sourceSpan */
+    void 0,
+    job.root.fnName
+  );
 }
 var compatibilityMode = CompatibilityMode.TemplateDefinitionBuilder;
 var domSchema = new DomElementSchemaRegistry();
@@ -21568,10 +22520,39 @@ function ingestDomProperty(job, property2, bindingKind, securityContexts) {
   } else {
     expression = convertAst(ast, job, property2.sourceSpan);
   }
-  job.root.update.push(createBindingOp(job.root.xref, bindingKind, property2.name, expression, null, securityContexts, false, false, null, null, property2.sourceSpan));
+  job.root.update.push(createBindingOp(
+    job.root.xref,
+    bindingKind,
+    property2.name,
+    expression,
+    null,
+    securityContexts,
+    false,
+    false,
+    null,
+    /* TODO: How do Host bindings handle i18n attrs? */
+    null,
+    property2.sourceSpan
+  ));
 }
 function ingestHostAttribute(job, name, value, securityContexts) {
-  const attrBinding = createBindingOp(job.root.xref, BindingKind.Attribute, name, value, null, securityContexts, true, false, null, null, value.sourceSpan);
+  const attrBinding = createBindingOp(
+    job.root.xref,
+    BindingKind.Attribute,
+    name,
+    value,
+    null,
+    securityContexts,
+    /* Host attributes should always be extracted to const hostAttrs, even if they are not
+     *strictly* text literals */
+    true,
+    false,
+    null,
+    /* TODO */
+    null,
+    /** TODO: May be null? */
+    value.sourceSpan
+  );
   job.root.update.push(attrBinding);
 }
 function ingestHostEvent(job, event) {
@@ -21632,10 +22613,6 @@ function ingestElement(unit, element2) {
   ingestNodes(unit, element2.children);
   const endOp = createElementEndOp(id, element2.endSourceSpan ?? element2.startSourceSpan);
   unit.create.push(endOp);
-  const fieldInput = element2.inputs.find((input) => input.name === "field" && input.type === BindingType.Property);
-  if (fieldInput) {
-    unit.create.push(createControlCreateOp(fieldInput.sourceSpan));
-  }
   if (i18nBlockId !== null) {
     OpList.insertBefore(createI18nEndOp(i18nBlockId, element2.endSourceSpan ?? element2.startSourceSpan), endOp);
   }
@@ -21659,10 +22636,7 @@ function ingestTemplate(unit, tmpl) {
   ingestTemplateBindings(unit, templateOp, tmpl, templateKind);
   ingestReferences(templateOp, tmpl);
   ingestNodes(childView, tmpl.children);
-  for (const {
-    name,
-    value
-  } of tmpl.variables) {
+  for (const { name, value } of tmpl.variables) {
     childView.contextVariables.set(name, value !== "" ? value : "$implicit");
   }
   if (templateKind === TemplateKind.NgTemplate && tmpl.i18n instanceof Message) {
@@ -21812,11 +22786,15 @@ function ingestDeferBlock(unit, deferBlock) {
   ingestDeferTriggers("hydrate", deferBlock.hydrateTriggers, deferOnOps, deferWhenOps, unit, deferXref);
   ingestDeferTriggers("none", deferBlock.triggers, deferOnOps, deferWhenOps, unit, deferXref);
   ingestDeferTriggers("prefetch", deferBlock.prefetchTriggers, deferOnOps, deferWhenOps, unit, deferXref);
-  const hasConcreteTrigger = deferOnOps.some((op) => op.modifier === "none") || deferWhenOps.some((op) => op.modifier === "none");
+  const hasConcreteTrigger = deferOnOps.some(
+    (op) => op.modifier === "none"
+    /* ir.DeferOpModifierKind.NONE */
+  ) || deferWhenOps.some(
+    (op) => op.modifier === "none"
+    /* ir.DeferOpModifierKind.NONE */
+  );
   if (!hasConcreteTrigger) {
-    deferOnOps.push(createDeferOnOp(deferXref, {
-      kind: DeferTriggerKind.Idle
-    }, "none", null));
+    deferOnOps.push(createDeferOnOp(deferXref, { kind: DeferTriggerKind.Idle }, "none", null));
   }
   unit.create.push(deferOnOps);
   unit.update.push(deferWhenOps);
@@ -21829,22 +22807,15 @@ function calcDeferBlockFlags(deferBlockDetails) {
 }
 function ingestDeferTriggers(modifier, triggers, onOps, whenOps, unit, deferXref) {
   if (triggers.idle !== void 0) {
-    const deferOnOp = createDeferOnOp(deferXref, {
-      kind: DeferTriggerKind.Idle
-    }, modifier, triggers.idle.sourceSpan);
+    const deferOnOp = createDeferOnOp(deferXref, { kind: DeferTriggerKind.Idle }, modifier, triggers.idle.sourceSpan);
     onOps.push(deferOnOp);
   }
   if (triggers.immediate !== void 0) {
-    const deferOnOp = createDeferOnOp(deferXref, {
-      kind: DeferTriggerKind.Immediate
-    }, modifier, triggers.immediate.sourceSpan);
+    const deferOnOp = createDeferOnOp(deferXref, { kind: DeferTriggerKind.Immediate }, modifier, triggers.immediate.sourceSpan);
     onOps.push(deferOnOp);
   }
   if (triggers.timer !== void 0) {
-    const deferOnOp = createDeferOnOp(deferXref, {
-      kind: DeferTriggerKind.Timer,
-      delay: triggers.timer.delay
-    }, modifier, triggers.timer.sourceSpan);
+    const deferOnOp = createDeferOnOp(deferXref, { kind: DeferTriggerKind.Timer, delay: triggers.timer.delay }, modifier, triggers.timer.sourceSpan);
     onOps.push(deferOnOp);
   }
   if (triggers.hover !== void 0) {
@@ -21876,15 +22847,12 @@ function ingestDeferTriggers(modifier, triggers, onOps, whenOps, unit, deferXref
       targetXref: null,
       targetSlot: null,
       targetView: null,
-      targetSlotViewSteps: null,
-      options: triggers.viewport.options ? convertAst(triggers.viewport.options, unit.job, triggers.viewport.sourceSpan) : null
+      targetSlotViewSteps: null
     }, modifier, triggers.viewport.sourceSpan);
     onOps.push(deferOnOp);
   }
   if (triggers.never !== void 0) {
-    const deferOnOp = createDeferOnOp(deferXref, {
-      kind: DeferTriggerKind.Never
-    }, modifier, triggers.never.sourceSpan);
+    const deferOnOp = createDeferOnOp(deferXref, { kind: DeferTriggerKind.Never }, modifier, triggers.never.sourceSpan);
     onOps.push(deferOnOp);
   }
   if (triggers.when !== void 0) {
@@ -22038,7 +23006,10 @@ function convertAst(ast, job, baseSourceSpan) {
   } else if (ast instanceof NonNullAssert) {
     return convertAst(ast.expression, job, baseSourceSpan);
   } else if (ast instanceof BindingPipe) {
-    return new PipeBindingExpr(job.allocateXrefId(), new SlotHandle(), ast.name, [convertAst(ast.exp, job, baseSourceSpan), ...ast.args.map((arg) => convertAst(arg, job, baseSourceSpan))]);
+    return new PipeBindingExpr(job.allocateXrefId(), new SlotHandle(), ast.name, [
+      convertAst(ast.exp, job, baseSourceSpan),
+      ...ast.args.map((arg) => convertAst(arg, job, baseSourceSpan))
+    ]);
   } else if (ast instanceof SafeKeyedRead) {
     return new SafeKeyedReadExpr(convertAst(ast.receiver, job, baseSourceSpan), convertAst(ast.key, job, baseSourceSpan), convertSourceSpan(ast.span, baseSourceSpan));
   } else if (ast instanceof SafePropertyRead) {
@@ -22059,8 +23030,6 @@ function convertAst(ast, job, baseSourceSpan) {
     return new TaggedTemplateLiteralExpr(convertAst(ast.tag, job, baseSourceSpan), convertTemplateLiteral(ast.template, job, baseSourceSpan), void 0, convertSourceSpan(ast.span, baseSourceSpan));
   } else if (ast instanceof ParenthesizedExpression) {
     return new ParenthesizedExpr(convertAst(ast.expression, job, baseSourceSpan), void 0, convertSourceSpan(ast.span, baseSourceSpan));
-  } else if (ast instanceof RegularExpressionLiteral) {
-    return new RegularExpressionLiteralExpr(ast.body, ast.flags, baseSourceSpan);
   } else {
     throw new Error(`Unhandled expression type "${ast.constructor.name}" in file "${baseSourceSpan?.start.file.url}"`);
   }
@@ -22081,7 +23050,15 @@ function convertAstWithInterpolation(job, value, i18nMeta, sourceSpan) {
   }
   return expression;
 }
-var BINDING_KINDS = /* @__PURE__ */ new Map([[BindingType.Property, BindingKind.Property], [BindingType.TwoWay, BindingKind.TwoWayProperty], [BindingType.Attribute, BindingKind.Attribute], [BindingType.Class, BindingKind.ClassName], [BindingType.Style, BindingKind.StyleProperty], [BindingType.LegacyAnimation, BindingKind.LegacyAnimation], [BindingType.Animation, BindingKind.Animation]]);
+var BINDING_KINDS = /* @__PURE__ */ new Map([
+  [BindingType.Property, BindingKind.Property],
+  [BindingType.TwoWay, BindingKind.TwoWayProperty],
+  [BindingType.Attribute, BindingKind.Attribute],
+  [BindingType.Class, BindingKind.ClassName],
+  [BindingType.Style, BindingKind.StyleProperty],
+  [BindingType.LegacyAnimation, BindingKind.LegacyAnimation],
+  [BindingType.Animation, BindingKind.Animation]
+]);
 function isPlainTemplate(tmpl) {
   return splitNsName(tmpl.tagName ?? "")[1] === NG_TEMPLATE_TAG_NAME;
 }
@@ -22227,10 +23204,7 @@ function astOf(ast) {
 }
 function ingestReferences(op, element2) {
   assertIsArray(op.localRefs);
-  for (const {
-    name,
-    value
-  } of element2.references) {
+  for (const { name, value } of element2.references) {
     op.localRefs.push({
       name,
       target: value
@@ -22315,7 +23289,7 @@ function getQueryPredicate(query, constantPool) {
     }
   }
 }
-function getQueryCreateParameters(query, constantPool, prependParams) {
+function createQueryCreateCall(query, constantPool, queryTypeFns, prependParams) {
   const parameters = [];
   if (prependParams !== void 0) {
     parameters.push(...prependParams);
@@ -22327,7 +23301,8 @@ function getQueryCreateParameters(query, constantPool, prependParams) {
   if (query.read) {
     parameters.push(query.read);
   }
-  return parameters;
+  const queryCreateFn = query.isSignal ? queryTypeFns.signalBased : queryTypeFns.nonSignal;
+  return importExpr(queryCreateFn).callFn(parameters);
 }
 var queryAdvancePlaceholder = Symbol("queryAdvancePlaceholder");
 function collapseAdvanceStatements(statements) {
@@ -22355,17 +23330,12 @@ function createViewQueriesFunction(viewQueries, constantPool, name) {
   const createStatements = [];
   const updateStatements = [];
   const tempAllocator = temporaryAllocator((st) => updateStatements.push(st), TEMPORARY_NAME);
-  let viewQuerySignalCall = null;
-  let viewQueryCall = null;
   viewQueries.forEach((query) => {
-    const params = getQueryCreateParameters(query, constantPool);
-    if (query.isSignal) {
-      viewQuerySignalCall ??= importExpr(Identifiers.viewQuerySignal);
-      viewQuerySignalCall = viewQuerySignalCall.callFn(params);
-    } else {
-      viewQueryCall ??= importExpr(Identifiers.viewQuery);
-      viewQueryCall = viewQueryCall.callFn(params);
-    }
+    const queryDefinitionCall = createQueryCreateCall(query, constantPool, {
+      signalBased: Identifiers.viewQuerySignal,
+      nonSignal: Identifiers.viewQuery
+    });
+    createStatements.push(queryDefinitionCall.toStmt());
     if (query.isSignal) {
       updateStatements.push(queryAdvancePlaceholder);
       return;
@@ -22376,30 +23346,24 @@ function createViewQueriesFunction(viewQueries, constantPool, name) {
     const updateDirective = variable(CONTEXT_NAME).prop(query.propertyName).set(query.first ? temporary.prop("first") : temporary);
     updateStatements.push(refresh.and(updateDirective).toStmt());
   });
-  if (viewQuerySignalCall !== null) {
-    createStatements.push(new ExpressionStatement(viewQuerySignalCall));
-  }
-  if (viewQueryCall !== null) {
-    createStatements.push(new ExpressionStatement(viewQueryCall));
-  }
   const viewQueryFnName = name ? `${name}_Query` : null;
-  return fn([new FnParam(RENDER_FLAGS, NUMBER_TYPE), new FnParam(CONTEXT_NAME, null)], [renderFlagCheckIfStmt(1, createStatements), renderFlagCheckIfStmt(2, collapseAdvanceStatements(updateStatements))], INFERRED_TYPE, null, viewQueryFnName);
+  return fn([new FnParam(RENDER_FLAGS, NUMBER_TYPE), new FnParam(CONTEXT_NAME, null)], [
+    renderFlagCheckIfStmt(1, createStatements),
+    renderFlagCheckIfStmt(2, collapseAdvanceStatements(updateStatements))
+  ], INFERRED_TYPE, null, viewQueryFnName);
 }
 function createContentQueriesFunction(queries, constantPool, name) {
   const createStatements = [];
   const updateStatements = [];
   const tempAllocator = temporaryAllocator((st) => updateStatements.push(st), TEMPORARY_NAME);
-  let contentQuerySignalCall = null;
-  let contentQueryCall = null;
   for (const query of queries) {
-    const params = getQueryCreateParameters(query, constantPool, [variable("dirIndex")]);
-    if (query.isSignal) {
-      contentQuerySignalCall ??= importExpr(Identifiers.contentQuerySignal);
-      contentQuerySignalCall = contentQuerySignalCall.callFn(params);
-    } else {
-      contentQueryCall ??= importExpr(Identifiers.contentQuery);
-      contentQueryCall = contentQueryCall.callFn(params);
-    }
+    createStatements.push(createQueryCreateCall(
+      query,
+      constantPool,
+      { nonSignal: Identifiers.contentQuery, signalBased: Identifiers.contentQuerySignal },
+      /* prependParams */
+      [variable("dirIndex")]
+    ).toStmt());
     if (query.isSignal) {
       updateStatements.push(queryAdvancePlaceholder);
       continue;
@@ -22410,14 +23374,15 @@ function createContentQueriesFunction(queries, constantPool, name) {
     const updateDirective = variable(CONTEXT_NAME).prop(query.propertyName).set(query.first ? temporary.prop("first") : temporary);
     updateStatements.push(refresh.and(updateDirective).toStmt());
   }
-  if (contentQuerySignalCall !== null) {
-    createStatements.push(new ExpressionStatement(contentQuerySignalCall));
-  }
-  if (contentQueryCall !== null) {
-    createStatements.push(new ExpressionStatement(contentQueryCall));
-  }
   const contentQueriesFnName = name ? `${name}_ContentQueries` : null;
-  return fn([new FnParam(RENDER_FLAGS, NUMBER_TYPE), new FnParam(CONTEXT_NAME, null), new FnParam("dirIndex", null)], [renderFlagCheckIfStmt(1, createStatements), renderFlagCheckIfStmt(2, collapseAdvanceStatements(updateStatements))], INFERRED_TYPE, null, contentQueriesFnName);
+  return fn([
+    new FnParam(RENDER_FLAGS, NUMBER_TYPE),
+    new FnParam(CONTEXT_NAME, null),
+    new FnParam("dirIndex", null)
+  ], [
+    renderFlagCheckIfStmt(1, createStatements),
+    renderFlagCheckIfStmt(2, collapseAdvanceStatements(updateStatements))
+  ], INFERRED_TYPE, null, contentQueriesFnName);
 }
 var HtmlParser = class extends Parser$1 {
   constructor() {
@@ -22436,19 +23401,41 @@ var TEMPLATE_ATTR_PREFIX$1 = "*";
 var LEGACY_ANIMATE_PROP_PREFIX = "animate-";
 var BindingParser = class {
   _exprParser;
+  _interpolationConfig;
   _schemaRegistry;
   errors;
-  constructor(_exprParser, _schemaRegistry, errors) {
+  constructor(_exprParser, _interpolationConfig, _schemaRegistry, errors) {
     this._exprParser = _exprParser;
+    this._interpolationConfig = _interpolationConfig;
     this._schemaRegistry = _schemaRegistry;
     this.errors = errors;
+  }
+  get interpolationConfig() {
+    return this._interpolationConfig;
   }
   createBoundHostProperties(properties, sourceSpan) {
     const boundProps = [];
     for (const propName of Object.keys(properties)) {
       const expression = properties[propName];
       if (typeof expression === "string") {
-        this.parsePropertyBinding(propName, expression, true, false, sourceSpan, sourceSpan.start.offset, void 0, [], boundProps, sourceSpan);
+        this.parsePropertyBinding(
+          propName,
+          expression,
+          true,
+          false,
+          sourceSpan,
+          sourceSpan.start.offset,
+          void 0,
+          [],
+          // Use the `sourceSpan` for  `keySpan`. This isn't really accurate, but neither is the
+          // sourceSpan, as it represents the sourceSpan of the host itself rather than the
+          // source of the host binding (which doesn't exist in the template). Regardless,
+          // neither of these values are used in Ivy but are only here to satisfy the function
+          // signature. This should likely be refactored in the future so that `sourceSpan`
+          // isn't being used inaccurately.
+          boundProps,
+          sourceSpan
+        );
       } else {
         this._reportError(`Value of the host property binding "${propName}" needs to be a string representing an expression but got "${expression}" (${typeof expression})`, sourceSpan);
       }
@@ -22460,7 +23447,17 @@ var BindingParser = class {
     for (const propName of Object.keys(hostListeners)) {
       const expression = hostListeners[propName];
       if (typeof expression === "string") {
-        this.parseEvent(propName, expression, false, sourceSpan, sourceSpan, [], targetEvents, sourceSpan);
+        this.parseEvent(
+          propName,
+          expression,
+          /* isAssignmentEvent */
+          false,
+          sourceSpan,
+          sourceSpan,
+          [],
+          targetEvents,
+          sourceSpan
+        );
       } else {
         this._reportError(`Value of the host listener "${propName}" needs to be a string representing an expression but got "${expression}" (${typeof expression})`, sourceSpan);
       }
@@ -22470,7 +23467,7 @@ var BindingParser = class {
   parseInterpolation(value, sourceSpan, interpolatedTokens) {
     const absoluteOffset = sourceSpan.fullStart.offset;
     try {
-      const ast = this._exprParser.parseInterpolation(value, sourceSpan, absoluteOffset, interpolatedTokens);
+      const ast = this._exprParser.parseInterpolation(value, sourceSpan, absoluteOffset, interpolatedTokens, this._interpolationConfig);
       if (ast) {
         this.errors.push(...ast.errors);
       }
@@ -22480,6 +23477,11 @@ var BindingParser = class {
       return this._exprParser.wrapLiteralPrimitive("ERROR", sourceSpan, absoluteOffset);
     }
   }
+  /**
+   * Similar to `parseInterpolation`, but treats the provided string as a single expression
+   * element that would normally appear within the interpolation prefix and suffix (`{{` and `}}`).
+   * This is used for parsing the switch expression in ICUs.
+   */
   parseInterpolationExpression(expression, sourceSpan) {
     const absoluteOffset = sourceSpan.start.offset;
     try {
@@ -22493,6 +23495,18 @@ var BindingParser = class {
       return this._exprParser.wrapLiteralPrimitive("ERROR", sourceSpan, absoluteOffset);
     }
   }
+  /**
+   * Parses the bindings in a microsyntax expression, and converts them to
+   * `ParsedProperty` or `ParsedVariable`.
+   *
+   * @param tplKey template binding name
+   * @param tplValue template binding value
+   * @param sourceSpan span of template binding relative to entire the template
+   * @param absoluteValueOffset start of the tplValue relative to the entire template
+   * @param targetMatchableAttrs potential attributes to match in the template
+   * @param targetProps target property bindings in the template
+   * @param targetVars target variables in the template
+   */
   parseInlineTemplateBinding(tplKey, tplValue, sourceSpan, absoluteValueOffset, targetMatchableAttrs, targetProps, targetVars, isIvyAst) {
     const absoluteKeyOffset = sourceSpan.start.offset + TEMPLATE_ATTR_PREFIX$1.length;
     const bindings = this._parseTemplateBindings(tplKey, tplValue, sourceSpan, absoluteKeyOffset, absoluteValueOffset);
@@ -22509,11 +23523,27 @@ var BindingParser = class {
         const valueSpan = moveParseSourceSpan(sourceSpan, binding.value.ast.sourceSpan);
         this._parsePropertyAst(key, binding.value, false, srcSpan, keySpan, valueSpan, targetMatchableAttrs, targetProps);
       } else {
-        targetMatchableAttrs.push([key, ""]);
+        targetMatchableAttrs.push([
+          key,
+          ""
+          /* value */
+        ]);
         this.parseLiteralAttr(key, null, keySpan, absoluteValueOffset, void 0, targetMatchableAttrs, targetProps, keySpan);
       }
     }
   }
+  /**
+   * Parses the bindings in a microsyntax expression, e.g.
+   * ```html
+   *    <tag *tplKey="let value1 = prop; let value2 = localVar">
+   * ```
+   *
+   * @param tplKey template binding name
+   * @param tplValue template binding value
+   * @param sourceSpan span of template binding relative to entire the template
+   * @param absoluteKeyOffset start of the `tplKey`
+   * @param absoluteValueOffset start of the `tplValue`
+   */
   _parseTemplateBindings(tplKey, tplValue, sourceSpan, absoluteKeyOffset, absoluteValueOffset) {
     try {
       const bindingsResult = this._exprParser.parseTemplateBindings(tplKey, tplValue, sourceSpan, absoluteKeyOffset, absoluteValueOffset);
@@ -22593,7 +23623,7 @@ var BindingParser = class {
   }
   parseBinding(value, isHostBinding2, sourceSpan, absoluteOffset) {
     try {
-      const ast = isHostBinding2 ? this._exprParser.parseSimpleBinding(value, sourceSpan, absoluteOffset) : this._exprParser.parseBinding(value, sourceSpan, absoluteOffset);
+      const ast = isHostBinding2 ? this._exprParser.parseSimpleBinding(value, sourceSpan, absoluteOffset, this._interpolationConfig) : this._exprParser.parseBinding(value, sourceSpan, absoluteOffset, this._interpolationConfig);
       if (ast) {
         this.errors.push(...ast.errors);
       }
@@ -22672,23 +23702,14 @@ var BindingParser = class {
   }
   parseEventListenerName(rawName) {
     const [target, eventName] = splitAtColon(rawName, [null, rawName]);
-    return {
-      eventName,
-      target
-    };
+    return { eventName, target };
   }
   parseLegacyAnimationEventName(rawName) {
     const matches = splitAtPeriod(rawName, [rawName, null]);
-    return {
-      eventName: matches[0],
-      phase: matches[1] === null ? null : matches[1].toLowerCase()
-    };
+    return { eventName: matches[0], phase: matches[1] === null ? null : matches[1].toLowerCase() };
   }
   _parseLegacyAnimationEvent(name, expression, sourceSpan, handlerSpan, targetEvents, keySpan) {
-    const {
-      eventName,
-      phase
-    } = this.parseLegacyAnimationEventName(name);
+    const { eventName, phase } = this.parseLegacyAnimationEventName(name);
     const ast = this._parseAction(expression, handlerSpan);
     targetEvents.push(new ParsedEvent(eventName, phase, ParsedEventType.LegacyAnimation, ast, sourceSpan, handlerSpan, keySpan));
     if (eventName.length === 0) {
@@ -22703,10 +23724,7 @@ var BindingParser = class {
     }
   }
   _parseRegularEvent(name, expression, isAssignmentEvent, sourceSpan, handlerSpan, targetMatchableAttrs, targetEvents, keySpan) {
-    const {
-      eventName,
-      target
-    } = this.parseEventListenerName(name);
+    const { eventName, target } = this.parseEventListenerName(name);
     const prevErrorCount = this.errors.length;
     const ast = this._parseAction(expression, handlerSpan);
     const isValid = this.errors.length === prevErrorCount;
@@ -22726,7 +23744,7 @@ var BindingParser = class {
   _parseAction(value, sourceSpan) {
     const absoluteOffset = sourceSpan && sourceSpan.start ? sourceSpan.start.offset : 0;
     try {
-      const ast = this._exprParser.parseAction(value, sourceSpan, absoluteOffset);
+      const ast = this._exprParser.parseAction(value, sourceSpan, absoluteOffset, this._interpolationConfig);
       if (ast) {
         this.errors.push(...ast.errors);
       }
@@ -22743,12 +23761,21 @@ var BindingParser = class {
   _reportError(message, sourceSpan, level = ParseErrorLevel.ERROR) {
     this.errors.push(new ParseError(sourceSpan, message, level));
   }
+  /**
+   * @param propName the name of the property / attribute
+   * @param sourceSpan
+   * @param isAttr true when binding to an attribute
+   */
   _validatePropertyOrAttributeName(propName, sourceSpan, isAttr) {
     const report = isAttr ? this._schemaRegistry.validateAttribute(propName) : this._schemaRegistry.validateProperty(propName);
     if (report.error) {
       this._reportError(report.msg, sourceSpan, ParseErrorLevel.ERROR);
     }
   }
+  /**
+   * Returns whether a parsed AST is allowed to be used within the event side of a two-way binding.
+   * @param ast Parsed AST to be checked.
+   */
   _isAllowedAssignmentEvent(ast) {
     if (ast instanceof ASTWithSource) {
       return this._isAllowedAssignmentEvent(ast.ast);
@@ -22804,7 +23831,8 @@ function moveParseSourceSpan(sourceSpan, absoluteSpan) {
   return new ParseSourceSpan(sourceSpan.start.moveBy(startDiff), sourceSpan.end.moveBy(endDiff), sourceSpan.fullStart.moveBy(startDiff), sourceSpan.details);
 }
 function isStyleUrlResolvable(url) {
-  if (url == null || url.length === 0 || url[0] == "/") return false;
+  if (url == null || url.length === 0 || url[0] == "/")
+    return false;
   const schemeMatch = url.match(URL_WITH_SCHEMA_REGEXP);
   return schemeMatch === null || schemeMatch[1] == "package" || schemeMatch[1] == "asset";
 }
@@ -22889,7 +23917,14 @@ var ELSE_IF_PATTERN = /^else[^\S\r\n]+if/;
 var FOR_LOOP_LET_PATTERN = /^let\s+([\S\s]*)/;
 var IDENTIFIER_PATTERN = /^[$A-Z_][0-9A-Z_$]*$/i;
 var CHARACTERS_IN_SURROUNDING_WHITESPACE_PATTERN = /(\s*)(\S+)(\s*)/;
-var ALLOWED_FOR_LOOP_LET_VARIABLES = /* @__PURE__ */ new Set(["$index", "$first", "$last", "$even", "$odd", "$count"]);
+var ALLOWED_FOR_LOOP_LET_VARIABLES = /* @__PURE__ */ new Set([
+  "$index",
+  "$first",
+  "$last",
+  "$even",
+  "$odd",
+  "$count"
+]);
 function isConnectedForLoopBlock(name) {
   return name === "empty";
 }
@@ -22955,10 +23990,7 @@ function createForLoop(ast, connectedBlocks, visitor, bindingParser) {
       node = new ForLoopBlock(params.itemName, params.expression, params.trackBy.expression, params.trackBy.keywordSpan, params.context, visitAll(visitor, ast.children, ast.children), empty, sourceSpan, ast.sourceSpan, ast.startSourceSpan, endSpan, ast.nameSpan, ast.i18n);
     }
   }
-  return {
-    node,
-    errors
-  };
+  return { node, errors };
 }
 function createSwitchBlock(ast, visitor, bindingParser) {
   const errors = validateSwitchBlock(ast);
@@ -23033,10 +24065,7 @@ function parseForLoopParameters(block, errors, bindingParser) {
           errors.push(new ParseError(block.startSourceSpan, '@for loop must have a "track" expression'));
         }
         const keywordSpan = new ParseSourceSpan(param.sourceSpan.start, param.sourceSpan.start.moveBy("track".length));
-        result.trackBy = {
-          expression,
-          keywordSpan
-        };
+        result.trackBy = { expression, keywordSpan };
       }
       continue;
     }
@@ -23068,7 +24097,12 @@ function parseLetParameter(sourceSpan, expression, span, loopItemName, context, 
       errors.push(new ParseError(sourceSpan, `Duplicate "let" parameter variable "${variableName}"`));
     } else {
       const [, keyLeadingWhitespace, keyName] = expressionParts[0].match(CHARACTERS_IN_SURROUNDING_WHITESPACE_PATTERN) ?? [];
-      const keySpan = keyLeadingWhitespace !== void 0 && expressionParts.length === 2 ? new ParseSourceSpan(startSpan.moveBy(keyLeadingWhitespace.length), startSpan.moveBy(keyLeadingWhitespace.length + keyName.length)) : span;
+      const keySpan = keyLeadingWhitespace !== void 0 && expressionParts.length === 2 ? new ParseSourceSpan(
+        /* strip leading spaces */
+        startSpan.moveBy(keyLeadingWhitespace.length),
+        /* advance to end of the variable name */
+        startSpan.moveBy(keyLeadingWhitespace.length + keyName.length)
+      ) : span;
       let valueSpan = void 0;
       if (expressionParts.length === 2) {
         const [, valueLeadingWhitespace, implicit] = expressionParts[1].match(CHARACTERS_IN_SURROUNDING_WHITESPACE_PATTERN) ?? [];
@@ -23077,7 +24111,10 @@ function parseLetParameter(sourceSpan, expression, span, loopItemName, context, 
       const sourceSpan2 = new ParseSourceSpan(keySpan.start, valueSpan?.end ?? keySpan.end);
       context.push(new Variable(name, variableName, sourceSpan2, keySpan, valueSpan));
     }
-    startSpan = startSpan.moveBy(part.length + 1);
+    startSpan = startSpan.moveBy(
+      part.length + 1
+      /* add 1 to move past the comma */
+    );
   }
 }
 function validateIfConnectedBlocks(connectedBlocks) {
@@ -23167,10 +24204,7 @@ function parseConditionalBlockParameters(block, errors, bindingParser) {
       }
     }
   }
-  return {
-    expression,
-    expressionAlias
-  };
+  return { expression, expressionAlias };
 }
 function stripOptionalParentheses(param, errors) {
   const expression = param.expression;
@@ -23220,7 +24254,14 @@ var PipeVisitor = class extends RecursiveAstVisitor2 {
 };
 var TIME_PATTERN = /^\d+\.?\d*(ms|s)?$/;
 var SEPARATOR_PATTERN = /^\s$/;
-var COMMA_DELIMITED_SYNTAX = /* @__PURE__ */ new Map([[$LBRACE, $RBRACE], [$LBRACKET, $RBRACKET], [$LPAREN, $RPAREN]]);
+var COMMA_DELIMITED_SYNTAX = /* @__PURE__ */ new Map([
+  [$LBRACE, $RBRACE],
+  // Object literals
+  [$LBRACKET, $RBRACKET],
+  // Array literals
+  [$LPAREN, $RPAREN]
+  // Function calls
+]);
 var OnTriggerType;
 (function(OnTriggerType2) {
   OnTriggerType2["IDLE"] = "idle";
@@ -23231,10 +24272,7 @@ var OnTriggerType;
   OnTriggerType2["VIEWPORT"] = "viewport";
   OnTriggerType2["NEVER"] = "never";
 })(OnTriggerType || (OnTriggerType = {}));
-function parseNeverTrigger({
-  expression,
-  sourceSpan
-}, triggers, errors) {
+function parseNeverTrigger({ expression, sourceSpan }, triggers, errors) {
   const neverIndex = expression.indexOf("never");
   const neverSourceSpan = new ParseSourceSpan(sourceSpan.start.moveBy(neverIndex), sourceSpan.start.moveBy(neverIndex + "never".length));
   const prefetchSpan = getPrefetchSpan(expression, sourceSpan);
@@ -23245,10 +24283,7 @@ function parseNeverTrigger({
     trackTrigger("never", triggers, errors, new NeverDeferredTrigger(neverSourceSpan, sourceSpan, prefetchSpan, null, hydrateSpan));
   }
 }
-function parseWhenTrigger({
-  expression,
-  sourceSpan
-}, bindingParser, triggers, errors) {
+function parseWhenTrigger({ expression, sourceSpan }, bindingParser, triggers, errors) {
   const whenIndex = expression.indexOf("when");
   const whenSourceSpan = new ParseSourceSpan(sourceSpan.start.moveBy(whenIndex), sourceSpan.start.moveBy(whenIndex + "when".length));
   const prefetchSpan = getPrefetchSpan(expression, sourceSpan);
@@ -23261,10 +24296,7 @@ function parseWhenTrigger({
     trackTrigger("when", triggers, errors, new BoundDeferredTrigger(parsed, sourceSpan, prefetchSpan, whenSourceSpan, hydrateSpan));
   }
 }
-function parseOnTrigger({
-  expression,
-  sourceSpan
-}, bindingParser, triggers, errors, placeholder) {
+function parseOnTrigger({ expression, sourceSpan }, triggers, errors, placeholder) {
   const onIndex = expression.indexOf("on");
   const onSourceSpan = new ParseSourceSpan(sourceSpan.start.moveBy(onIndex), sourceSpan.start.moveBy(onIndex + "on".length));
   const prefetchSpan = getPrefetchSpan(expression, sourceSpan);
@@ -23273,8 +24305,7 @@ function parseOnTrigger({
     errors.push(new ParseError(sourceSpan, `Could not find "on" keyword in expression`));
   } else {
     const start = getTriggerParametersStart(expression, onIndex + 1);
-    const isHydrationTrigger = expression.startsWith("hydrate");
-    const parser = new OnTriggerParser(expression, bindingParser, start, sourceSpan, triggers, errors, isHydrationTrigger ? validateHydrateReferenceBasedTrigger : validatePlainReferenceBasedTrigger, isHydrationTrigger, prefetchSpan, onSourceSpan, hydrateSpan);
+    const parser = new OnTriggerParser(expression, start, sourceSpan, triggers, errors, expression.startsWith("hydrate") ? validateHydrateReferenceBasedTrigger : validatePlainReferenceBasedTrigger, placeholder, prefetchSpan, onSourceSpan, hydrateSpan);
     parser.parse();
   }
 }
@@ -23292,27 +24323,25 @@ function getHydrateSpan(expression, sourceSpan) {
 }
 var OnTriggerParser = class {
   expression;
-  bindingParser;
   start;
   span;
   triggers;
   errors;
   validator;
-  isHydrationTrigger;
+  placeholder;
   prefetchSpan;
   onSourceSpan;
   hydrateSpan;
   index = 0;
   tokens;
-  constructor(expression, bindingParser, start, span, triggers, errors, validator, isHydrationTrigger, prefetchSpan, onSourceSpan, hydrateSpan) {
+  constructor(expression, start, span, triggers, errors, validator, placeholder, prefetchSpan, onSourceSpan, hydrateSpan) {
     this.expression = expression;
-    this.bindingParser = bindingParser;
     this.start = start;
     this.span = span;
     this.triggers = triggers;
     this.errors = errors;
     this.validator = validator;
-    this.isHydrationTrigger = isHydrationTrigger;
+    this.placeholder = placeholder;
     this.prefetchSpan = prefetchSpan;
     this.onSourceSpan = onSourceSpan;
     this.hydrateSpan = hydrateSpan;
@@ -23379,10 +24408,10 @@ var OnTriggerParser = class {
           this.trackTrigger("immediate", createImmediateTrigger(parameters, nameSpan, sourceSpan, this.prefetchSpan, this.onSourceSpan, this.hydrateSpan));
           break;
         case OnTriggerType.HOVER:
-          this.trackTrigger("hover", createHoverTrigger(parameters, nameSpan, sourceSpan, this.prefetchSpan, this.onSourceSpan, this.hydrateSpan, this.validator));
+          this.trackTrigger("hover", createHoverTrigger(parameters, nameSpan, sourceSpan, this.prefetchSpan, this.onSourceSpan, this.hydrateSpan, this.placeholder, this.validator));
           break;
         case OnTriggerType.VIEWPORT:
-          this.trackTrigger("viewport", createViewportTrigger(this.start, this.isHydrationTrigger, this.bindingParser, parameters, nameSpan, sourceSpan, this.prefetchSpan, this.onSourceSpan, this.hydrateSpan, this.validator));
+          this.trackTrigger("viewport", createViewportTrigger(parameters, nameSpan, sourceSpan, this.prefetchSpan, this.onSourceSpan, this.hydrateSpan, this.validator));
           break;
         default:
           throw new Error(`Unrecognized trigger type "${identifier}"`);
@@ -23399,15 +24428,12 @@ var OnTriggerParser = class {
     }
     this.advance();
     const commaDelimStack = [];
-    let tokens = [];
+    let current = "";
     while (this.index < this.tokens.length) {
       const token = this.token();
       if (token.isCharacter($RPAREN) && commaDelimStack.length === 0) {
-        if (tokens.length) {
-          parameters.push({
-            expression: this.tokenRangeText(tokens),
-            start: tokens[0].index
-          });
+        if (current.length) {
+          parameters.push(current);
         }
         break;
       }
@@ -23417,16 +24443,13 @@ var OnTriggerParser = class {
       if (commaDelimStack.length > 0 && token.isCharacter(commaDelimStack[commaDelimStack.length - 1])) {
         commaDelimStack.pop();
       }
-      if (commaDelimStack.length === 0 && token.isCharacter($COMMA) && tokens.length > 0) {
-        parameters.push({
-          expression: this.tokenRangeText(tokens),
-          start: tokens[0].index
-        });
+      if (commaDelimStack.length === 0 && token.isCharacter($COMMA) && current.length > 0) {
+        parameters.push(current);
+        current = "";
         this.advance();
-        tokens = [];
         continue;
       }
-      tokens.push(token);
+      current += this.tokenText();
       this.advance();
     }
     if (!this.token().isCharacter($RPAREN) || commaDelimStack.length > 0) {
@@ -23437,11 +24460,8 @@ var OnTriggerParser = class {
     }
     return parameters;
   }
-  tokenRangeText(tokens) {
-    if (tokens.length === 0) {
-      return "";
-    }
-    return this.expression.slice(this.start + tokens[0].index, this.start + tokens[tokens.length - 1].end);
+  tokenText() {
+    return this.expression.slice(this.start + this.token().index, this.start + this.token().end);
   }
   trackTrigger(name, trigger) {
     trackTrigger(name, this.triggers, this.errors, trigger);
@@ -23472,7 +24492,7 @@ function createTimerTrigger(parameters, nameSpan, sourceSpan, prefetchSpan, onSo
   if (parameters.length !== 1) {
     throw new Error(`"${OnTriggerType.TIMER}" trigger must have exactly one parameter`);
   }
-  const delay = parseDeferredTime(parameters[0].expression);
+  const delay = parseDeferredTime(parameters[0]);
   if (delay === null) {
     throw new Error(`Could not parse time value of trigger "${OnTriggerType.TIMER}"`);
   }
@@ -23484,53 +24504,17 @@ function createImmediateTrigger(parameters, nameSpan, sourceSpan, prefetchSpan, 
   }
   return new ImmediateDeferredTrigger(nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
 }
-function createHoverTrigger(parameters, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan, validator) {
+function createHoverTrigger(parameters, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan, placeholder, validator) {
   validator(OnTriggerType.HOVER, parameters);
-  return new HoverDeferredTrigger(parameters[0]?.expression ?? null, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
+  return new HoverDeferredTrigger(parameters[0] ?? null, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
 }
 function createInteractionTrigger(parameters, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan, validator) {
   validator(OnTriggerType.INTERACTION, parameters);
-  return new InteractionDeferredTrigger(parameters[0]?.expression ?? null, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
+  return new InteractionDeferredTrigger(parameters[0] ?? null, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
 }
-function createViewportTrigger(start, isHydrationTrigger, bindingParser, parameters, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan, validator) {
+function createViewportTrigger(parameters, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan, validator) {
   validator(OnTriggerType.VIEWPORT, parameters);
-  let reference2;
-  let options;
-  if (parameters.length === 0) {
-    reference2 = options = null;
-  } else if (!parameters[0].expression.startsWith("{")) {
-    reference2 = parameters[0].expression;
-    options = null;
-  } else {
-    const parsed = bindingParser.parseBinding(parameters[0].expression, false, sourceSpan, sourceSpan.start.offset + start + parameters[0].start);
-    if (!(parsed.ast instanceof LiteralMap)) {
-      throw new Error('Options parameter of the "viewport" trigger must be an object literal');
-    } else if (parsed.ast.keys.some((key) => key.key === "root")) {
-      throw new Error('The "root" option is not supported in the options parameter of the "viewport" trigger');
-    }
-    const triggerIndex = parsed.ast.keys.findIndex((key) => key.key === "trigger");
-    if (triggerIndex === -1) {
-      reference2 = null;
-      options = parsed.ast;
-    } else {
-      const value = parsed.ast.values[triggerIndex];
-      const triggerFilter = (_, index) => index !== triggerIndex;
-      if (!(value instanceof PropertyRead) || !(value.receiver instanceof ImplicitReceiver) || value.receiver instanceof ThisReceiver) {
-        throw new Error(`"trigger" option of the "viewport" trigger must be an identifier`);
-      }
-      reference2 = value.name;
-      options = new LiteralMap(parsed.ast.span, parsed.ast.sourceSpan, parsed.ast.keys.filter(triggerFilter), parsed.ast.values.filter(triggerFilter));
-    }
-  }
-  if (isHydrationTrigger && reference2 !== null) {
-    throw new Error(`"viewport" hydration trigger cannot have a "trigger"`);
-  } else if (options) {
-    const dynamicNode = DynamicAstValidator.findDynamicNode(options);
-    if (dynamicNode !== null) {
-      throw new Error(`Options of the "viewport" trigger must be an object literal containing only literal values, but "${dynamicNode.constructor.name}" was found`);
-    }
-  }
-  return new ViewportDeferredTrigger(reference2, options, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
+  return new ViewportDeferredTrigger(parameters[0] ?? null, nameSpan, sourceSpan, prefetchSpan, onSourceSpan, hydrateSpan);
 }
 function validatePlainReferenceBasedTrigger(type, parameters) {
   if (parameters.length > 1) {
@@ -23538,12 +24522,6 @@ function validatePlainReferenceBasedTrigger(type, parameters) {
   }
 }
 function validateHydrateReferenceBasedTrigger(type, parameters) {
-  if (type === OnTriggerType.VIEWPORT) {
-    if (parameters.length > 1) {
-      throw new Error(`Hydration trigger "${type}" cannot have more than one parameter`);
-    }
-    return;
-  }
   if (parameters.length > 0) {
     throw new Error(`Hydration trigger "${type}" cannot have parameters`);
   }
@@ -23567,21 +24545,6 @@ function parseDeferredTime(value) {
   const [time, units] = match;
   return parseFloat(time) * (units === "s" ? 1e3 : 1);
 }
-var DynamicAstValidator = class _DynamicAstValidator extends RecursiveAstVisitor2 {
-  dynamicNode = null;
-  static findDynamicNode(ast) {
-    const visitor = new _DynamicAstValidator();
-    visitor.visit(ast);
-    return visitor.dynamicNode;
-  }
-  visit(ast) {
-    if (!(ast instanceof ASTWithSource) && !(ast instanceof LiteralPrimitive) && !(ast instanceof LiteralArray) && !(ast instanceof LiteralMap)) {
-      this.dynamicNode = ast;
-    } else {
-      super.visit(ast);
-    }
-  }
-};
 var PREFETCH_WHEN_PATTERN = /^prefetch\s+when\s/;
 var PREFETCH_ON_PATTERN = /^prefetch\s+on\s/;
 var HYDRATE_WHEN_PATTERN = /^hydrate\s+when\s/;
@@ -23596,16 +24559,8 @@ function isConnectedDeferLoopBlock(name) {
 }
 function createDeferredBlock(ast, connectedBlocks, visitor, bindingParser) {
   const errors = [];
-  const {
-    placeholder,
-    loading,
-    error
-  } = parseConnectedBlocks(connectedBlocks, errors, visitor);
-  const {
-    triggers,
-    prefetchTriggers,
-    hydrateTriggers
-  } = parsePrimaryTriggers(ast, bindingParser, errors);
+  const { placeholder, loading, error } = parseConnectedBlocks(connectedBlocks, errors, visitor);
+  const { triggers, prefetchTriggers, hydrateTriggers } = parsePrimaryTriggers(ast, bindingParser, errors, placeholder);
   let lastEndSourceSpan = ast.endSourceSpan;
   let endOfLastSourceSpan = ast.sourceSpan.end;
   if (connectedBlocks.length > 0) {
@@ -23615,10 +24570,7 @@ function createDeferredBlock(ast, connectedBlocks, visitor, bindingParser) {
   }
   const sourceSpanWithConnectedBlocks = new ParseSourceSpan(ast.sourceSpan.start, endOfLastSourceSpan);
   const node = new DeferredBlock(visitAll(visitor, ast.children, ast.children), triggers, prefetchTriggers, hydrateTriggers, placeholder, loading, error, ast.nameSpan, sourceSpanWithConnectedBlocks, ast.sourceSpan, ast.startSourceSpan, lastEndSourceSpan, ast.i18n);
-  return {
-    node,
-    errors
-  };
+  return { node, errors };
 }
 function parseConnectedBlocks(connectedBlocks, errors, visitor) {
   let placeholder = null;
@@ -23657,11 +24609,7 @@ function parseConnectedBlocks(connectedBlocks, errors, visitor) {
       errors.push(new ParseError(block.startSourceSpan, e.message));
     }
   }
-  return {
-    placeholder,
-    loading,
-    error
-  };
+  return { placeholder, loading, error };
 }
 function parsePlaceholderBlock(ast, visitor) {
   let minimumTime = null;
@@ -23723,15 +24671,15 @@ function parsePrimaryTriggers(ast, bindingParser, errors, placeholder) {
     if (WHEN_PARAMETER_PATTERN.test(param.expression)) {
       parseWhenTrigger(param, bindingParser, triggers, errors);
     } else if (ON_PARAMETER_PATTERN.test(param.expression)) {
-      parseOnTrigger(param, bindingParser, triggers, errors);
+      parseOnTrigger(param, triggers, errors, placeholder);
     } else if (PREFETCH_WHEN_PATTERN.test(param.expression)) {
       parseWhenTrigger(param, bindingParser, prefetchTriggers, errors);
     } else if (PREFETCH_ON_PATTERN.test(param.expression)) {
-      parseOnTrigger(param, bindingParser, prefetchTriggers, errors);
+      parseOnTrigger(param, prefetchTriggers, errors, placeholder);
     } else if (HYDRATE_WHEN_PATTERN.test(param.expression)) {
       parseWhenTrigger(param, bindingParser, hydrateTriggers, errors);
     } else if (HYDRATE_ON_PATTERN.test(param.expression)) {
-      parseOnTrigger(param, bindingParser, hydrateTriggers, errors);
+      parseOnTrigger(param, hydrateTriggers, errors, placeholder);
     } else if (HYDRATE_NEVER_PATTERN.test(param.expression)) {
       parseNeverTrigger(param, hydrateTriggers, errors);
     } else {
@@ -23741,11 +24689,7 @@ function parsePrimaryTriggers(ast, bindingParser, errors, placeholder) {
   if (hydrateTriggers.never && Object.keys(hydrateTriggers).length > 1) {
     errors.push(new ParseError(ast.startSourceSpan, "Cannot specify additional `hydrate` triggers if `hydrate never` is present"));
   }
-  return {
-    triggers,
-    prefetchTriggers,
-    hydrateTriggers
-  };
+  return { triggers, prefetchTriggers, hydrateTriggers };
 }
 var BIND_NAME_REGEXP = /^(?:(bind-)|(let-)|(ref-|#)|(on-)|(bindon-)|(@))(.*)$/;
 var KW_BIND_IDX = 1;
@@ -23756,21 +24700,19 @@ var KW_BINDON_IDX = 5;
 var KW_AT_IDX = 6;
 var IDENT_KW_IDX = 7;
 var BINDING_DELIMS = {
-  BANANA_BOX: {
-    start: "[(",
-    end: ")]"
-  },
-  PROPERTY: {
-    start: "[",
-    end: "]"
-  },
-  EVENT: {
-    start: "(",
-    end: ")"
-  }
+  BANANA_BOX: { start: "[(", end: ")]" },
+  PROPERTY: { start: "[", end: "]" },
+  EVENT: { start: "(", end: ")" }
 };
 var TEMPLATE_ATTR_PREFIX = "*";
-var UNSUPPORTED_SELECTORLESS_TAGS = /* @__PURE__ */ new Set(["link", "style", "script", "ng-template", "ng-container", "ng-content"]);
+var UNSUPPORTED_SELECTORLESS_TAGS = /* @__PURE__ */ new Set([
+  "link",
+  "style",
+  "script",
+  "ng-template",
+  "ng-container",
+  "ng-content"
+]);
 var UNSUPPORTED_SELECTORLESS_DIRECTIVE_ATTRS = /* @__PURE__ */ new Set(["ngProjectAs", "ngNonBindable"]);
 function htmlAstToRender3Ast(htmlNodes, bindingParser, options) {
   const transformer = new HtmlAstToIvyAst(bindingParser, options);
@@ -23795,13 +24737,19 @@ var HtmlAstToIvyAst = class {
   styles = [];
   styleUrls = [];
   ngContentSelectors = [];
+  // This array will be populated if `Render3ParseOptions['collectCommentNodes']` is true
   commentNodes = [];
   inI18nBlock = false;
+  /**
+   * Keeps track of the nodes that have been processed already when previous nodes were visited.
+   * These are typically blocks connected to other blocks or text nodes between connected blocks.
+   */
   processedNodes = /* @__PURE__ */ new Set();
   constructor(bindingParser, options) {
     this.bindingParser = bindingParser;
     this.options = options;
   }
+  // HTML visitor
   visitElement(element2) {
     const isI18nRootElement = isI18nRootNode(element2.i18n);
     if (isI18nRootElement) {
@@ -23824,17 +24772,7 @@ var HtmlAstToIvyAst = class {
       return null;
     }
     const isTemplateElement = isNgTemplate(element2.name);
-    const {
-      attributes,
-      boundEvents,
-      references,
-      variables,
-      templateVariables,
-      elementHasInlineTemplate,
-      parsedProperties,
-      templateParsedProperties,
-      i18nAttrsMeta
-    } = this.prepareAttributes(element2.attrs, isTemplateElement);
+    const { attributes, boundEvents, references, variables, templateVariables, elementHasInlineTemplate, parsedProperties, templateParsedProperties, i18nAttrsMeta } = this.prepareAttributes(element2.attrs, isTemplateElement);
     const directives = this.extractDirectives(element2);
     let children;
     if (preparsedElement.nonBindable) {
@@ -23850,7 +24788,9 @@ var HtmlAstToIvyAst = class {
       this.ngContentSelectors.push(selector);
     } else if (isTemplateElement) {
       const attrs = this.categorizePropertyAttributes(element2.name, parsedProperties, i18nAttrsMeta);
-      parsedElement = new Template(element2.name, attributes, attrs.bound, boundEvents, directives, [], children, references, variables, element2.isSelfClosing, element2.sourceSpan, element2.startSourceSpan, element2.endSourceSpan, element2.i18n);
+      parsedElement = new Template(element2.name, attributes, attrs.bound, boundEvents, directives, [
+        /* no template attributes */
+      ], children, references, variables, element2.isSelfClosing, element2.sourceSpan, element2.startSourceSpan, element2.endSourceSpan, element2.i18n);
     } else {
       const attrs = this.categorizePropertyAttributes(element2.name, parsedProperties, i18nAttrsMeta);
       if (element2.name === "ng-container") {
@@ -23926,16 +24866,7 @@ var HtmlAstToIvyAst = class {
       this.reportError(`Tag name "${component.tagName}" cannot be used as a component tag`, component.startSourceSpan);
       return null;
     }
-    const {
-      attributes,
-      boundEvents,
-      references,
-      templateVariables,
-      elementHasInlineTemplate,
-      parsedProperties,
-      templateParsedProperties,
-      i18nAttrsMeta
-    } = this.prepareAttributes(component.attrs, false);
+    const { attributes, boundEvents, references, templateVariables, elementHasInlineTemplate, parsedProperties, templateParsedProperties, i18nAttrsMeta } = this.prepareAttributes(component.attrs, false);
     this.validateSelectorlessReferences(references);
     const directives = this.extractDirectives(component);
     let children;
@@ -24024,6 +24955,7 @@ var HtmlAstToIvyAst = class {
     }
     return relatedBlocks;
   }
+  /** Splits up the property attributes depending on whether they're static or bound. */
   categorizePropertyAttributes(elementName, properties, i18nPropsMeta) {
     const bound = [];
     const literal2 = [];
@@ -24032,14 +24964,18 @@ var HtmlAstToIvyAst = class {
       if (prop.isLiteral) {
         literal2.push(new TextAttribute(prop.name, prop.expression.source || "", prop.sourceSpan, prop.keySpan, prop.valueSpan, i18n2));
       } else {
-        const bep = this.bindingParser.createBoundElementProperty(elementName, prop, true, false);
+        const bep = this.bindingParser.createBoundElementProperty(
+          elementName,
+          prop,
+          /* skipValidation */
+          true,
+          /* mapPropertyName */
+          false
+        );
         bound.push(BoundAttribute.fromBoundElementProperty(bep, i18n2));
       }
     });
-    return {
-      bound,
-      literal: literal2
-    };
+    return { bound, literal: literal2 };
   }
   prepareAttributes(attrs, isTemplateElement) {
     const parsedProperties = [];
@@ -24067,8 +25003,23 @@ var HtmlAstToIvyAst = class {
         const templateValue = attribute2.value;
         const templateKey = normalizedName.substring(TEMPLATE_ATTR_PREFIX.length);
         const parsedVariables = [];
-        const absoluteValueOffset = attribute2.valueSpan ? attribute2.valueSpan.fullStart.offset : attribute2.sourceSpan.fullStart.offset + attribute2.name.length;
-        this.bindingParser.parseInlineTemplateBinding(templateKey, templateValue, attribute2.sourceSpan, absoluteValueOffset, [], templateParsedProperties, parsedVariables, true);
+        const absoluteValueOffset = attribute2.valueSpan ? attribute2.valueSpan.fullStart.offset : (
+          // If there is no value span the attribute does not have a value, like `attr` in
+          //`<div attr></div>`. In this case, point to one character beyond the last character of
+          // the attribute name.
+          attribute2.sourceSpan.fullStart.offset + attribute2.name.length
+        );
+        this.bindingParser.parseInlineTemplateBinding(
+          templateKey,
+          templateValue,
+          attribute2.sourceSpan,
+          absoluteValueOffset,
+          [],
+          templateParsedProperties,
+          parsedVariables,
+          true
+          /* isIvyAst */
+        );
         templateVariables.push(...parsedVariables.map((v) => new Variable(v.name, v.value, v.sourceSpan, v.keySpan, v.valueSpan)));
       } else {
         hasBinding = this.parseAttribute(isTemplateElement, attribute2, [], parsedProperties, boundEvents, variables, references);
@@ -24122,7 +25073,17 @@ var HtmlAstToIvyAst = class {
         const events = [];
         const identifier = bindParts[IDENT_KW_IDX];
         const keySpan2 = createKeySpan(srcSpan, bindParts[KW_ON_IDX], identifier);
-        this.bindingParser.parseEvent(identifier, value, false, srcSpan, attribute2.valueSpan || srcSpan, matchableAttributes, events, keySpan2);
+        this.bindingParser.parseEvent(
+          identifier,
+          value,
+          /* isAssignmentEvent */
+          false,
+          srcSpan,
+          attribute2.valueSpan || srcSpan,
+          matchableAttributes,
+          events,
+          keySpan2
+        );
         addEvents(events, boundEvents);
       } else if (bindParts[KW_BINDON_IDX]) {
         const identifier = bindParts[IDENT_KW_IDX];
@@ -24143,7 +25104,11 @@ var HtmlAstToIvyAst = class {
     } else if (name.startsWith(BINDING_DELIMS.EVENT.start)) {
       delims = BINDING_DELIMS.EVENT;
     }
-    if (delims !== null && name.endsWith(delims.end) && name.length > delims.start.length + delims.end.length) {
+    if (delims !== null && // NOTE: older versions of the parser would match a start/end delimited
+    // binding iff the property name was terminated by the ending delimiter
+    // and the identifier in the binding was non-empty.
+    // TODO(ayazhafiz): update this to handle malformed bindings.
+    name.endsWith(delims.end) && name.length > delims.start.length + delims.end.length) {
       const identifier = name.substring(delims.start.length, name.length - delims.end.length);
       const keySpan2 = createKeySpan(srcSpan, delims.start, identifier);
       if (delims.start === BINDING_DELIMS.BANANA_BOX.start) {
@@ -24153,7 +25118,17 @@ var HtmlAstToIvyAst = class {
         this.bindingParser.parsePropertyBinding(identifier, value, false, false, srcSpan, absoluteOffset, attribute2.valueSpan, matchableAttributes, parsedProperties, keySpan2);
       } else {
         const events = [];
-        this.bindingParser.parseEvent(identifier, value, false, srcSpan, attribute2.valueSpan || srcSpan, matchableAttributes, events, keySpan2);
+        this.bindingParser.parseEvent(
+          identifier,
+          value,
+          /* isAssignmentEvent */
+          false,
+          srcSpan,
+          attribute2.valueSpan || srcSpan,
+          matchableAttributes,
+          events,
+          keySpan2
+        );
         addEvents(events, boundEvents);
       }
       return true;
@@ -24184,17 +25159,9 @@ var HtmlAstToIvyAst = class {
       if (invalid) {
         continue;
       }
-      const {
-        attributes,
-        parsedProperties,
-        boundEvents,
-        references,
-        i18nAttrsMeta
-      } = this.prepareAttributes(directive.attrs, false);
+      const { attributes, parsedProperties, boundEvents, references, i18nAttrsMeta } = this.prepareAttributes(directive.attrs, false);
       this.validateSelectorlessReferences(references);
-      const {
-        bound: inputs
-      } = this.categorizePropertyAttributes(elementName, parsedProperties, i18nAttrsMeta);
+      const { bound: inputs } = this.categorizePropertyAttributes(elementName, parsedProperties, i18nAttrsMeta);
       for (const input of inputs) {
         if (input.type !== BindingType.Property && input.type !== BindingType.TwoWay) {
           invalid = true;
@@ -24239,7 +25206,11 @@ var HtmlAstToIvyAst = class {
     } else {
       name = node.name;
     }
-    return new Template(name, hoistedAttrs.attributes, hoistedAttrs.inputs, hoistedAttrs.outputs, [], templateAttrs, [node], [], templateVariables, false, node.sourceSpan, node.startSourceSpan, node.endSourceSpan, i18n2);
+    return new Template(name, hoistedAttrs.attributes, hoistedAttrs.inputs, hoistedAttrs.outputs, [
+      // Do not copy over the directives.
+    ], templateAttrs, [node], [
+      // Do not copy over the references.
+    ], templateVariables, false, node.sourceSpan, node.startSourceSpan, node.endSourceSpan, i18n2);
   }
   _visitTextWithInterpolation(value, sourceSpan, interpolatedTokens, i18n2) {
     const valueNoNgsp = replaceNgsp(value);
@@ -24266,7 +25237,17 @@ var HtmlAstToIvyAst = class {
   }
   parseAssignmentEvent(name, expression, sourceSpan, valueSpan, targetMatchableAttrs, boundEvents, keySpan, absoluteOffset) {
     const events = [];
-    this.bindingParser.parseEvent(`${name}Change`, expression, true, sourceSpan, valueSpan || sourceSpan, targetMatchableAttrs, events, keySpan);
+    this.bindingParser.parseEvent(
+      `${name}Change`,
+      expression,
+      /* isAssignmentEvent */
+      true,
+      sourceSpan,
+      valueSpan || sourceSpan,
+      targetMatchableAttrs,
+      events,
+      keySpan
+    );
     addEvents(events, boundEvents);
   }
   validateSelectorlessReferences(references) {
@@ -24295,7 +25276,24 @@ var NonBindableVisitor = class {
       return null;
     }
     const children = visitAll(this, ast.children, null);
-    return new Element$1(ast.name, visitAll(this, ast.attrs), [], [], [], children, [], ast.isSelfClosing, ast.sourceSpan, ast.startSourceSpan, ast.endSourceSpan, ast.isVoid);
+    return new Element$1(
+      ast.name,
+      visitAll(this, ast.attrs),
+      /* inputs */
+      [],
+      /* outputs */
+      [],
+      /* directives */
+      [],
+      children,
+      /* references */
+      [],
+      ast.isSelfClosing,
+      ast.sourceSpan,
+      ast.startSourceSpan,
+      ast.endSourceSpan,
+      ast.isVoid
+    );
   }
   visitComment(comment) {
     return null;
@@ -24313,7 +25311,12 @@ var NonBindableVisitor = class {
     return null;
   }
   visitBlock(block, context) {
-    const nodes = [new Text$3(block.startSourceSpan.toString(), block.startSourceSpan), ...visitAll(this, block.children)];
+    const nodes = [
+      // In an ngNonBindable context we treat the opening/closing tags of block as plain text.
+      // This is the as if the `tokenizeBlocks` option was disabled.
+      new Text$3(block.startSourceSpan.toString(), block.startSourceSpan),
+      ...visitAll(this, block.children)
+    ];
     if (block.endSourceSpan !== null) {
       nodes.push(new Text$3(block.endSourceSpan.toString(), block.endSourceSpan));
     }
@@ -24327,7 +25330,24 @@ var NonBindableVisitor = class {
   }
   visitComponent(ast, context) {
     const children = visitAll(this, ast.children, null);
-    return new Element$1(ast.fullName, visitAll(this, ast.attrs), [], [], [], children, [], ast.isSelfClosing, ast.sourceSpan, ast.startSourceSpan, ast.endSourceSpan, false);
+    return new Element$1(
+      ast.fullName,
+      visitAll(this, ast.attrs),
+      /* inputs */
+      [],
+      /* outputs */
+      [],
+      /* directives */
+      [],
+      children,
+      /* references */
+      [],
+      ast.isSelfClosing,
+      ast.sourceSpan,
+      ast.startSourceSpan,
+      ast.endSourceSpan,
+      false
+    );
   }
   visitDirective(directive, context) {
     return null;
@@ -24349,12 +25369,9 @@ function textContents(node) {
 }
 var LEADING_TRIVIA_CHARS = [" ", "\n", "\r", "	"];
 function parseTemplate(template2, templateUrl, options = {}) {
-  const {
-    preserveWhitespaces,
-    enableI18nLegacyMessageIdFormat
-  } = options;
+  const { interpolationConfig, preserveWhitespaces, enableI18nLegacyMessageIdFormat } = options;
   const selectorlessEnabled = options.enableSelectorless ?? false;
-  const bindingParser = makeBindingParser(selectorlessEnabled);
+  const bindingParser = makeBindingParser(interpolationConfig, selectorlessEnabled);
   const htmlParser = new HtmlParser();
   const parseResult = htmlParser.parse(template2, templateUrl, __spreadProps(__spreadValues({
     leadingTriviaChars: LEADING_TRIVIA_CHARS
@@ -24366,6 +25383,7 @@ function parseTemplate(template2, templateUrl, options = {}) {
   }));
   if (!options.alwaysAttemptHtmlToR3AstConversion && parseResult.errors && parseResult.errors.length > 0) {
     const parsedTemplate2 = {
+      interpolationConfig,
       preserveWhitespaces,
       errors: parseResult.errors,
       nodes: [],
@@ -24380,10 +25398,20 @@ function parseTemplate(template2, templateUrl, options = {}) {
   }
   let rootNodes = parseResult.rootNodes;
   const retainEmptyTokens = !(options.preserveSignificantWhitespace ?? true);
-  const i18nMetaVisitor = new I18nMetaVisitor(!preserveWhitespaces, enableI18nLegacyMessageIdFormat, options.preserveSignificantWhitespace, retainEmptyTokens);
+  const i18nMetaVisitor = new I18nMetaVisitor(
+    interpolationConfig,
+    /* keepI18nAttrs */
+    !preserveWhitespaces,
+    enableI18nLegacyMessageIdFormat,
+    /* containerBlocks */
+    void 0,
+    options.preserveSignificantWhitespace,
+    retainEmptyTokens
+  );
   const i18nMetaResult = i18nMetaVisitor.visitAllWithErrors(rootNodes);
   if (!options.alwaysAttemptHtmlToR3AstConversion && i18nMetaResult.errors && i18nMetaResult.errors.length > 0) {
     const parsedTemplate2 = {
+      interpolationConfig,
       preserveWhitespaces,
       errors: i18nMetaResult.errors,
       nodes: [],
@@ -24398,23 +25426,33 @@ function parseTemplate(template2, templateUrl, options = {}) {
   }
   rootNodes = i18nMetaResult.rootNodes;
   if (!preserveWhitespaces) {
-    rootNodes = visitAll(new WhitespaceVisitor(true, void 0, false), rootNodes);
+    rootNodes = visitAll(new WhitespaceVisitor(
+      /* preserveSignificantWhitespace */
+      true,
+      /* originalNodeMap */
+      void 0,
+      /* requireContext */
+      false
+    ), rootNodes);
     if (i18nMetaVisitor.hasI18nMeta) {
-      rootNodes = visitAll(new I18nMetaVisitor(false, void 0, true, retainEmptyTokens), rootNodes);
+      rootNodes = visitAll(new I18nMetaVisitor(
+        interpolationConfig,
+        /* keepI18nAttrs */
+        false,
+        /* enableI18nLegacyMessageIdFormat */
+        void 0,
+        /* containerBlocks */
+        void 0,
+        /* preserveSignificantWhitespace */
+        true,
+        retainEmptyTokens
+      ), rootNodes);
     }
   }
-  const {
-    nodes,
-    errors,
-    styleUrls,
-    styles,
-    ngContentSelectors,
-    commentNodes
-  } = htmlAstToRender3Ast(rootNodes, bindingParser, {
-    collectCommentNodes: !!options.collectCommentNodes
-  });
+  const { nodes, errors, styleUrls, styles, ngContentSelectors, commentNodes } = htmlAstToRender3Ast(rootNodes, bindingParser, { collectCommentNodes: !!options.collectCommentNodes });
   errors.push(...parseResult.errors, ...i18nMetaResult.errors);
   const parsedTemplate = {
+    interpolationConfig,
     preserveWhitespaces,
     errors: errors.length > 0 ? errors : null,
     nodes,
@@ -24428,8 +25466,8 @@ function parseTemplate(template2, templateUrl, options = {}) {
   return parsedTemplate;
 }
 var elementRegistry = new DomElementSchemaRegistry();
-function makeBindingParser(selectorlessEnabled = false) {
-  return new BindingParser(new Parser2(new Lexer(), selectorlessEnabled), elementRegistry, []);
+function makeBindingParser(interpolationConfig = DEFAULT_INTERPOLATION_CONFIG, selectorlessEnabled = false) {
+  return new BindingParser(new Parser2(new Lexer(), selectorlessEnabled), interpolationConfig, elementRegistry, []);
 }
 var COMPONENT_VARIABLE = "%COMP%";
 var HOST_ATTR = `_nghost-${COMPONENT_VARIABLE}`;
@@ -24478,6 +25516,9 @@ function addFeatures(definitionMap, meta) {
   if (meta.usesInheritance) {
     features.push(importExpr(Identifiers.InheritDefinitionFeature));
   }
+  if (meta.fullInheritance) {
+    features.push(importExpr(Identifiers.CopyDefinitionFeature));
+  }
   if (meta.lifecycle.usesOnChanges) {
     features.push(importExpr(Identifiers.NgOnChangesFeature));
   }
@@ -24494,11 +25535,7 @@ function compileDirectiveFromMetadata(meta, constantPool, bindingParser) {
   addFeatures(definitionMap, meta);
   const expression = importExpr(Identifiers.defineDirective).callFn([definitionMap.toLiteralMap()], void 0, true);
   const type = createDirectiveType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function compileComponentFromMetadata(meta, constantPool, bindingParser) {
   const definitionMap = baseDirectiveFields(meta, constantPool, bindingParser);
@@ -24508,7 +25545,11 @@ function compileComponentFromMetadata(meta, constantPool, bindingParser) {
   if (firstSelector) {
     const selectorAttributes = firstSelector.getAttrs();
     if (selectorAttributes.length) {
-      definitionMap.set("attrs", constantPool.getConstLiteral(literalArr(selectorAttributes.map((value) => value != null ? literal(value) : literal(void 0))), true));
+      definitionMap.set("attrs", constantPool.getConstLiteral(
+        literalArr(selectorAttributes.map((value) => value != null ? literal(value) : literal(void 0))),
+        /* forceShared */
+        true
+      ));
     }
   }
   const templateTypeName = meta.name;
@@ -24568,11 +25609,7 @@ function compileComponentFromMetadata(meta, constantPool, bindingParser) {
     definitionMap.set("encapsulation", literal(meta.encapsulation));
   }
   if (meta.animations !== null) {
-    definitionMap.set("data", literalMap([{
-      key: "animation",
-      value: meta.animations,
-      quoted: false
-    }]));
+    definitionMap.set("data", literalMap([{ key: "animation", value: meta.animations, quoted: false }]));
   }
   if (meta.changeDetection !== null) {
     if (typeof meta.changeDetection === "number" && meta.changeDetection !== ChangeDetectionStrategy.Default) {
@@ -24583,11 +25620,7 @@ function compileComponentFromMetadata(meta, constantPool, bindingParser) {
   }
   const expression = importExpr(Identifiers.defineComponent).callFn([definitionMap.toLiteralMap()], void 0, true);
   const type = createComponentType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createComponentType(meta) {
   const typeParams = createBaseDirectiveTypeParams(meta);
@@ -24631,32 +25664,26 @@ function stringArrayAsType(arr) {
 }
 function createBaseDirectiveTypeParams(meta) {
   const selectorForType = meta.selector !== null ? meta.selector.replace(/\n/g, "") : null;
-  return [typeWithParameters(meta.type.type, meta.typeArgumentCount), selectorForType !== null ? stringAsType(selectorForType) : NONE_TYPE, meta.exportAs !== null ? stringArrayAsType(meta.exportAs) : NONE_TYPE, expressionType(getInputsTypeExpression(meta)), expressionType(stringMapAsLiteralExpression(meta.outputs)), stringArrayAsType(meta.queries.map((q) => q.propertyName))];
+  return [
+    typeWithParameters(meta.type.type, meta.typeArgumentCount),
+    selectorForType !== null ? stringAsType(selectorForType) : NONE_TYPE,
+    meta.exportAs !== null ? stringArrayAsType(meta.exportAs) : NONE_TYPE,
+    expressionType(getInputsTypeExpression(meta)),
+    expressionType(stringMapAsLiteralExpression(meta.outputs)),
+    stringArrayAsType(meta.queries.map((q) => q.propertyName))
+  ];
 }
 function getInputsTypeExpression(meta) {
   return literalMap(Object.keys(meta.inputs).map((key) => {
     const value = meta.inputs[key];
-    const values = [{
-      key: "alias",
-      value: literal(value.bindingPropertyName),
-      quoted: true
-    }, {
-      key: "required",
-      value: literal(value.required),
-      quoted: true
-    }];
+    const values = [
+      { key: "alias", value: literal(value.bindingPropertyName), quoted: true },
+      { key: "required", value: literal(value.required), quoted: true }
+    ];
     if (value.isSignal) {
-      values.push({
-        key: "isSignal",
-        value: literal(value.isSignal),
-        quoted: true
-      });
+      values.push({ key: "isSignal", value: literal(value.isSignal), quoted: true });
     }
-    return {
-      key,
-      value: literalMap(values),
-      quoted: true
-    };
+    return { key, value: literalMap(values), quoted: true };
   }));
 }
 function createDirectiveType(meta) {
@@ -24723,24 +25750,31 @@ function parseHostBindings(host) {
             attributes[key] = value;
           }
       }
-    } else if (matches[1] != null) {
+    } else if (matches[
+      1
+      /* HostBindingGroup.Binding */
+    ] != null) {
       if (typeof value !== "string") {
         throw new Error(`Property binding must be string`);
       }
-      properties[matches[1]] = value;
-    } else if (matches[2] != null) {
+      properties[matches[
+        1
+        /* HostBindingGroup.Binding */
+      ]] = value;
+    } else if (matches[
+      2
+      /* HostBindingGroup.Event */
+    ] != null) {
       if (typeof value !== "string") {
         throw new Error(`Event binding must be string`);
       }
-      listeners[matches[2]] = value;
+      listeners[matches[
+        2
+        /* HostBindingGroup.Event */
+      ]] = value;
     }
   }
-  return {
-    attributes,
-    listeners,
-    properties,
-    specialAttributes
-  };
+  return { attributes, listeners, properties, specialAttributes };
 }
 function verifyHostBindings(bindings, sourceSpan) {
   const bindingParser = makeBindingParser();
@@ -24764,19 +25798,19 @@ function createHostDirectivesType(meta) {
   if (!meta.hostDirectives?.length) {
     return NONE_TYPE;
   }
-  return expressionType(literalArr(meta.hostDirectives.map((hostMeta) => literalMap([{
-    key: "directive",
-    value: typeofExpr(hostMeta.directive.type),
-    quoted: false
-  }, {
-    key: "inputs",
-    value: stringMapAsLiteralExpression(hostMeta.inputs || {}),
-    quoted: false
-  }, {
-    key: "outputs",
-    value: stringMapAsLiteralExpression(hostMeta.outputs || {}),
-    quoted: false
-  }]))));
+  return expressionType(literalArr(meta.hostDirectives.map((hostMeta) => literalMap([
+    { key: "directive", value: typeofExpr(hostMeta.directive.type), quoted: false },
+    {
+      key: "inputs",
+      value: stringMapAsLiteralExpression(hostMeta.inputs || {}),
+      quoted: false
+    },
+    {
+      key: "outputs",
+      value: stringMapAsLiteralExpression(hostMeta.outputs || {}),
+      quoted: false
+    }
+  ]))));
 }
 function createHostDirectivesFeatureArg(hostDirectives) {
   const expressions = [];
@@ -24785,29 +25819,17 @@ function createHostDirectivesFeatureArg(hostDirectives) {
     if (!current.inputs && !current.outputs) {
       expressions.push(current.directive.type);
     } else {
-      const keys = [{
-        key: "directive",
-        value: current.directive.type,
-        quoted: false
-      }];
+      const keys = [{ key: "directive", value: current.directive.type, quoted: false }];
       if (current.inputs) {
         const inputsLiteral = createHostDirectivesMappingArray(current.inputs);
         if (inputsLiteral) {
-          keys.push({
-            key: "inputs",
-            value: inputsLiteral,
-            quoted: false
-          });
+          keys.push({ key: "inputs", value: inputsLiteral, quoted: false });
         }
       }
       if (current.outputs) {
         const outputsLiteral = createHostDirectivesMappingArray(current.outputs);
         if (outputsLiteral) {
-          keys.push({
-            key: "outputs",
-            value: outputsLiteral,
-            quoted: false
-          });
+          keys.push({ key: "outputs", value: outputsLiteral, quoted: false });
         }
       }
       expressions.push(literalMap(keys));
@@ -24832,7 +25854,11 @@ function compileDeferResolverFunction(meta) {
   if (meta.mode === 0) {
     for (const dep of meta.dependencies) {
       if (dep.isDeferrable) {
-        const innerFn = arrowFn([new FnParam("m", DYNAMIC_TYPE)], variable("m").prop(dep.isDefaultImport ? "default" : dep.symbolName));
+        const innerFn = arrowFn(
+          // Default imports are always accessed through the `default` property.
+          [new FnParam("m", DYNAMIC_TYPE)],
+          variable("m").prop(dep.isDefaultImport ? "default" : dep.symbolName)
+        );
         const importExpr2 = new DynamicImportExpr(dep.importPath).prop("then").callFn([innerFn]);
         depExpressions.push(importExpr2);
       } else {
@@ -24840,11 +25866,7 @@ function compileDeferResolverFunction(meta) {
       }
     }
   } else {
-    for (const {
-      symbolName,
-      importPath,
-      isDefaultImport
-    } of meta.dependencies) {
+    for (const { symbolName, importPath, isDefaultImport } of meta.dependencies) {
       const innerFn = arrowFn([new FnParam("m", DYNAMIC_TYPE)], variable("m").prop(isDefaultImport ? "default" : symbolName));
       const importExpr2 = new DynamicImportExpr(importPath).prop("then").callFn([innerFn]);
       depExpressions.push(importExpr2);
@@ -24900,8 +25922,6 @@ var CombinedRecursiveAstVisitor = class extends RecursiveAstVisitor2 {
   visitDeferredTrigger(trigger) {
     if (trigger instanceof BoundDeferredTrigger) {
       this.visit(trigger.value);
-    } else if (trigger instanceof ViewportDeferredTrigger && trigger.options !== null) {
-      this.visit(trigger.options);
     }
   }
   visitDeferredBlockPlaceholder(block) {
@@ -24995,11 +26015,13 @@ function findMatchingDirectivesAndPipes(template2, directiveSelectors) {
     };
     matcher.addSelectables(CssSelector.parse(selector), [fakeDirective]);
   }
-  const parsedTemplate = parseTemplate(template2, "");
+  const parsedTemplate = parseTemplate(
+    template2,
+    ""
+    /* templateUrl */
+  );
   const binder = new R3TargetBinder(matcher);
-  const bound = binder.bind({
-    template: parsedTemplate.nodes
-  });
+  const bound = binder.bind({ template: parsedTemplate.nodes });
   const eagerDirectiveSelectors = bound.getEagerlyUsedDirectives().map((dir) => dir.selector);
   const allMatchedDirectiveSelectors = bound.getUsedDirectives().map((dir) => dir.selector);
   const eagerPipes = bound.getEagerlyUsedPipes();
@@ -25019,6 +26041,10 @@ var R3TargetBinder = class {
   constructor(directiveMatcher) {
     this.directiveMatcher = directiveMatcher;
   }
+  /**
+   * Perform a binding operation on the given `Target` and return a `BoundTarget` which contains
+   * metadata about the types referenced in the template.
+   */
   bind(target) {
     if (!target.template && !target.host) {
       throw new Error("Empty bound targets are not supported");
@@ -25051,9 +26077,19 @@ var R3TargetBinder = class {
 var Scope2 = class _Scope {
   parentScope;
   rootNode;
+  /**
+   * Named members of the `Scope`, such as `Reference`s or `Variable`s.
+   */
   namedEntities = /* @__PURE__ */ new Map();
+  /**
+   * Set of element-like nodes that belong to this scope.
+   */
   elementLikeInScope = /* @__PURE__ */ new Set();
+  /**
+   * Child `Scope`s for immediately nested `ScopedNode`s.
+   */
   childScopes = /* @__PURE__ */ new Map();
+  /** Whether this scope is deferred or if any of its ancestors are deferred. */
   isDeferred;
   constructor(parentScope, rootNode) {
     this.parentScope = parentScope;
@@ -25063,11 +26099,18 @@ var Scope2 = class _Scope {
   static newRootScope() {
     return new _Scope(null, null);
   }
+  /**
+   * Process a template (either as a `Template` sub-template with variables, or a plain array of
+   * template `Node`s) and construct its `Scope`.
+   */
   static apply(template2) {
     const scope = _Scope.newRootScope();
     scope.ingest(template2);
     return scope;
   }
+  /**
+   * Internal method to process the scoped node and populate the `Scope`.
+   */
   ingest(nodeOrNodes) {
     if (nodeOrNodes instanceof Template) {
       nodeOrNodes.variables.forEach((node) => this.visitVariable(node));
@@ -25147,6 +26190,7 @@ var Scope2 = class _Scope {
   visitDirective(directive) {
     directive.references.forEach((current) => this.visitReference(current));
   }
+  // Unused visitors.
   visitBoundAttribute(attr) {
   }
   visitBoundEvent(event) {
@@ -25174,6 +26218,11 @@ var Scope2 = class _Scope {
       this.namedEntities.set(thing.name, thing);
     }
   }
+  /**
+   * Look up a variable within this `Scope`.
+   *
+   * This can recurse into a parent `Scope` if it's available.
+   */
   lookup(name) {
     if (this.namedEntities.has(name)) {
       return this.namedEntities.get(name);
@@ -25183,6 +26232,11 @@ var Scope2 = class _Scope {
       return null;
     }
   }
+  /**
+   * Get the child scope for a `ScopedNode`.
+   *
+   * This should always be defined.
+   */
   getChildScope(node) {
     const res = this.childScopes.get(node);
     if (res === void 0) {
@@ -25203,6 +26257,7 @@ var DirectiveBinder = class _DirectiveBinder {
   missingDirectives;
   bindings;
   references;
+  // Indicates whether we are visiting elements within a `defer` block
   isInDeferBlock = false;
   constructor(directiveMatcher, directives, eagerDirectives, missingDirectives, bindings, references) {
     this.directiveMatcher = directiveMatcher;
@@ -25212,6 +26267,18 @@ var DirectiveBinder = class _DirectiveBinder {
     this.bindings = bindings;
     this.references = references;
   }
+  /**
+   * Process a template (list of `Node`s) and perform directive matching against each node.
+   *
+   * @param template the list of template `Node`s to match (recursively).
+   * @param selectorMatcher a `SelectorMatcher` containing the directives that are in scope for
+   * this template.
+   * @returns three maps which contain information about directives in the template: the
+   * `directives` map which lists directives matched on each node, the `bindings` map which
+   * indicates which directives claimed which bindings (inputs, outputs, etc), and the `references`
+   * map which resolves #references (`Reference`s) within the template to the named directive or
+   * template node.
+   */
   static apply(template2, directiveMatcher, directives, eagerDirectives, missingDirectives, bindings, references) {
     const matcher = new _DirectiveBinder(directiveMatcher, directives, eagerDirectives, missingDirectives, bindings, references);
     matcher.ingest(template2);
@@ -25329,10 +26396,7 @@ var DirectiveBinder = class _DirectiveBinder {
       node.attributes.forEach((attr) => setBinding(directive, attr, "inputs"));
       node.outputs.forEach((output) => setBinding(directive, output, "outputs"));
     }
-    node.references.forEach((ref) => this.references.set(ref, {
-      directive: directives[0],
-      node
-    }));
+    node.references.forEach((ref) => this.references.set(ref, { directive: directives[0], node }));
   }
   trackSelectorBasedBindingsAndDirectives(node, directives) {
     this.trackMatchedDirectives(node, directives);
@@ -25347,10 +26411,7 @@ var DirectiveBinder = class _DirectiveBinder {
         }
       }
       if (dirTarget !== null) {
-        this.references.set(ref, {
-          directive: dirTarget,
-          node
-        });
+        this.references.set(ref, { directive: dirTarget, node });
       } else {
         this.references.set(ref, node);
       }
@@ -25367,6 +26428,7 @@ var DirectiveBinder = class _DirectiveBinder {
     }
     node.outputs.forEach((output) => setAttributeBinding(output, "outputs"));
   }
+  // Unused visitors.
   visitVariable(variable2) {
   }
   visitReference(reference2) {
@@ -25415,6 +26477,18 @@ var TemplateBinder = class _TemplateBinder extends CombinedRecursiveAstVisitor {
     this.rootNode = rootNode;
     this.level = level;
   }
+  /**
+   * Process a template and extract metadata about expressions and symbols within.
+   *
+   * @param nodeOrNodes the nodes of the template to process
+   * @param scope the `Scope` of the template being processed.
+   * @returns three maps which contain metadata about the template: `expressions` which interprets
+   * special `AST` nodes in expressions as pointing to references or variables declared within the
+   * template, `symbols` which maps those variables and references to the nested `Template` which
+   * declares them, if any, and `nestingLevel` which associates each `Template` with a integer
+   * nesting level (how many levels deep within the template structure the `Template` is), starting
+   * at 1.
+   */
   static applyWithScope(nodeOrNodes, scope, expressions, symbols, nestingLevel, usedPipes, eagerPipes, deferBlocks) {
     const template2 = nodeOrNodes instanceof Template ? nodeOrNodes : null;
     const binder = new _TemplateBinder(expressions, symbols, usedPipes, eagerPipes, deferBlocks, nestingLevel, scope, template2, 0);
@@ -25522,6 +26596,8 @@ var TemplateBinder = class _TemplateBinder extends CombinedRecursiveAstVisitor {
     }
     return super.visitPipe(ast, context);
   }
+  // These five types of AST expressions can refer to expression roots, which could be variables
+  // or references in the current scope.
   visitPropertyRead(ast, context) {
     this.maybeMap(ast, ast.name);
     return super.visitPropertyRead(ast, context);
@@ -25558,7 +26634,9 @@ var R3BoundTarget = class {
   scopedNodeEntities;
   usedPipes;
   eagerPipes;
+  /** Deferred blocks, ordered as they appear in the template. */
   deferredBlocks;
+  /** Map of deferred blocks to their scope. */
   deferredScopes;
   constructor(target, directives, eagerDirectives, missingDirectives, bindings, references, exprTargets, symbols, nestingLevel, scopedNodeEntities, usedPipes, eagerPipes, rawDeferred) {
     this.target = target;
@@ -25672,6 +26750,11 @@ var R3BoundTarget = class {
   referencedDirectiveExists(name) {
     return !this.missingDirectives.has(name);
   }
+  /**
+   * Finds an entity with a specific name in a scope.
+   * @param rootNode Root node of the scope.
+   * @param name Name of the entity.
+   */
   findEntityInScope(rootNode, name) {
     const entities = this.getEntitiesInScope(rootNode);
     for (const entity of entities) {
@@ -25681,6 +26764,7 @@ var R3BoundTarget = class {
     }
     return null;
   }
+  /** Coerces a `ReferenceTarget` to an `Element`, if possible. */
   referenceTargetToElement(target) {
     if (target instanceof Element$1) {
       return target;
@@ -25748,37 +26832,39 @@ var CompilerFacadeImpl = class {
     return this.jitExpression(res.expression, angularCoreEnv, sourceMapUrl, []);
   }
   compileInjectable(angularCoreEnv, sourceMapUrl, facade) {
-    const {
-      expression,
-      statements
-    } = compileInjectable({
-      name: facade.name,
-      type: wrapReference(facade.type),
-      typeArgumentCount: facade.typeArgumentCount,
-      providedIn: computeProvidedIn(facade.providedIn),
-      useClass: convertToProviderExpression(facade, "useClass"),
-      useFactory: wrapExpression(facade, "useFactory"),
-      useValue: convertToProviderExpression(facade, "useValue"),
-      useExisting: convertToProviderExpression(facade, "useExisting"),
-      deps: facade.deps?.map(convertR3DependencyMetadata)
-    }, true);
+    const { expression, statements } = compileInjectable(
+      {
+        name: facade.name,
+        type: wrapReference(facade.type),
+        typeArgumentCount: facade.typeArgumentCount,
+        providedIn: computeProvidedIn(facade.providedIn),
+        useClass: convertToProviderExpression(facade, "useClass"),
+        useFactory: wrapExpression(facade, "useFactory"),
+        useValue: convertToProviderExpression(facade, "useValue"),
+        useExisting: convertToProviderExpression(facade, "useExisting"),
+        deps: facade.deps?.map(convertR3DependencyMetadata)
+      },
+      /* resolveForwardRefs */
+      true
+    );
     return this.jitExpression(expression, angularCoreEnv, sourceMapUrl, statements);
   }
   compileInjectableDeclaration(angularCoreEnv, sourceMapUrl, facade) {
-    const {
-      expression,
-      statements
-    } = compileInjectable({
-      name: facade.type.name,
-      type: wrapReference(facade.type),
-      typeArgumentCount: 0,
-      providedIn: computeProvidedIn(facade.providedIn),
-      useClass: convertToProviderExpression(facade, "useClass"),
-      useFactory: wrapExpression(facade, "useFactory"),
-      useValue: convertToProviderExpression(facade, "useValue"),
-      useExisting: convertToProviderExpression(facade, "useExisting"),
-      deps: facade.deps?.map(convertR3DeclareDependencyMetadata)
-    }, true);
+    const { expression, statements } = compileInjectable(
+      {
+        name: facade.type.name,
+        type: wrapReference(facade.type),
+        typeArgumentCount: 0,
+        providedIn: computeProvidedIn(facade.providedIn),
+        useClass: convertToProviderExpression(facade, "useClass"),
+        useFactory: wrapExpression(facade, "useFactory"),
+        useValue: convertToProviderExpression(facade, "useValue"),
+        useExisting: convertToProviderExpression(facade, "useExisting"),
+        deps: facade.deps?.map(convertR3DeclareDependencyMetadata)
+      },
+      /* resolveForwardRefs */
+      true
+    );
     return this.jitExpression(expression, angularCoreEnv, sourceMapUrl, statements);
   }
   compileInjector(angularCoreEnv, sourceMapUrl, facade) {
@@ -25803,6 +26889,7 @@ var CompilerFacadeImpl = class {
       bootstrap: facade.bootstrap.map(wrapReference),
       declarations: facade.declarations.map(wrapReference),
       publicDeclarationTypes: null,
+      // only needed for types in AOT
       imports: facade.imports.map(wrapReference),
       includeImportTypes: true,
       exports: facade.exports.map(wrapReference),
@@ -25834,10 +26921,7 @@ var CompilerFacadeImpl = class {
     return this.jitExpression(res.expression, angularCoreEnv, sourceMapUrl, constantPool.statements);
   }
   compileComponent(angularCoreEnv, sourceMapUrl, facade) {
-    const {
-      template: template2,
-      defer: defer2
-    } = parseJitTemplate(facade.template, facade.name, sourceMapUrl, facade.preserveWhitespaces, void 0);
+    const { template: template2, interpolation, defer: defer2 } = parseJitTemplate(facade.template, facade.name, sourceMapUrl, facade.preserveWhitespaces, facade.interpolation, void 0);
     const meta = __spreadProps(__spreadValues(__spreadValues({}, facade), convertDirectiveFacadeToMetadata(facade)), {
       selector: facade.selector || this.elementSchemaRegistry.getDefaultComponentElementName(),
       template: template2,
@@ -25846,6 +26930,7 @@ var CompilerFacadeImpl = class {
       defer: defer2,
       styles: [...facade.styles, ...template2.styles],
       encapsulation: facade.encapsulation,
+      interpolation,
       changeDetection: facade.changeDetection ?? null,
       animations: facade.animations != null ? new WrappedNodeExpr(facade.animations) : null,
       viewProviders: facade.viewProviders != null ? new WrappedNodeExpr(facade.viewProviders) : null,
@@ -25863,7 +26948,7 @@ var CompilerFacadeImpl = class {
   }
   compileComponentFromMeta(angularCoreEnv, sourceMapUrl, meta) {
     const constantPool = new ConstantPool();
-    const bindingParser = makeBindingParser();
+    const bindingParser = makeBindingParser(meta.interpolation);
     const res = compileComponentFromMetadata(meta, constantPool, bindingParser);
     return this.jitExpression(res.expression, angularCoreEnv, sourceMapUrl, constantPool.statements);
   }
@@ -25890,9 +26975,27 @@ var CompilerFacadeImpl = class {
   createParseSourceSpan(kind, typeName, sourceUrl) {
     return r3JitTypeSourceSpan(kind, typeName, sourceUrl);
   }
+  /**
+   * JIT compiles an expression and returns the result of executing that expression.
+   *
+   * @param def the definition which will be compiled and executed to get the value to patch
+   * @param context an object map of @angular/core symbol names to symbols which will be available
+   * in the context of the compiled expression
+   * @param sourceUrl a URL to use for the source map of the compiled expression
+   * @param preStatements a collection of statements that should be evaluated before the expression.
+   */
   jitExpression(def, context, sourceUrl, preStatements) {
-    const statements = [...preStatements, new DeclareVarStmt("$def", def, void 0, StmtModifier.Exported)];
-    const res = this.jitEvaluator.evaluateStatements(sourceUrl, statements, new R3JitReflector(context), true);
+    const statements = [
+      ...preStatements,
+      new DeclareVarStmt("$def", def, void 0, StmtModifier.Exported)
+    ];
+    const res = this.jitEvaluator.evaluateStatements(
+      sourceUrl,
+      statements,
+      new R3JitReflector(context),
+      /* enableSourceMaps */
+      true
+    );
     return res["$def"];
   }
 };
@@ -25918,7 +27021,17 @@ function convertQueryDeclarationToMetadata(declaration) {
   };
 }
 function convertQueryPredicate(predicate) {
-  return Array.isArray(predicate) ? predicate : createMayBeForwardRefExpression(new WrappedNodeExpr(predicate), 1);
+  return Array.isArray(predicate) ? (
+    // The predicate is an array of strings so pass it through.
+    predicate
+  ) : (
+    // The predicate is a type - assume that we will need to unwrap any `forwardRef()` calls.
+    createMayBeForwardRefExpression(
+      new WrappedNodeExpr(predicate),
+      1
+      /* ForwardRefHandling.Wrapped */
+    )
+  );
 }
 function convertDirectiveFacadeToMetadata(facade) {
   const inputsFromMetadata = parseInputsArray(facade.inputs || []);
@@ -25934,6 +27047,9 @@ function convertDirectiveFacadeToMetadata(facade) {
             bindingPropertyName: ann.alias || field,
             classPropertyName: field,
             required: ann.required || false,
+            // For JIT, decorators are used to declare signal inputs. That is because of
+            // a technical limitation where it's not possible to statically reflect class
+            // members of a directive/component at runtime before instantiating the class.
             isSignal: !!ann.isSignal,
             transformFunction: ann.transform != null ? new WrappedNodeExpr(ann.transform) : null
           };
@@ -25967,6 +27083,7 @@ function convertDirectiveFacadeToMetadata(facade) {
     queries: facade.queries.map(convertToR3QueryMetadata),
     providers: facade.providers != null ? new WrappedNodeExpr(facade.providers) : null,
     viewQueries: facade.viewQueries.map(convertToR3QueryMetadata),
+    fullInheritance: false,
     hostDirectives
   });
 }
@@ -25990,11 +27107,10 @@ function convertDeclareDirectiveFacadeToMetadata(declaration, typeSourceSpan) {
     providers: declaration.providers !== void 0 ? new WrappedNodeExpr(declaration.providers) : null,
     exportAs: declaration.exportAs ?? null,
     usesInheritance: declaration.usesInheritance ?? false,
-    lifecycle: {
-      usesOnChanges: declaration.usesOnChanges ?? false
-    },
+    lifecycle: { usesOnChanges: declaration.usesOnChanges ?? false },
     deps: null,
     typeArgumentCount: 0,
+    fullInheritance: false,
     isStandalone: declaration.isStandalone ?? getJitStandaloneDefaultForVersion(declaration.version),
     isSignal: declaration.isSignal ?? false,
     hostDirectives
@@ -26027,10 +27143,7 @@ function convertOpaqueValuesToExpressions(obj) {
   return result;
 }
 function convertDeclareComponentFacadeToMetadata(decl, typeSourceSpan, sourceMapUrl) {
-  const {
-    template: template2,
-    defer: defer2
-  } = parseJitTemplate(decl.template, decl.type.name, sourceMapUrl, decl.preserveWhitespaces ?? false, decl.deferBlockDependencies);
+  const { template: template2, interpolation, defer: defer2 } = parseJitTemplate(decl.template, decl.type.name, sourceMapUrl, decl.preserveWhitespaces ?? false, decl.interpolation, decl.deferBlockDependencies);
   const declarations = [];
   if (decl.dependencies) {
     for (const innerDep of decl.dependencies) {
@@ -26045,13 +27158,15 @@ function convertDeclareComponentFacadeToMetadata(decl, typeSourceSpan, sourceMap
       }
     }
   } else if (decl.components || decl.directives || decl.pipes) {
-    decl.components && declarations.push(...decl.components.map((dir) => convertDirectiveDeclarationToMetadata(dir, true)));
+    decl.components && declarations.push(...decl.components.map((dir) => convertDirectiveDeclarationToMetadata(
+      dir,
+      /* isComponent */
+      true
+    )));
     decl.directives && declarations.push(...decl.directives.map((dir) => convertDirectiveDeclarationToMetadata(dir)));
     decl.pipes && declarations.push(...convertPipeMapToMetadata(decl.pipes));
   }
-  const hasDirectiveDependencies = declarations.some(({
-    kind
-  }) => kind === R3TemplateDependencyKind.Directive || kind === R3TemplateDependencyKind.NgModule);
+  const hasDirectiveDependencies = declarations.some(({ kind }) => kind === R3TemplateDependencyKind.Directive || kind === R3TemplateDependencyKind.NgModule);
   return __spreadProps(__spreadValues({}, convertDeclareDirectiveFacadeToMetadata(decl, typeSourceSpan)), {
     template: template2,
     styles: decl.styles ?? [],
@@ -26061,6 +27176,7 @@ function convertDeclareComponentFacadeToMetadata(decl, typeSourceSpan, sourceMap
     defer: defer2,
     changeDetection: decl.changeDetection ?? ChangeDetectionStrategy.Default,
     encapsulation: decl.encapsulation ?? ViewEncapsulation$1.Emulated,
+    interpolation,
     declarationListEmitMode: 2,
     relativeContextFilePath: "",
     i18nUseExternalIds: true,
@@ -26103,26 +27219,31 @@ function convertPipeDeclarationToMetadata(pipe2) {
     type: new WrappedNodeExpr(pipe2.type)
   };
 }
-function parseJitTemplate(template2, typeName, sourceMapUrl, preserveWhitespaces, deferBlockDependencies) {
+function parseJitTemplate(template2, typeName, sourceMapUrl, preserveWhitespaces, interpolation, deferBlockDependencies) {
+  const interpolationConfig = interpolation ? InterpolationConfig.fromArray(interpolation) : DEFAULT_INTERPOLATION_CONFIG;
   const parsed = parseTemplate(template2, sourceMapUrl, {
-    preserveWhitespaces
+    preserveWhitespaces,
+    interpolationConfig
   });
   if (parsed.errors !== null) {
     const errors = parsed.errors.map((err) => err.toString()).join(", ");
     throw new Error(`Errors during JIT compilation of template for ${typeName}: ${errors}`);
   }
   const binder = new R3TargetBinder(null);
-  const boundTarget = binder.bind({
-    template: parsed.nodes
-  });
+  const boundTarget = binder.bind({ template: parsed.nodes });
   return {
     template: parsed,
+    interpolation: interpolationConfig,
     defer: createR3ComponentDeferMetadata(boundTarget, deferBlockDependencies)
   };
 }
 function convertToProviderExpression(obj, property2) {
   if (obj.hasOwnProperty(property2)) {
-    return createMayBeForwardRefExpression(new WrappedNodeExpr(obj[property2]), 0);
+    return createMayBeForwardRefExpression(
+      new WrappedNodeExpr(obj[property2]),
+      0
+      /* ForwardRefHandling.None */
+    );
   } else {
     return void 0;
   }
@@ -26136,7 +27257,11 @@ function wrapExpression(obj, property2) {
 }
 function computeProvidedIn(providedIn) {
   const expression = typeof providedIn === "function" ? new WrappedNodeExpr(providedIn) : new LiteralExpr(providedIn ?? null);
-  return createMayBeForwardRefExpression(expression, 0);
+  return createMayBeForwardRefExpression(
+    expression,
+    0
+    /* ForwardRefHandling.None */
+  );
 }
 function convertR3DependencyMetadataArray(facades) {
   return facades == null ? null : facades.map(convertR3DependencyMetadata);
@@ -26154,14 +27279,7 @@ function convertR3DeclareDependencyMetadata(facade) {
 }
 function createR3DependencyMetadata(token, isAttributeDep, host, optional, self, skipSelf) {
   const attributeNameType = isAttributeDep ? literal("unknown") : null;
-  return {
-    token,
-    attributeNameType,
-    host,
-    optional,
-    self,
-    skipSelf
-  };
+  return { token, attributeNameType, host, optional, self, skipSelf };
 }
 function createR3ComponentDeferMetadata(boundTarget, deferBlockDependencies) {
   const deferredBlocks = boundTarget.getDeferBlocks();
@@ -26170,10 +27288,7 @@ function createR3ComponentDeferMetadata(boundTarget, deferBlockDependencies) {
     const dependencyFn = deferBlockDependencies?.[i];
     blocks.set(deferredBlocks[i], dependencyFn ? new WrappedNodeExpr(dependencyFn) : null);
   }
-  return {
-    mode: 0,
-    blocks
-  };
+  return { mode: 0, blocks };
 }
 function extractHostBindings(propMetadata, sourceSpan, host) {
   const bindings = parseHostBindings(host || {});
@@ -26230,6 +27345,7 @@ function parseLegacyInputPartialOutput(value) {
       classPropertyName: value,
       transformFunction: null,
       required: false,
+      // legacy partial output does not capture signal inputs.
       isSignal: false
     };
   }
@@ -26238,6 +27354,7 @@ function parseLegacyInputPartialOutput(value) {
     classPropertyName: value[1],
     transformFunction: value[2] ? new WrappedNodeExpr(value[2]) : null,
     required: false,
+    // legacy partial output does not capture signal inputs.
     isSignal: false
   };
 }
@@ -26249,6 +27366,7 @@ function parseInputsArray(values) {
         bindingPropertyName,
         classPropertyName,
         required: false,
+        // Signal inputs not supported for the inputs array.
         isSignal: false,
         transformFunction: null
       };
@@ -26257,6 +27375,7 @@ function parseInputsArray(values) {
         bindingPropertyName: value.alias || value.name,
         classPropertyName: value.name,
         required: value.required || false,
+        // Signal inputs not supported for the inputs array.
         isSignal: false,
         transformFunction: value.transform != null ? new WrappedNodeExpr(value.transform) : null
       };
@@ -26302,11 +27421,7 @@ var CompilerConfig = class {
   defaultEncapsulation;
   preserveWhitespaces;
   strictInjectionParameters;
-  constructor({
-    defaultEncapsulation = ViewEncapsulation$1.Emulated,
-    preserveWhitespaces,
-    strictInjectionParameters
-  } = {}) {
+  constructor({ defaultEncapsulation = ViewEncapsulation$1.Emulated, preserveWhitespaces, strictInjectionParameters } = {}) {
     this.defaultEncapsulation = defaultEncapsulation;
     this.preserveWhitespaces = preserveWhitespacesDefault(noUndefined(preserveWhitespaces));
     this.strictInjectionParameters = strictInjectionParameters === true;
@@ -26321,13 +27436,13 @@ var _I18N_COMMENT_PREFIX_REGEXP = /^i18n:?/;
 var MEANING_SEPARATOR = "|";
 var ID_SEPARATOR = "@@";
 var i18nCommentsWarned = false;
-function extractMessages(nodes, implicitTags, implicitAttrs, preserveSignificantWhitespace) {
+function extractMessages(nodes, interpolationConfig, implicitTags, implicitAttrs, preserveSignificantWhitespace) {
   const visitor = new _Visitor3(implicitTags, implicitAttrs, preserveSignificantWhitespace);
-  return visitor.extract(nodes);
+  return visitor.extract(nodes, interpolationConfig);
 }
-function mergeTranslations(nodes, translations, implicitTags, implicitAttrs) {
+function mergeTranslations(nodes, translations, interpolationConfig, implicitTags, implicitAttrs) {
   const visitor = new _Visitor3(implicitTags, implicitAttrs);
-  return visitor.merge(nodes, translations);
+  return visitor.merge(nodes, translations, interpolationConfig);
 }
 var ExtractionResult = class {
   messages;
@@ -26346,18 +27461,25 @@ var _Visitor3 = class {
   _implicitTags;
   _implicitAttrs;
   _preserveSignificantWhitespace;
+  // Using non-null assertions because all variables are (re)set in init()
   _depth;
+  // <el i18n>...</el>
   _inI18nNode;
   _inImplicitNode;
+  // <!--i18n-->...<!--/i18n-->
   _inI18nBlock;
   _blockMeaningAndDesc;
   _blockChildren;
   _blockStartDepth;
+  // {<icu message>}
   _inIcu;
+  // set to void 0 when not in a section
   _msgCountAtSectionStart;
   _errors;
   _mode;
+  // _VisitorMode.Extract only
   _messages;
+  // _VisitorMode.Merge only
   _translations;
   _createI18nMessage;
   constructor(_implicitTags, _implicitAttrs, _preserveSignificantWhitespace = true) {
@@ -26365,16 +27487,22 @@ var _Visitor3 = class {
     this._implicitAttrs = _implicitAttrs;
     this._preserveSignificantWhitespace = _preserveSignificantWhitespace;
   }
-  extract(nodes) {
-    this._init(_VisitorMode.Extract);
+  /**
+   * Extracts the messages from the tree
+   */
+  extract(nodes, interpolationConfig) {
+    this._init(_VisitorMode.Extract, interpolationConfig);
     nodes.forEach((node) => node.visit(this, null));
     if (this._inI18nBlock) {
       this._reportError(nodes[nodes.length - 1], "Unclosed block");
     }
     return new ExtractionResult(this._messages, this._errors);
   }
-  merge(nodes, translations) {
-    this._init(_VisitorMode.Merge);
+  /**
+   * Returns a tree where all translatable nodes are translated
+   */
+  merge(nodes, translations, interpolationConfig) {
+    this._init(_VisitorMode.Merge, interpolationConfig);
     this._translations = translations;
     const wrapper = new Element2("wrapper", [], [], nodes, false, void 0, void 0, void 0, false);
     const translatedNode = wrapper.visit(this, null);
@@ -26471,7 +27599,7 @@ var _Visitor3 = class {
   visitDirective(directive, context) {
     throw new Error("unreachable code");
   }
-  _init(mode) {
+  _init(mode, interpolationConfig) {
     this._mode = mode;
     this._inI18nBlock = false;
     this._inI18nNode = false;
@@ -26481,7 +27609,17 @@ var _Visitor3 = class {
     this._errors = [];
     this._messages = [];
     this._inImplicitNode = false;
-    this._createI18nMessage = createI18nMessageFactory(!this._preserveSignificantWhitespace, this._preserveSignificantWhitespace);
+    this._createI18nMessage = createI18nMessageFactory(
+      interpolationConfig,
+      DEFAULT_CONTAINER_BLOCKS,
+      // When dropping significant whitespace we need to retain whitespace tokens or
+      // else we won't be able to reuse source spans because empty tokens would be
+      // removed and cause a mismatch.
+      /* retainEmptyTokens */
+      !this._preserveSignificantWhitespace,
+      /* preserveExpressionWhitespace */
+      this._preserveSignificantWhitespace
+    );
   }
   _visitElementLike(node, context) {
     this._mayBeAddBlockChildren(node);
@@ -26504,9 +27642,11 @@ var _Visitor3 = class {
       }
       if (this._mode == _VisitorMode.Extract) {
         const isTranslatable = i18nAttr || isTopLevelImplicit;
-        if (isTranslatable) this._openTranslatableSection(node);
+        if (isTranslatable)
+          this._openTranslatableSection(node);
         visitAll(this, node.children);
-        if (isTranslatable) this._closeTranslatableSection(node, node.children);
+        if (isTranslatable)
+          this._closeTranslatableSection(node, node.children);
       }
     } else {
       if (i18nAttr || isTopLevelImplicit) {
@@ -26538,6 +27678,7 @@ var _Visitor3 = class {
     }
     return null;
   }
+  // looks for translatable attributes
   _visitAttributesOf(el) {
     const explicitAttrNameToValue = {};
     const implicitAttrNames = this._implicitAttrs[el instanceof Component2 ? el.tagName || "" : el.name] || [];
@@ -26552,38 +27693,56 @@ var _Visitor3 = class {
       }
     });
   }
+  // add a translatable message
   _addMessage(ast, msgMeta) {
     if (ast.length == 0 || this._isEmptyAttributeValue(ast) || this._isPlaceholderOnlyAttributeValue(ast) || this._isPlaceholderOnlyMessage(ast)) {
       return null;
     }
-    const {
-      meaning,
-      description,
-      id
-    } = _parseMessageMeta(msgMeta);
+    const { meaning, description, id } = _parseMessageMeta(msgMeta);
     const message = this._createI18nMessage(ast, meaning, description, id);
     this._messages.push(message);
     return message;
   }
+  // Check for cases like `<div i18n-title title="">`.
   _isEmptyAttributeValue(ast) {
-    if (!isAttrNode(ast)) return false;
+    if (!isAttrNode(ast))
+      return false;
     const node = ast[0];
     return node.value.trim() === "";
   }
+  // Check for cases like `<div i18n-title title="{{ name }}">`.
   _isPlaceholderOnlyAttributeValue(ast) {
-    if (!isAttrNode(ast)) return false;
+    if (!isAttrNode(ast))
+      return false;
     const tokens = ast[0].valueTokens ?? [];
-    const interpolations = tokens.filter((token) => token.type === 17);
-    const plainText = tokens.filter((token) => token.type === 16).map((token) => token.parts[0].trim()).join("");
+    const interpolations = tokens.filter(
+      (token) => token.type === 17
+      /* TokenType.ATTR_VALUE_INTERPOLATION */
+    );
+    const plainText = tokens.filter(
+      (token) => token.type === 16
+      /* TokenType.ATTR_VALUE_TEXT */
+    ).map((token) => token.parts[0].trim()).join("");
     return interpolations.length === 1 && plainText === "";
   }
+  // Check for cases like `<div i18n>{{ name }}</div>`.
   _isPlaceholderOnlyMessage(ast) {
-    if (!isTextNode(ast)) return false;
+    if (!isTextNode(ast))
+      return false;
     const tokens = ast[0].tokens;
-    const interpolations = tokens.filter((token) => token.type === 8);
-    const plainText = tokens.filter((token) => token.type === 5).map((token) => token.parts[0].trim()).join("");
+    const interpolations = tokens.filter(
+      (token) => token.type === 8
+      /* TokenType.INTERPOLATION */
+    );
+    const plainText = tokens.filter(
+      (token) => token.type === 5
+      /* TokenType.TEXT */
+    ).map((token) => token.parts[0].trim()).join("");
     return interpolations.length === 1 && plainText === "";
   }
+  // Translates the given message given the `TranslationBundle`
+  // This is used for translating elements / blocks - see `_translateAttributes` for attributes
+  // no-op when called in extraction mode (returns [])
   _translateMessage(el, message) {
     if (message && this._mode === _VisitorMode.Merge) {
       const nodes = this._translations.get(message);
@@ -26594,6 +27753,7 @@ var _Visitor3 = class {
     }
     return [];
   }
+  // translate the attributes of an element and remove i18n specific attributes
   _translateAttributes(node) {
     const i18nParsedMessageMeta = {};
     const translatedAttributes = [];
@@ -26607,19 +27767,33 @@ var _Visitor3 = class {
         return;
       }
       if (attr.value && attr.value != "" && i18nParsedMessageMeta.hasOwnProperty(attr.name)) {
-        const {
-          meaning,
-          description,
-          id
-        } = i18nParsedMessageMeta[attr.name];
+        const { meaning, description, id } = i18nParsedMessageMeta[attr.name];
         const message = this._createI18nMessage([attr], meaning, description, id);
         const nodes = this._translations.get(message);
         if (nodes) {
           if (nodes.length == 0) {
-            translatedAttributes.push(new Attribute(attr.name, "", attr.sourceSpan, void 0, void 0, void 0, void 0));
+            translatedAttributes.push(new Attribute(
+              attr.name,
+              "",
+              attr.sourceSpan,
+              void 0,
+              void 0,
+              void 0,
+              void 0
+              /* i18n */
+            ));
           } else if (nodes[0] instanceof Text4) {
             const value = nodes[0].value;
-            translatedAttributes.push(new Attribute(attr.name, value, attr.sourceSpan, void 0, void 0, void 0, void 0));
+            translatedAttributes.push(new Attribute(
+              attr.name,
+              value,
+              attr.sourceSpan,
+              void 0,
+              void 0,
+              void 0,
+              void 0
+              /* i18n */
+            ));
           } else {
             this._reportError(node, `Unexpected translation for attribute "${attr.name}" (id="${id || this._translations.digest(message)}")`);
           }
@@ -26635,11 +27809,20 @@ var _Visitor3 = class {
   _translateDirectives(node) {
     return node.directives.map((dir) => new Directive2(dir.name, this._translateAttributes(dir), dir.sourceSpan, dir.startSourceSpan, dir.endSourceSpan));
   }
+  /**
+   * Add the node as a child of the block when:
+   * - we are in a block,
+   * - we are not inside a ICU message (those are handled separately),
+   * - the node is a "direct child" of the block
+   */
   _mayBeAddBlockChildren(node) {
     if (this._inI18nBlock && !this._inIcu && this._depth == this._blockStartDepth) {
       this._blockChildren.push(node);
     }
   }
+  /**
+   * Marks the start of a section, see `_closeTranslatableSection`
+   */
   _openTranslatableSection(node) {
     if (this._isInTranslatableSection) {
       this._reportError(node, "Unexpected section start");
@@ -26647,9 +27830,30 @@ var _Visitor3 = class {
       this._msgCountAtSectionStart = this._messages.length;
     }
   }
+  /**
+   * A translatable section could be:
+   * - the content of translatable element,
+   * - nodes between `<!-- i18n -->` and `<!-- /i18n -->` comments
+   */
   get _isInTranslatableSection() {
     return this._msgCountAtSectionStart !== void 0;
   }
+  /**
+   * Terminates a section.
+   *
+   * If a section has only one significant children (comments not significant) then we should not
+   * keep the message from this children:
+   *
+   * `<p i18n="meaning|description">{ICU message}</p>` would produce two messages:
+   * - one for the <p> content with meaning and description,
+   * - another one for the ICU message.
+   *
+   * In this case the last message is discarded as it contains less information (the AST is
+   * otherwise identical).
+   *
+   * Note that we should still keep messages extracted from attributes inside the section (ie in the
+   * ICU message here)
+   */
   _closeTranslatableSection(node, directChildren) {
     if (!this._isInTranslatableSection) {
       this._reportError(node, "Unexpected section end");
@@ -26682,20 +27886,13 @@ function _getI18nAttr(p) {
   return p.attrs.find((attr) => attr instanceof Attribute && attr.name === _I18N_ATTR) || null;
 }
 function _parseMessageMeta(i18n2) {
-  if (!i18n2) return {
-    meaning: "",
-    description: "",
-    id: ""
-  };
+  if (!i18n2)
+    return { meaning: "", description: "", id: "" };
   const idIndex = i18n2.indexOf(ID_SEPARATOR);
   const descIndex = i18n2.indexOf(MEANING_SEPARATOR);
   const [meaningAndDesc, id] = idIndex > -1 ? [i18n2.slice(0, idIndex), i18n2.slice(idIndex + 2)] : [i18n2, ""];
   const [meaning, description] = descIndex > -1 ? [meaningAndDesc.slice(0, descIndex), meaningAndDesc.slice(descIndex + 1)] : ["", meaningAndDesc];
-  return {
-    meaning,
-    description,
-    id: id.trim()
-  };
+  return { meaning, description, id: id.trim() };
 }
 function isTextNode(ast) {
   return ast.length === 1 && ast[0] instanceof Text4;
@@ -26756,32 +27953,23 @@ var Xliff = class extends Serializer {
     messages.forEach((message) => {
       let contextTags = [];
       message.sources.forEach((source) => {
-        let contextGroupTag = new Tag(_CONTEXT_GROUP_TAG, {
-          purpose: "location"
-        });
-        contextGroupTag.children.push(new CR(10), new Tag(_CONTEXT_TAG, {
-          "context-type": "sourcefile"
-        }, [new Text$1(source.filePath)]), new CR(10), new Tag(_CONTEXT_TAG, {
-          "context-type": "linenumber"
-        }, [new Text$1(`${source.startLine}`)]), new CR(8));
+        let contextGroupTag = new Tag(_CONTEXT_GROUP_TAG, { purpose: "location" });
+        contextGroupTag.children.push(new CR(10), new Tag(_CONTEXT_TAG, { "context-type": "sourcefile" }, [
+          new Text$1(source.filePath)
+        ]), new CR(10), new Tag(_CONTEXT_TAG, { "context-type": "linenumber" }, [
+          new Text$1(`${source.startLine}`)
+        ]), new CR(8));
         contextTags.push(new CR(8), contextGroupTag);
       });
-      const transUnit = new Tag(_UNIT_TAG$1, {
-        id: message.id,
-        datatype: "html"
-      });
+      const transUnit = new Tag(_UNIT_TAG$1, { id: message.id, datatype: "html" });
       transUnit.children.push(new CR(8), new Tag(_SOURCE_TAG$1, {}, visitor.serialize(message.nodes)), ...contextTags);
       if (message.description) {
-        transUnit.children.push(new CR(8), new Tag("note", {
-          priority: "1",
-          from: "description"
-        }, [new Text$1(message.description)]));
+        transUnit.children.push(new CR(8), new Tag("note", { priority: "1", from: "description" }, [
+          new Text$1(message.description)
+        ]));
       }
       if (message.meaning) {
-        transUnit.children.push(new CR(8), new Tag("note", {
-          priority: "1",
-          from: "meaning"
-        }, [new Text$1(message.meaning)]));
+        transUnit.children.push(new CR(8), new Tag("note", { priority: "1", from: "meaning" }, [new Text$1(message.meaning)]));
       }
       transUnit.children.push(new CR(6));
       transUnits.push(new CR(6), transUnit);
@@ -26792,29 +27980,25 @@ var Xliff = class extends Serializer {
       datatype: "plaintext",
       original: "ng2.template"
     }, [new CR(4), body, new CR(2)]);
-    const xliff = new Tag("xliff", {
-      version: _VERSION$1,
-      xmlns: _XMLNS$1
-    }, [new CR(2), file, new CR()]);
-    return serialize$1([new Declaration({
-      version: "1.0",
-      encoding: "UTF-8"
-    }), new CR(), xliff, new CR()]);
+    const xliff = new Tag("xliff", { version: _VERSION$1, xmlns: _XMLNS$1 }, [
+      new CR(2),
+      file,
+      new CR()
+    ]);
+    return serialize$1([
+      new Declaration({ version: "1.0", encoding: "UTF-8" }),
+      new CR(),
+      xliff,
+      new CR()
+    ]);
   }
   load(content, url) {
     const xliffParser = new XliffParser();
-    const {
-      locale,
-      msgIdToHtml,
-      errors
-    } = xliffParser.parse(content, url);
+    const { locale, msgIdToHtml, errors } = xliffParser.parse(content, url);
     const i18nNodesByMsgId = {};
     const converter = new XmlToI18n$2();
     Object.keys(msgIdToHtml).forEach((msgId) => {
-      const {
-        i18nNodes,
-        errors: e
-      } = converter.convert(msgIdToHtml[msgId], url);
+      const { i18nNodes, errors: e } = converter.convert(msgIdToHtml[msgId], url);
       errors.push(...e);
       i18nNodesByMsgId[msgId] = i18nNodes;
     });
@@ -26822,10 +28006,7 @@ var Xliff = class extends Serializer {
       throw new Error(`xliff parse errors:
 ${errors.join("\n")}`);
     }
-    return {
-      locale,
-      i18nNodesByMsgId
-    };
+    return { locale, i18nNodesByMsgId };
   }
   digest(message) {
     return digest$1(message);
@@ -26851,11 +28032,9 @@ var _WriteVisitor$1 = class _WriteVisitor {
   visitTagPlaceholder(ph, context) {
     const ctype = getCtypeForTag(ph.tag);
     if (ph.isVoid) {
-      return [new Tag(_PLACEHOLDER_TAG$2, {
-        id: ph.startName,
-        ctype,
-        "equiv-text": `<${ph.tag}/>`
-      })];
+      return [
+        new Tag(_PLACEHOLDER_TAG$2, { id: ph.startName, ctype, "equiv-text": `<${ph.tag}/>` })
+      ];
     }
     const startTagPh = new Tag(_PLACEHOLDER_TAG$2, {
       id: ph.startName,
@@ -26870,10 +28049,7 @@ var _WriteVisitor$1 = class _WriteVisitor {
     return [startTagPh, ...this.serialize(ph.children), closeTagPh];
   }
   visitPlaceholder(ph, context) {
-    return [new Tag(_PLACEHOLDER_TAG$2, {
-      id: ph.name,
-      "equiv-text": `{{${ph.value}}}`
-    })];
+    return [new Tag(_PLACEHOLDER_TAG$2, { id: ph.name, "equiv-text": `{{${ph.value}}}` })];
   }
   visitBlockPlaceholder(ph, context) {
     const ctype = `x-${ph.name.toLowerCase().replace(/[^a-z0-9]/g, "-")}`;
@@ -26882,25 +28058,19 @@ var _WriteVisitor$1 = class _WriteVisitor {
       ctype,
       "equiv-text": `@${ph.name}`
     });
-    const closeTagPh = new Tag(_PLACEHOLDER_TAG$2, {
-      id: ph.closeName,
-      ctype,
-      "equiv-text": `}`
-    });
+    const closeTagPh = new Tag(_PLACEHOLDER_TAG$2, { id: ph.closeName, ctype, "equiv-text": `}` });
     return [startTagPh, ...this.serialize(ph.children), closeTagPh];
   }
   visitIcuPlaceholder(ph, context) {
     const equivText = `{${ph.value.expression}, ${ph.value.type}, ${Object.keys(ph.value.cases).map((value) => value + " {...}").join(" ")}}`;
-    return [new Tag(_PLACEHOLDER_TAG$2, {
-      id: ph.name,
-      "equiv-text": equivText
-    })];
+    return [new Tag(_PLACEHOLDER_TAG$2, { id: ph.name, "equiv-text": equivText })];
   }
   serialize(nodes) {
     return [].concat(...nodes.map((node) => node.visit(this)));
   }
 };
 var XliffParser = class {
+  // using non-null assertions because they're re(set) by parse()
   _unitMlString;
   _errors;
   _msgIdToHtml;
@@ -26938,6 +28108,7 @@ var XliffParser = class {
           }
         }
         break;
+      // ignore those tags
       case _SOURCE_TAG$1:
       case _SEGMENT_SOURCE_TAG:
       case _ALT_TRANS_TAG:
@@ -26985,11 +28156,10 @@ var XliffParser = class {
   }
 };
 var XmlToI18n$2 = class XmlToI18n {
+  // using non-null assertion because it's re(set) by convert()
   _errors;
   convert(message, url) {
-    const xmlIcu = new XmlParser().parse(message, url, {
-      tokenizeExpansionForms: true
-    });
+    const xmlIcu = new XmlParser().parse(message, url, { tokenizeExpansionForms: true });
     this._errors = xmlIcu.errors;
     const i18nNodes = this._errors.length > 0 || xmlIcu.rootNodes.length == 0 ? [] : [].concat(...visitAll(this, xmlIcu.rootNodes));
     return {
@@ -27073,26 +28243,20 @@ var Xliff2 = class extends Serializer {
     const visitor = new _WriteVisitor2();
     const units = [];
     messages.forEach((message) => {
-      const unit = new Tag(_UNIT_TAG, {
-        id: message.id
-      });
+      const unit = new Tag(_UNIT_TAG, { id: message.id });
       const notes = new Tag("notes");
       if (message.description || message.meaning) {
         if (message.description) {
-          notes.children.push(new CR(8), new Tag("note", {
-            category: "description"
-          }, [new Text$1(message.description)]));
+          notes.children.push(new CR(8), new Tag("note", { category: "description" }, [new Text$1(message.description)]));
         }
         if (message.meaning) {
-          notes.children.push(new CR(8), new Tag("note", {
-            category: "meaning"
-          }, [new Text$1(message.meaning)]));
+          notes.children.push(new CR(8), new Tag("note", { category: "meaning" }, [new Text$1(message.meaning)]));
         }
       }
       message.sources.forEach((source) => {
-        notes.children.push(new CR(8), new Tag("note", {
-          category: "location"
-        }, [new Text$1(`${source.filePath}:${source.startLine}${source.endLine !== source.startLine ? "," + source.endLine : ""}`)]));
+        notes.children.push(new CR(8), new Tag("note", { category: "location" }, [
+          new Text$1(`${source.filePath}:${source.startLine}${source.endLine !== source.startLine ? "," + source.endLine : ""}`)
+        ]));
       });
       notes.children.push(new CR(6));
       unit.children.push(new CR(6), notes);
@@ -27101,34 +28265,25 @@ var Xliff2 = class extends Serializer {
       unit.children.push(new CR(6), segment, new CR(4));
       units.push(new CR(4), unit);
     });
-    const file = new Tag("file", {
-      "original": "ng.template",
-      id: "ngi18n"
-    }, [...units, new CR(2)]);
-    const xliff = new Tag(_XLIFF_TAG, {
-      version: _VERSION,
-      xmlns: _XMLNS,
-      srcLang: locale || _DEFAULT_SOURCE_LANG
-    }, [new CR(2), file, new CR()]);
-    return serialize$1([new Declaration({
-      version: "1.0",
-      encoding: "UTF-8"
-    }), new CR(), xliff, new CR()]);
+    const file = new Tag("file", { "original": "ng.template", id: "ngi18n" }, [
+      ...units,
+      new CR(2)
+    ]);
+    const xliff = new Tag(_XLIFF_TAG, { version: _VERSION, xmlns: _XMLNS, srcLang: locale || _DEFAULT_SOURCE_LANG }, [new CR(2), file, new CR()]);
+    return serialize$1([
+      new Declaration({ version: "1.0", encoding: "UTF-8" }),
+      new CR(),
+      xliff,
+      new CR()
+    ]);
   }
   load(content, url) {
     const xliff2Parser = new Xliff2Parser();
-    const {
-      locale,
-      msgIdToHtml,
-      errors
-    } = xliff2Parser.parse(content, url);
+    const { locale, msgIdToHtml, errors } = xliff2Parser.parse(content, url);
     const i18nNodesByMsgId = {};
     const converter = new XmlToI18n$1();
     Object.keys(msgIdToHtml).forEach((msgId) => {
-      const {
-        i18nNodes,
-        errors: e
-      } = converter.convert(msgIdToHtml[msgId], url);
+      const { i18nNodes, errors: e } = converter.convert(msgIdToHtml[msgId], url);
       errors.push(...e);
       i18nNodesByMsgId[msgId] = i18nNodes;
     });
@@ -27136,10 +28291,7 @@ var Xliff2 = class extends Serializer {
       throw new Error(`xliff2 parse errors:
 ${errors.join("\n")}`);
     }
-    return {
-      locale,
-      i18nNodesByMsgId
-    };
+    return { locale, i18nNodesByMsgId };
   }
   digest(message) {
     return decimalDigest(message);
@@ -27192,11 +28344,13 @@ var _WriteVisitor2 = class {
   }
   visitPlaceholder(ph, context) {
     const idStr = (this._nextPlaceholderId++).toString();
-    return [new Tag(_PLACEHOLDER_TAG$1, {
-      id: idStr,
-      equiv: ph.name,
-      disp: `{{${ph.value}}}`
-    })];
+    return [
+      new Tag(_PLACEHOLDER_TAG$1, {
+        id: idStr,
+        equiv: ph.name,
+        disp: `{{${ph.value}}}`
+      })
+    ];
   }
   visitBlockPlaceholder(ph, context) {
     const tagPc = new Tag(_PLACEHOLDER_SPANNING_TAG, {
@@ -27218,11 +28372,13 @@ var _WriteVisitor2 = class {
   visitIcuPlaceholder(ph, context) {
     const cases = Object.keys(ph.value.cases).map((value) => value + " {...}").join(" ");
     const idStr = (this._nextPlaceholderId++).toString();
-    return [new Tag(_PLACEHOLDER_TAG$1, {
-      id: idStr,
-      equiv: ph.name,
-      disp: `{${ph.value.expression}, ${ph.value.type}, ${cases}}`
-    })];
+    return [
+      new Tag(_PLACEHOLDER_TAG$1, {
+        id: idStr,
+        equiv: ph.name,
+        disp: `{${ph.value.expression}, ${ph.value.type}, ${cases}}`
+      })
+    ];
   }
   serialize(nodes) {
     this._nextPlaceholderId = 0;
@@ -27230,6 +28386,7 @@ var _WriteVisitor2 = class {
   }
 };
 var Xliff2Parser = class {
+  // using non-null assertions because they're all (re)set by parse()
   _unitMlString;
   _errors;
   _msgIdToHtml;
@@ -27320,11 +28477,10 @@ var Xliff2Parser = class {
   }
 };
 var XmlToI18n$1 = class XmlToI18n2 {
+  // using non-null assertion because re(set) by convert()
   _errors;
   convert(message, url) {
-    const xmlIcu = new XmlParser().parse(message, url, {
-      tokenizeExpansionForms: true
-    });
+    const xmlIcu = new XmlParser().parse(message, url, { tokenizeExpansionForms: true });
     this._errors = xmlIcu.errors;
     const i18nNodes = this._errors.length > 0 || xmlIcu.rootNodes.length == 0 ? [] : [].concat(...visitAll(this, xmlIcu.rootNodes));
     return {
@@ -27422,19 +28578,12 @@ var Xtb = class extends Serializer {
   }
   load(content, url) {
     const xtbParser = new XtbParser();
-    const {
-      locale,
-      msgIdToHtml,
-      errors
-    } = xtbParser.parse(content, url);
+    const { locale, msgIdToHtml, errors } = xtbParser.parse(content, url);
     const i18nNodesByMsgId = {};
     const converter = new XmlToI18n3();
     Object.keys(msgIdToHtml).forEach((msgId) => {
       const valueFn = function() {
-        const {
-          i18nNodes,
-          errors: errors2
-        } = converter.convert(msgIdToHtml[msgId], url);
+        const { i18nNodes, errors: errors2 } = converter.convert(msgIdToHtml[msgId], url);
         if (errors2.length) {
           throw new Error(`xtb parse errors:
 ${errors2.join("\n")}`);
@@ -27447,10 +28596,7 @@ ${errors2.join("\n")}`);
       throw new Error(`xtb parse errors:
 ${errors.join("\n")}`);
     }
-    return {
-      locale,
-      i18nNodesByMsgId
-    };
+    return { locale, i18nNodesByMsgId };
   }
   digest(message) {
     return digest(message);
@@ -27465,10 +28611,7 @@ function createLazyProperty(messages, id, valueFn) {
     enumerable: true,
     get: function() {
       const value = valueFn();
-      Object.defineProperty(messages, id, {
-        enumerable: true,
-        value
-      });
+      Object.defineProperty(messages, id, { enumerable: true, value });
       return value;
     },
     set: (_) => {
@@ -27477,6 +28620,7 @@ function createLazyProperty(messages, id, valueFn) {
   });
 }
 var XtbParser = class {
+  // using non-null assertions because they're (re)set by parse()
   _bundleDepth;
   _errors;
   _msgIdToHtml;
@@ -27555,11 +28699,10 @@ var XtbParser = class {
   }
 };
 var XmlToI18n3 = class {
+  // using non-null assertion because it's (re)set by convert()
   _errors;
   convert(message, url) {
-    const xmlIcu = new XmlParser().parse(message, url, {
-      tokenizeExpansionForms: true
-    });
+    const xmlIcu = new XmlParser().parse(message, url, { tokenizeExpansionForms: true });
     this._errors = xmlIcu.errors;
     const i18nNodes = this._errors.length > 0 || xmlIcu.rootNodes.length == 0 ? [] : visitAll(this, xmlIcu.rootNodes);
     return {
@@ -27626,15 +28769,14 @@ var TranslationBundle = class _TranslationBundle {
     this.mapperFactory = mapperFactory;
     this._i18nToHtml = new I18nToHtmlVisitor(_i18nNodesByMsgId, locale, digest2, mapperFactory, missingTranslationStrategy, console2);
   }
+  // Creates a `TranslationBundle` by parsing the given `content` with the `serializer`.
   static load(content, url, serializer2, missingTranslationStrategy, console2) {
-    const {
-      locale,
-      i18nNodesByMsgId
-    } = serializer2.load(content, url);
+    const { locale, i18nNodesByMsgId } = serializer2.load(content, url);
     const digestFn = (m) => serializer2.digest(m);
     const mapperFactory = (m) => serializer2.createNameMapper(m);
     return new _TranslationBundle(i18nNodesByMsgId, locale, digestFn, mapperFactory, missingTranslationStrategy, console2);
   }
+  // Returns the translation as HTML nodes from the given source message.
   get(srcMsg) {
     const html = this._i18nToHtml.convert(srcMsg);
     if (html.errors.length) {
@@ -27653,6 +28795,7 @@ var I18nToHtmlVisitor = class {
   _mapperFactory;
   _missingTranslationStrategy;
   _console;
+  // using non-null assertions because they're (re)set by convert()
   _srcMsg;
   _errors = [];
   _contextStack = [];
@@ -27670,9 +28813,7 @@ var I18nToHtmlVisitor = class {
     this._errors.length = 0;
     const text2 = this._convertToText(srcMsg);
     const url = srcMsg.nodes[0].sourceSpan.start.file.url;
-    const html = new HtmlParser().parse(text2, url, {
-      tokenizeExpansionForms: true
-    });
+    const html = new HtmlParser().parse(text2, url, { tokenizeExpansionForms: true });
     return {
       nodes: html.rootNodes,
       errors: [...this._errors, ...html.errors]
@@ -27700,6 +28841,9 @@ var I18nToHtmlVisitor = class {
     this._addError(ph, `Unknown placeholder "${ph.name}"`);
     return "";
   }
+  // Loaded message contains only placeholders (vs tag and icu placeholders).
+  // However when a translation can not be found, we need to serialize the source message
+  // which can contain tag placeholders
   visitTagPlaceholder(ph, context) {
     const tag = `${ph.tag}`;
     const attrs = Object.keys(ph.attrs).map((name) => `${name}="${ph.attrs[name]}"`).join(" ");
@@ -27709,6 +28853,9 @@ var I18nToHtmlVisitor = class {
     const children = ph.children.map((c) => c.visit(this)).join("");
     return `<${tag} ${attrs}>${children}</${tag}>`;
   }
+  // Loaded message contains only placeholders (vs tag and icu placeholders).
+  // However when a translation can not be found, we need to serialize the source message
+  // which can contain tag placeholders
   visitIcuPlaceholder(ph, context) {
     return this._convertToText(this._srcMsg.placeholderToMessage[ph.name]);
   }
@@ -27717,14 +28864,17 @@ var I18nToHtmlVisitor = class {
     const children = ph.children.map((c) => c.visit(this)).join("");
     return `@${ph.name}${params} {${children}}`;
   }
+  /**
+   * Convert a source message to a translated text string:
+   * - text nodes are replaced with their translation,
+   * - placeholders are replaced with their content,
+   * - ICU nodes are converted to ICU expressions.
+   */
   _convertToText(srcMsg) {
     const id = this._digest(srcMsg);
     const mapper = this._mapperFactory ? this._mapperFactory(srcMsg) : null;
     let nodes;
-    this._contextStack.push({
-      msg: this._srcMsg,
-      mapper: this._mapper
-    });
+    this._contextStack.push({ msg: this._srcMsg, mapper: this._mapper });
     this._srcMsg = srcMsg;
     if (this._i18nNodesByMsgId.hasOwnProperty(id)) {
       nodes = this._i18nNodesByMsgId[id];
@@ -27752,6 +28902,7 @@ var I18nToHtmlVisitor = class {
 };
 var I18NHtmlParser = class {
   _htmlParser;
+  // @override
   getTagDefinition;
   _translationBundle;
   constructor(_htmlParser, translations, translationsFormat, missingTranslation = MissingTranslationStrategy.Warning, console2) {
@@ -27764,11 +28915,12 @@ var I18NHtmlParser = class {
     }
   }
   parse(source, url, options = {}) {
-    const parseResult = this._htmlParser.parse(source, url, __spreadValues({}, options));
+    const interpolationConfig = options.interpolationConfig || DEFAULT_INTERPOLATION_CONFIG;
+    const parseResult = this._htmlParser.parse(source, url, __spreadValues({ interpolationConfig }, options));
     if (parseResult.errors.length) {
       return new ParseTreeResult(parseResult.rootNodes, parseResult.errors);
     }
-    return mergeTranslations(parseResult.rootNodes, this._translationBundle, [], {});
+    return mergeTranslations(parseResult.rootNodes, this._translationBundle, interpolationConfig, [], {});
   }
 };
 function createSerializer(format) {
@@ -27801,21 +28953,34 @@ var MessageBundle = class {
     this._locale = _locale;
     this._preserveWhitespace = _preserveWhitespace;
   }
-  updateFromTemplate(source, url) {
+  updateFromTemplate(source, url, interpolationConfig) {
     const htmlParserResult = this._htmlParser.parse(source, url, {
-      tokenizeExpansionForms: true
+      tokenizeExpansionForms: true,
+      interpolationConfig
     });
     if (htmlParserResult.errors.length) {
       return htmlParserResult.errors;
     }
-    const rootNodes = this._preserveWhitespace ? htmlParserResult.rootNodes : visitAllWithSiblings(new WhitespaceVisitor(false), htmlParserResult.rootNodes);
-    const i18nParserResult = extractMessages(rootNodes, this._implicitTags, this._implicitAttrs, this._preserveWhitespace);
+    const rootNodes = this._preserveWhitespace ? htmlParserResult.rootNodes : visitAllWithSiblings(new WhitespaceVisitor(
+      /* preserveSignificantWhitespace */
+      false
+    ), htmlParserResult.rootNodes);
+    const i18nParserResult = extractMessages(
+      rootNodes,
+      interpolationConfig,
+      this._implicitTags,
+      this._implicitAttrs,
+      /* preserveSignificantWhitespace */
+      this._preserveWhitespace
+    );
     if (i18nParserResult.errors.length) {
       return i18nParserResult.errors;
     }
     this._messages.push(...i18nParserResult.messages);
     return [];
   }
+  // Return the message in the internal format
+  // The public (serialized) format might be different, see the `write` method.
   getMessages() {
     return this._messages;
   }
@@ -27872,7 +29037,12 @@ function compileClassMetadata(metadata) {
   return arrowFn([], [devOnlyGuardedExpression(fnCall).toStmt()]).callFn([]);
 }
 function internalCompileClassMetadata(metadata) {
-  return importExpr(Identifiers.setClassMetadata).callFn([metadata.type, metadata.decorators, metadata.ctorParameters ?? literal(null), metadata.propDecorators ?? literal(null)]);
+  return importExpr(Identifiers.setClassMetadata).callFn([
+    metadata.type,
+    metadata.decorators,
+    metadata.ctorParameters ?? literal(null),
+    metadata.propDecorators ?? literal(null)
+  ]);
 }
 function compileComponentClassMetadata(metadata, dependencies) {
   if (dependencies === null || dependencies.length === 0) {
@@ -27890,12 +29060,11 @@ function internalCompileSetClassMetadataAsync(metadata, wrapperParams, dependenc
   return arrowFn([], [devOnlyGuardedExpression(setClassMetaAsync).toStmt()]).callFn([]);
 }
 function compileComponentMetadataAsyncResolver(dependencies) {
-  const dynamicImports = dependencies.map(({
-    symbolName,
-    importPath,
-    isDefaultImport
-  }) => {
-    const innerFn = arrowFn([new FnParam("m", DYNAMIC_TYPE)], variable("m").prop(isDefaultImport ? "default" : symbolName));
+  const dynamicImports = dependencies.map(({ symbolName, importPath, isDefaultImport }) => {
+    const innerFn = (
+      // Default imports are always accessed through the `default` property.
+      arrowFn([new FnParam("m", DYNAMIC_TYPE)], variable("m").prop(isDefaultImport ? "default" : symbolName))
+    );
     return new DynamicImportExpr(importPath).prop("then").callFn([innerFn]);
   });
   return arrowFn([], literalArr(dynamicImports));
@@ -27905,7 +29074,7 @@ var MINIMUM_PARTIAL_LINKER_DEFER_SUPPORT_VERSION = "18.0.0";
 function compileDeclareClassMetadata(metadata) {
   const definitionMap = new DefinitionMap();
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_VERSION$5));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", metadata.type);
   definitionMap.set("decorators", metadata.decorators);
@@ -27923,7 +29092,7 @@ function compileComponentDeclareClassMetadata(metadata, dependencies) {
   callbackReturnDefinitionMap.set("ctorParameters", metadata.ctorParameters ?? literal(null));
   callbackReturnDefinitionMap.set("propDecorators", metadata.propDecorators ?? literal(null));
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_DEFER_SUPPORT_VERSION));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", metadata.type);
   definitionMap.set("resolveDeferredDeps", compileComponentMetadataAsyncResolver(dependencies));
@@ -27939,11 +29108,7 @@ function toOptionalLiteralArray(values, mapper) {
 function toOptionalLiteralMap(object, mapper) {
   const entries = Object.keys(object).map((key) => {
     const value = object[key];
-    return {
-      key,
-      value: mapper(value),
-      quoted: true
-    };
+    return { key, value: mapper(value), quoted: true };
   });
   if (entries.length > 0) {
     return literalMap(entries);
@@ -27984,17 +29149,13 @@ function compileDeclareDirectiveFromMetadata(meta) {
   const definitionMap = createDirectiveDefinitionMap(meta);
   const expression = importExpr(Identifiers.declareDirective).callFn([definitionMap.toLiteralMap()]);
   const type = createDirectiveType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createDirectiveDefinitionMap(meta) {
   const definitionMap = new DefinitionMap();
   const minVersion = getMinimumVersionForPartialOutput(meta);
   definitionMap.set("minVersion", literal(minVersion));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("type", meta.type.value);
   if (meta.isStandalone !== void 0) {
     definitionMap.set("isStandalone", literal(meta.isStandalone));
@@ -28088,26 +29249,20 @@ function compileHostMetadata(meta) {
 }
 function createHostDirectives(hostDirectives) {
   const expressions = hostDirectives.map((current) => {
-    const keys = [{
-      key: "directive",
-      value: current.isForwardReference ? generateForwardRef(current.directive.type) : current.directive.type,
-      quoted: false
-    }];
+    const keys = [
+      {
+        key: "directive",
+        value: current.isForwardReference ? generateForwardRef(current.directive.type) : current.directive.type,
+        quoted: false
+      }
+    ];
     const inputsLiteral = current.inputs ? createHostDirectivesMappingArray(current.inputs) : null;
     const outputsLiteral = current.outputs ? createHostDirectivesMappingArray(current.outputs) : null;
     if (inputsLiteral) {
-      keys.push({
-        key: "inputs",
-        value: inputsLiteral,
-        quoted: false
-      });
+      keys.push({ key: "inputs", value: inputsLiteral, quoted: false });
     }
     if (outputsLiteral) {
-      keys.push({
-        key: "outputs",
-        value: outputsLiteral,
-        quoted: false
-      });
+      keys.push({ key: "outputs", value: outputsLiteral, quoted: false });
     }
     return literalMap(keys);
   });
@@ -28122,28 +29277,15 @@ function createInputsPartialMetadata(inputs) {
     const value = inputs[declaredName];
     return {
       key: declaredName,
+      // put quotes around keys that contain potentially unsafe characters
       quoted: UNSAFE_OBJECT_KEY_NAME_REGEXP.test(declaredName),
-      value: literalMap([{
-        key: "classPropertyName",
-        quoted: false,
-        value: asLiteral(value.classPropertyName)
-      }, {
-        key: "publicName",
-        quoted: false,
-        value: asLiteral(value.bindingPropertyName)
-      }, {
-        key: "isSignal",
-        quoted: false,
-        value: asLiteral(value.isSignal)
-      }, {
-        key: "isRequired",
-        quoted: false,
-        value: asLiteral(value.required)
-      }, {
-        key: "transformFunction",
-        quoted: false,
-        value: value.transformFunction ?? NULL_EXPR
-      }])
+      value: literalMap([
+        { key: "classPropertyName", quoted: false, value: asLiteral(value.classPropertyName) },
+        { key: "publicName", quoted: false, value: asLiteral(value.bindingPropertyName) },
+        { key: "isSignal", quoted: false, value: asLiteral(value.isSignal) },
+        { key: "isRequired", quoted: false, value: asLiteral(value.required) },
+        { key: "transformFunction", quoted: false, value: value.transformFunction ?? NULL_EXPR }
+      ])
     };
   }));
 }
@@ -28168,6 +29310,7 @@ function legacyInputsPartialMetadata(inputs) {
     }
     return {
       key: declaredName,
+      // put quotes around keys that contain potentially unsafe characters
       quoted: UNSAFE_OBJECT_KEY_NAME_REGEXP.test(declaredName),
       value: result
     };
@@ -28177,11 +29320,7 @@ function compileDeclareComponentFromMetadata(meta, template2, additionalTemplate
   const definitionMap = createComponentDefinitionMap(meta, template2, additionalTemplateInfo);
   const expression = importExpr(Identifiers.declareComponent).callFn([definitionMap.toLiteralMap()]);
   const type = createComponentType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createComponentDefinitionMap(meta, template2, templateInfo) {
   const definitionMap = createDirectiveDefinitionMap(meta);
@@ -28206,6 +29345,9 @@ function createComponentDefinitionMap(meta, template2, templateInfo) {
   }
   if (meta.encapsulation !== ViewEncapsulation$1.Emulated) {
     definitionMap.set("encapsulation", importExpr(Identifiers.ViewEncapsulation).prop(ViewEncapsulation$1[meta.encapsulation]));
+  }
+  if (meta.interpolation !== DEFAULT_INTERPOLATION_CONFIG) {
+    definitionMap.set("interpolation", literalArr([literal(meta.interpolation.start), literal(meta.interpolation.end)]));
   }
   if (template2.preserveWhitespaces === true) {
     definitionMap.set("preserveWhitespaces", literal(true));
@@ -28324,7 +29466,7 @@ var MINIMUM_PARTIAL_LINKER_VERSION$4 = "12.0.0";
 function compileDeclareFactoryFunction(meta) {
   const definitionMap = new DefinitionMap();
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_VERSION$4));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", meta.type.value);
   definitionMap.set("deps", compileDependencies(meta.deps));
@@ -28340,16 +29482,12 @@ function compileDeclareInjectableFromMetadata(meta) {
   const definitionMap = createInjectableDefinitionMap(meta);
   const expression = importExpr(Identifiers.declareInjectable).callFn([definitionMap.toLiteralMap()]);
   const type = createInjectableType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createInjectableDefinitionMap(meta) {
   const definitionMap = new DefinitionMap();
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_VERSION$3));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", meta.type.value);
   if (meta.providedIn !== void 0) {
@@ -28380,16 +29518,12 @@ function compileDeclareInjectorFromMetadata(meta) {
   const definitionMap = createInjectorDefinitionMap(meta);
   const expression = importExpr(Identifiers.declareInjector).callFn([definitionMap.toLiteralMap()]);
   const type = createInjectorType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createInjectorDefinitionMap(meta) {
   const definitionMap = new DefinitionMap();
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_VERSION$2));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", meta.type.value);
   definitionMap.set("providers", meta.providers);
@@ -28403,11 +29537,7 @@ function compileDeclareNgModuleFromMetadata(meta) {
   const definitionMap = createNgModuleDefinitionMap(meta);
   const expression = importExpr(Identifiers.declareNgModule).callFn([definitionMap.toLiteralMap()]);
   const type = createNgModuleType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createNgModuleDefinitionMap(meta) {
   const definitionMap = new DefinitionMap();
@@ -28415,7 +29545,7 @@ function createNgModuleDefinitionMap(meta) {
     throw new Error("Invalid path! Local compilation mode should not get into the partial compilation path");
   }
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_VERSION$1));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", meta.type.value);
   if (meta.bootstrap.length > 0) {
@@ -28443,16 +29573,12 @@ function compileDeclarePipeFromMetadata(meta) {
   const definitionMap = createPipeDefinitionMap(meta);
   const expression = importExpr(Identifiers.declarePipe).callFn([definitionMap.toLiteralMap()]);
   const type = createPipeType(meta);
-  return {
-    expression,
-    type,
-    statements: []
-  };
+  return { expression, type, statements: [] };
 }
 function createPipeDefinitionMap(meta) {
   const definitionMap = new DefinitionMap();
   definitionMap.set("minVersion", literal(MINIMUM_PARTIAL_LINKER_VERSION));
-  definitionMap.set("version", literal("21.0.6"));
+  definitionMap.set("version", literal("20.3.15"));
   definitionMap.set("ngImport", importExpr(Identifiers.core));
   definitionMap.set("type", meta.type.value);
   if (meta.isStandalone !== void 0) {
@@ -28486,21 +29612,43 @@ function compileHmrInitializer(meta) {
   const idName = "id";
   const importCallbackName = `${meta.className}_HmrLoad`;
   const namespaces = meta.namespaceDependencies.map((dep) => {
-    return new ExternalExpr({
-      moduleName: dep.moduleName,
-      name: null
-    });
+    return new ExternalExpr({ moduleName: dep.moduleName, name: null });
   });
   const defaultRead = variable(moduleName).prop("default");
-  const replaceCall = importExpr(Identifiers.replaceMetadata).callFn([meta.type, defaultRead, literalArr(namespaces), literalArr(meta.localDependencies.map((l) => l.runtimeRepresentation)), variable("import").prop("meta"), variable(idName)]);
+  const replaceCall = importExpr(Identifiers.replaceMetadata).callFn([
+    meta.type,
+    defaultRead,
+    literalArr(namespaces),
+    literalArr(meta.localDependencies.map((l) => l.runtimeRepresentation)),
+    variable("import").prop("meta"),
+    variable(idName)
+  ]);
   const replaceCallback = arrowFn([new FnParam(moduleName)], defaultRead.and(replaceCall));
-  const url = importExpr(Identifiers.getReplaceMetadataURL).callFn([variable(idName), variable(timestampName), variable("import").prop("meta").prop("url")]);
-  const importCallback = new DeclareFunctionStmt(importCallbackName, [new FnParam(timestampName)], [new DynamicImportExpr(url, null, "@vite-ignore").prop("then").callFn([replaceCallback]).toStmt()], null, StmtModifier.Final);
+  const url = importExpr(Identifiers.getReplaceMetadataURL).callFn([
+    variable(idName),
+    variable(timestampName),
+    variable("import").prop("meta").prop("url")
+  ]);
+  const importCallback = new DeclareFunctionStmt(importCallbackName, [new FnParam(timestampName)], [
+    // The vite-ignore special comment is required to prevent Vite from generating a superfluous
+    // warning for each usage within the development code. If Vite provides a method to
+    // programmatically avoid this warning in the future, this added comment can be removed here.
+    new DynamicImportExpr(url, null, "@vite-ignore").prop("then").callFn([replaceCallback]).toStmt()
+  ], null, StmtModifier.Final);
   const updateCallback = arrowFn([new FnParam(dataName)], variable(dataName).prop("id").identical(variable(idName)).and(variable(importCallbackName).callFn([variable(dataName).prop("timestamp")])));
   const initialCall = variable(importCallbackName).callFn([variable("Date").prop("now").callFn([])]);
   const hotRead = variable("import").prop("meta").prop("hot");
   const hotListener = hotRead.clone().prop("on").callFn([literal("angular:component-update"), updateCallback]);
-  return arrowFn([], [new DeclareVarStmt(idName, literal(encodeURIComponent(`${meta.filePath}@${meta.className}`)), null, StmtModifier.Final), importCallback, devOnlyGuardedExpression(initialCall).toStmt(), devOnlyGuardedExpression(hotRead.and(hotListener)).toStmt()]).callFn([]);
+  return arrowFn([], [
+    // const id = <id>;
+    new DeclareVarStmt(idName, literal(encodeURIComponent(`${meta.filePath}@${meta.className}`)), null, StmtModifier.Final),
+    // function Cmp_HmrLoad() {...}.
+    importCallback,
+    // ngDevMode && Cmp_HmrLoad(Date.now());
+    devOnlyGuardedExpression(initialCall).toStmt(),
+    // ngDevMode && import.meta.hot && import.meta.hot.on(...)
+    devOnlyGuardedExpression(hotRead.and(hotListener)).toStmt()
+  ]).callFn([]);
 }
 function compileHmrUpdateCallback(definitions, constantStatements, meta) {
   const namespaces = "ɵɵnamespaces";
@@ -28523,7 +29671,7 @@ function compileHmrUpdateCallback(definitions, constantStatements, meta) {
   }
   return new DeclareFunctionStmt(`${meta.className}_UpdateMetadata`, params, body, null, StmtModifier.Final);
 }
-var VERSION = new Version("21.0.6");
+var VERSION = new Version("20.3.15");
 publishFacade(_global);
 export {
   AST,
@@ -28558,6 +29706,7 @@ export {
   ConditionalExpr,
   ConstantPool,
   CssSelector,
+  DEFAULT_INTERPOLATION_CONFIG,
   DYNAMIC_TYPE,
   DeclareFunctionStmt,
   DeclareVarStmt,
@@ -28586,6 +29735,7 @@ export {
   ImplicitReceiver,
   InstantiateExpr,
   Interpolation$1 as Interpolation,
+  InterpolationConfig,
   InvokeFunctionExpr,
   JSDocComment,
   JitEvaluator,
@@ -28634,8 +29784,6 @@ export {
   ReadVarExpr,
   RecursiveAstVisitor2 as RecursiveAstVisitor,
   RecursiveVisitor2 as RecursiveVisitor,
-  RegularExpressionLiteral,
-  RegularExpressionLiteralExpr,
   ResourceLoader,
   ReturnStatement,
   SCHEMA,
@@ -28784,4 +29932,28 @@ export {
   verifyHostBindings,
   visitAll
 };
+/*! Bundled license information:
+
+@angular/compiler/fesm2022/compiler.mjs:
+  (**
+   * @license Angular v20.3.15
+   * (c) 2010-2025 Google LLC. https://angular.dev/
+   * License: MIT
+   *)
+  (*!
+   * @license
+   * Copyright Google LLC All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.dev/license
+   *)
+  (**
+   *
+   * @license
+   * Copyright Google LLC All Rights Reserved.
+   *
+   * Use of this source code is governed by an MIT-style license that can be
+   * found in the LICENSE file at https://angular.dev/license
+   *)
+*/
 //# sourceMappingURL=@angular_compiler.js.map
