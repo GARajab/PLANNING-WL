@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal, OnDestroy, inject, computed, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WayleaveRecord, WayleaveStatus } from '../../models/wayleave.model';
 import { AuthService } from '../../services/auth.service';
@@ -18,7 +19,7 @@ import { UserGroupIconComponent } from '../icons/user-group-icon.component';
   standalone: true,
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, RecordFormComponent, AdminComponent, BellIconComponent, EditIconComponent, TrashIconComponent, WayleaveIconComponent, UserGroupIconComponent]
+  imports: [CommonModule, FormsModule, RecordFormComponent, AdminComponent, BellIconComponent, EditIconComponent, TrashIconComponent, WayleaveIconComponent, UserGroupIconComponent]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   authService = inject(AuthService);

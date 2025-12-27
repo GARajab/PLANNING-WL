@@ -10,41 +10,37 @@
 
     <form class="space-y-6" (ngSubmit)="onLogin()">
       <div class="space-y-4">
-        <div>
+        <div class="relative">
           <label for="cpr" class="sr-only">CPR Number</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-              <app-user-icon />
-            </div>
-            <input 
-              id="cpr" 
-              name="cpr" 
-              type="text" 
-              [ngModel]="cpr()"
-              (ngModelChange)="cpr.set($event)"
-              required 
-              maxlength="9"
-              pattern="[0-9]{9}"
-              class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-700 bg-slate-900/50 text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" 
-              placeholder="CPR Number (9 digits)">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+            <app-user-icon />
           </div>
+          <input 
+            id="cpr" 
+            name="cpr" 
+            type="text" 
+            [ngModel]="cpr()"
+            (ngModelChange)="cpr.set($event)"
+            required 
+            maxlength="9"
+            pattern="[0-9]{9}"
+            class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-700 bg-slate-900/50 text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" 
+            placeholder="CPR Number (9 digits)">
         </div>
-        <div>
+        <div class="relative">
           <label for="password" class="sr-only">Password</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-              <app-lock-icon />
-            </div>
-            <input 
-              id="password" 
-              name="password" 
-              type="password"
-              [ngModel]="password()"
-              (ngModelChange)="password.set($event)"
-              required 
-              class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-700 bg-slate-900/50 text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" 
-              placeholder="Password">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+            <app-lock-icon />
           </div>
+          <input 
+            id="password" 
+            name="password" 
+            type="password"
+            [ngModel]="password()"
+            (ngModelChange)="password.set($event)"
+            required 
+            class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-700 bg-slate-900/50 text-white placeholder-slate-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" 
+            placeholder="Password">
         </div>
       </div>
 

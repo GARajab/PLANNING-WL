@@ -1,39 +1,29 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wayleave Management System</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     /* For a consistent dark theme feel and a subtle background pattern */
     body {
-      background-color: #0f172a;
-      /* slate-900 */
+      background-color: #0f172a; /* slate-900 */
       background-image: radial-gradient(#334155 1px, transparent 1px);
       background-size: 20px 20px;
     }
-
+    
     /* Simple fade-in animation */
     @keyframes fade-in {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
-
     .animate-fade-in {
       animation: fade-in 0.2s ease-out forwards;
     }
   </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "rxjs": "https://esm.sh/rxjs@^7.8.2?conditions=es2015",
@@ -52,9 +42,7 @@
 }
 </script>
 </head>
-
 <body class="antialiased text-slate-300 bg-slate-900">
   <app-root></app-root>
 </body>
-
 </html>

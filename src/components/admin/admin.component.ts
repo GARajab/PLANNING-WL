@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, output, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../services/admin.service';
 import { User, UserRole } from '../../models/user.model';
@@ -9,7 +10,7 @@ import { NotificationService } from '../../services/notification.service';
   selector: 'app-admin',
   standalone: true,
   templateUrl: './admin.component.html',
-  imports: [FormsModule, CloseIconComponent],
+  imports: [CommonModule, FormsModule, CloseIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminComponent implements OnInit {
