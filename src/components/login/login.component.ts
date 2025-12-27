@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { WayleaveIconComponent } from '../icons/wayleave-icon.component';
@@ -10,7 +11,7 @@ import { LockIconComponent } from '../icons/lock-icon.component';
   standalone: true,
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, WayleaveIconComponent, UserIconComponent, LockIconComponent]
+  imports: [CommonModule, FormsModule, WayleaveIconComponent, UserIconComponent, LockIconComponent]
 })
 export class LoginComponent {
   cpr = signal('');

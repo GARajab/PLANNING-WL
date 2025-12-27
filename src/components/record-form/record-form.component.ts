@@ -1,4 +1,5 @@
 import { Component, ChangeDetectionStrategy, input, output, signal, effect, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WayleaveRecord, WayleaveStatus } from '../../models/wayleave.model';
 import { DataService } from '../../services/data.service';
@@ -11,7 +12,7 @@ import { NotificationService } from '../../services/notification.service';
   selector: 'app-record-form',
   standalone: true,
   templateUrl: './record-form.component.html',
-  imports: [FormsModule, CloseIconComponent],
+  imports: [CommonModule, FormsModule, CloseIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RecordFormComponent {
