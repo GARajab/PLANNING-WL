@@ -1,25 +1,21 @@
 <div class="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-  <form (ngSubmit)="onLogin(loginForm)" #loginForm="ngForm" class="bg-slate-800 p-8 rounded-md w-96 space-y-4">
+  <form (ngSubmit)="onLogin()" class="bg-slate-800 p-8 rounded-md w-96 space-y-4">
     <h2 class="text-2xl font-bold text-center mb-4">Login</h2>
 
-    <!-- CPR Input -->
     <div>
       <label class="block mb-1">CPR</label>
-      <input type="text" placeholder="Enter CPR" class="w-full px-3 py-2 rounded-md text-black" [(ngModel)]="cpr"
-        name="cpr" required />
+      <input type="text" placeholder="Enter CPR" class="w-full px-3 py-2 rounded-md text-black" [value]="cpr()"
+        (input)="cpr.set($any($event.target).value)" required />
     </div>
 
-    <!-- Password Input -->
     <div>
       <label class="block mb-1">Password</label>
       <input type="password" placeholder="Enter Password" class="w-full px-3 py-2 rounded-md text-black"
-        [(ngModel)]="password" name="password" required />
+        [value]="password()" (input)="password.set($any($event.target).value)" required />
     </div>
 
-    <!-- Error Message -->
     <p class="text-red-400 text-sm" *ngIf="errorMessage()">{{ errorMessage() }}</p>
 
-    <!-- Sign In Button -->
     <button type="submit"
       class="w-full bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-md flex items-center justify-center gap-2">
       <span *ngIf="!isLoading()">Sign In</span>

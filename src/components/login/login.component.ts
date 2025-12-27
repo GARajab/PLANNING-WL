@@ -1,5 +1,5 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms'; // needed if you still want ngModel
 import { AuthService } from '../../services/auth.service';
 import { WayleaveIconComponent } from '../icons/wayleave-icon.component';
 import { UserIconComponent } from '../icons/user-icon.component';
@@ -7,15 +7,10 @@ import { LockIconComponent } from '../icons/lock-icon.component';
 
 @Component({
   selector: 'app-login',
-  standalone: true, // ✅ THIS WAS MISSING
+  standalone: true,
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    FormsModule,
-    WayleaveIconComponent,
-    UserIconComponent,
-    LockIconComponent
-  ]
+  imports: [FormsModule, WayleaveIconComponent, UserIconComponent, LockIconComponent]
 })
 export class LoginComponent {
   cpr = signal('');
