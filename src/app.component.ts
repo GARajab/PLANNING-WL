@@ -11,7 +11,7 @@ import { ConfigWarningComponent } from './components/config-warning/config-warni
   selector: 'app-root',
   template: `
     <ng-container *ngIf="isConfigured()">
-      <app-login *ngIf="!authService.currentUser()"></app-login>
+      <app-login></app-login>
       <app-dashboard *ngIf="authService.currentUser()"></app-dashboard>
 
       <!-- Global Toast Container -->
