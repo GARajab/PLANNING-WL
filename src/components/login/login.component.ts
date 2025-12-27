@@ -8,7 +8,6 @@ import { LockIconComponent } from '../icons/lock-icon.component';
 
 @Component({
   selector: 'app-login',
-  standalone: true,
   templateUrl: './login.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, WayleaveIconComponent, UserIconComponent, LockIconComponent]

@@ -16,7 +16,6 @@ import { UserGroupIconComponent } from '../icons/user-group-icon.component';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   templateUrl: './dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, RecordFormComponent, AdminComponent, BellIconComponent, EditIconComponent, TrashIconComponent, WayleaveIconComponent, UserGroupIconComponent]

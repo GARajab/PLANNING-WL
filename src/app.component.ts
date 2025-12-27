@@ -9,7 +9,6 @@ import { ConfigWarningComponent } from './components/config-warning/config-warni
 
 @Component({
   selector: 'app-root',
-  standalone: true,
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, LoginComponent, DashboardComponent, ConfigWarningComponent]

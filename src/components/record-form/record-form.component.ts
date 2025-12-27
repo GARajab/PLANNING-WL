@@ -10,7 +10,6 @@ import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-record-form',
-  standalone: true,
   templateUrl: './record-form.component.html',
   imports: [CommonModule, FormsModule, CloseIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush

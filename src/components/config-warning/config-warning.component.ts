@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-config-warning',
-  standalone: true,
   template: `
     <div class="flex items-center justify-center min-h-screen p-4 bg-slate-900">
       <div class="w-full max-w-2xl p-8 space-y-6 bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-2xl border border-yellow-600">

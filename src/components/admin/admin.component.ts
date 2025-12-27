@@ -8,7 +8,6 @@ import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-admin',
-  standalone: true,
   templateUrl: './admin.component.html',
   imports: [CommonModule, FormsModule, CloseIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush
