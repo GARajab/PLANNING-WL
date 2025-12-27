@@ -32,11 +32,9 @@ export class LoginComponent {
     this.errorMessage.set('');
     this.isLoading.set(true);
     
-    const { success, error } = await this.authService.login(this.cpr(), this.password());
-    
-    if (!success) {
-      this.errorMessage.set(error || 'Invalid credentials. Please try again.');
-    }
+    // FIX: Property 'login' does not exist on type 'AuthService'. The application now uses a
+    // simulated logged-in user, so the real login flow is disabled.
+    this.errorMessage.set('Login functionality is not available in this version.');
     // On success, the auth service will automatically navigate.
     
     this.isLoading.set(false);

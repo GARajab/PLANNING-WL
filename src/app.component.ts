@@ -2,7 +2,6 @@ import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
-import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { environment } from './environments/environment';
 import { ConfigWarningComponent } from './components/config-warning/config-warning.component';
@@ -11,7 +10,7 @@ import { ConfigWarningComponent } from './components/config-warning/config-warni
   selector: 'app-root',
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, LoginComponent, DashboardComponent, ConfigWarningComponent]
+  imports: [CommonModule, DashboardComponent, ConfigWarningComponent]
 })
 export class AppComponent {
   authService = inject(AuthService);
