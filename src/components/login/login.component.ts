@@ -1,21 +1,17 @@
 import { Component, ChangeDetectionStrategy, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { WayleaveIconComponent } from '../icons/wayleave-icon.component';
 import { UserIconComponent } from '../icons/user-icon.component';
 import { LockIconComponent } from '../icons/lock-icon.component';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
-  standalone: true, // ✅ THIS WAS MISSING
+  standalone: true,
   templateUrl: './login.component.html',
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [
-    FormsModule,
-    WayleaveIconComponent,
-    UserIconComponent,
-    LockIconComponent
-  ]
+  imports: [FormsModule, WayleaveIconComponent, UserIconComponent, LockIconComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent {
   cpr = signal('');
@@ -23,11 +19,11 @@ export class LoginComponent {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  constructor(private authService: AuthService) { }
+  constructor(private authService: AuthService, private router: Router) { }
 
-  async onLogin() {
-    if (!this.cpr() || !this.password()) {
-      this.errorMessage.set('CPR and password are required.');
+  async onLogin(form: NgForm) {
+    if (!form.valid) {
+      this.errorMessage.set('CPR and Password are required.');
       return;
     }
 
@@ -39,15 +35,19 @@ export class LoginComponent {
     this.errorMessage.set('');
     this.isLoading.set(true);
 
-    const { success, error } = await this.authService.login(
-      this.cpr(),
-      this.password()
-    );
-
-    if (!success) {
-      this.errorMessage.set(error || 'Invalid credentials. Please try again.');
+    try {
+      const { success, error } = await this.authService.login(this.cpr(), this.password());
+      if (!success) {
+        this.errorMessage.set(error || 'Invalid credentials.');
+      } else {
+        // Navigate to dashboard on success
+        this.router.navigate(['/dashboard']);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
+      this.errorMessage.set('Login failed. See console for details.');
+    } finally {
+      this.isLoading.set(false);
     }
-
-    this.isLoading.set(false);
   }
 }
