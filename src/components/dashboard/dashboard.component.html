@@ -1,4 +1,3 @@
-
 <div class="min-h-screen bg-slate-900 text-slate-300">
   <!-- Header -->
   <header class="bg-slate-800/50 backdrop-blur-sm sticky top-0 z-20 border-b border-slate-700">
@@ -10,46 +9,57 @@
         </div>
         <div class="flex items-center gap-4">
           @if(canCreate()) {
-            <button (click)="openForm(null)" class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500">
-              New Record
-            </button>
+          <button (click)="openForm(null)"
+            class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-indigo-500">
+            New Record
+          </button>
           }
           <!-- Notification Bell -->
           <div class="relative">
-            <button (click)="showNotifications.set(!showNotifications())" class="relative p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white">
+            <button (click)="showNotifications.set(!showNotifications())"
+              class="relative p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white">
               <span class="sr-only">View notifications</span>
               <app-bell-icon />
               @if (notificationService.unreadCount() > 0) {
-                <span class="absolute top-1 right-1 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-slate-800"></span>
+              <span class="absolute top-1 right-1 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-slate-800"></span>
               }
             </button>
             <!-- Notification Dropdown -->
             @if (showNotifications()) {
-              <div class="animate-fade-in origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none border border-slate-700">
-                <div class="py-1">
-                  <div class="px-4 py-3 flex justify-between items-center border-b border-slate-700">
-                    <p class="text-sm font-semibold text-white">Notifications</p>
-                    @if(notificationService.unreadCount() > 0) {
-                      <button (click)="notificationService.markAllAsRead()" class="text-xs text-indigo-400 hover:underline">Mark all as read</button>
-                    }
-                  </div>
-                  <div class="max-h-96 overflow-y-auto">
-                    @for (notification of notificationService.notifications(); track notification.id) {
-                      <a href="#" class="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 border-b border-slate-700/50 last:border-b-0" [class.opacity-60]="notification.read">
-                        <p class="font-medium text-slate-200">{{ notification.message }}</p>
-                        <p class="text-xs text-slate-400">{{ formatNotificationDate(notification.timestamp) }}</p>
-                      </a>
-                    }
-                    @if(notificationService.notifications().length === 0) {
-                        <p class="text-center text-sm text-slate-400 py-8">No notifications yet.</p>
-                    }
-                  </div>
+            <div
+              class="animate-fade-in origin-top-right absolute right-0 mt-2 w-80 rounded-md shadow-lg bg-slate-800 ring-1 ring-black ring-opacity-5 focus:outline-none border border-slate-700">
+              <div class="py-1">
+                <div class="px-4 py-3 flex justify-between items-center border-b border-slate-700">
+                  <p class="text-sm font-semibold text-white">Notifications</p>
+                  @if(notificationService.unreadCount() > 0) {
+                  <button (click)="notificationService.markAllAsRead()"
+                    class="text-xs text-indigo-400 hover:underline">Mark all as read</button>
+                  }
+                </div>
+                <div class="max-h-96 overflow-y-auto">
+                  @for (notification of notificationService.notifications(); track notification.id) {
+                  <a href="#"
+                    class="block px-4 py-3 text-sm text-slate-300 hover:bg-slate-700/50 border-b border-slate-700/50 last:border-b-0"
+                    [class.opacity-60]="notification.read">
+                    <p class="font-medium text-slate-200">{{ notification.message }}</p>
+                    <p class="text-xs text-slate-400">{{ formatNotificationDate(notification.timestamp) }}</p>
+                  </a>
+                  }
+                  @if(notificationService.notifications().length === 0) {
+                  <p class="text-center text-sm text-slate-400 py-8">No notifications yet.</p>
+                  }
                 </div>
               </div>
+            </div>
             }
           </div>
-          <button (click)="authService.logout()" class="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+          <button (click)="authService.logout()"
+            class="p-2 rounded-full text-slate-400 hover:text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
           </button>
         </div>
       </div>
@@ -63,53 +73,64 @@
         <table class="min-w-full divide-y divide-slate-700">
           <thead class="bg-slate-900/50">
             <tr>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Wayleave No.</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Status</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">To EDD</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Duration</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">USP/RCC/MSP</th>
-              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">Last Update</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                Wayleave No.</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                Status</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">To
+                EDD</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                Duration</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                USP/RCC/MSP</th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase tracking-wider">
+                Last Update</th>
               <th scope="col" class="relative px-6 py-3"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-700">
             @for (record of dataService.records(); track record.id) {
-              <tr class="hover:bg-slate-700/50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ record.wayleaveNumber }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm">
-                   <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border" [class]="statusColors[record.status] || ''">
-                    {{ record.status }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ formatDate(record.toEddDate) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ calculateDuration(record.toEddDate) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ record.uspNumber }}/{{ record.rccNumber }}/{{ record.mspNumber }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400">{{ record.lastUpdatedBy }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div class="flex items-center justify-end gap-2">
-                    @if(canEdit(record)) {
-                      <button (click)="openForm(record)" class="text-indigo-400 hover:text-indigo-300 p-1 rounded-full hover:bg-slate-700">
-                        <app-edit-icon />
-                      </button>
-                    }
-                    @if(canDelete(record)) {
-                       <button (click)="confirmDelete(record)" class="text-red-400 hover:text-red-300 p-1 rounded-full hover:bg-slate-700">
-                        <app-trash-icon />
-                      </button>
-                    }
-                  </div>
-                </td>
-              </tr>
-            } @empty {
-              <tr>
-                <td colspan="7" class="text-center py-12 px-6 text-slate-400">
-                  @if (dataService.isLoading()) {
-                    <span>Loading records...</span>
-                  } @else {
-                    <span>No records found.</span>
+            <tr class="hover:bg-slate-700/50 transition-colors">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{{ record.wayleaveNumber }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm">
+                <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border"
+                  [class]="statusColors[record.status] || ''">
+                  {{ record.status }}
+                </span>
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ formatDate(record.toEddDate) }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ calculateDuration(record.toEddDate) }}
+              </td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">{{ record.uspNumber }}/{{ record.rccNumber
+                }}/{{ record.mspNumber }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-400">{{ record.last_updated_by }}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <div class="flex items-center justify-end gap-2">
+                  @if(canEdit(record)) {
+                  <button (click)="openForm(record)"
+                    class="text-indigo-400 hover:text-indigo-300 p-1 rounded-full hover:bg-slate-700">
+                    <app-edit-icon />
+                  </button>
                   }
-                </td>
-              </tr>
+                  @if(canDelete(record)) {
+                  <button (click)="confirmDelete(record)"
+                    class="text-red-400 hover:text-red-300 p-1 rounded-full hover:bg-slate-700">
+                    <app-trash-icon />
+                  </button>
+                  }
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="7" class="text-center py-12 px-6 text-slate-400">
+                @if (dataService.isLoading()) {
+                <span>Loading records...</span>
+                } @else {
+                <span>No records found.</span>
+                }
+              </td>
+            </tr>
             }
           </tbody>
         </table>
@@ -120,18 +141,21 @@
 
 <!-- Form Modal -->
 @if (isFormVisible()) {
-  <app-record-form [record]="selectedRecord()" (close)="closeForm()" />
+<app-record-form [record]="selectedRecord()" (close)="closeForm()" />
 }
 
 <!-- Full Screen Spinner -->
 @if (dataService.isLoading() && dataService.records().length === 0) {
-    <div class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
-        <div class="flex flex-col items-center gap-4">
-            <svg class="animate-spin h-12 w-12 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <p class="text-lg text-slate-300">Loading Data...</p>
-        </div>
-    </div>
+<div class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center">
+  <div class="flex flex-col items-center gap-4">
+    <svg class="animate-spin h-12 w-12 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none"
+      viewBox="0 0 24 24">
+      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+      <path class="opacity-75" fill="currentColor"
+        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+      </path>
+    </svg>
+    <p class="text-lg text-slate-300">Loading Data...</p>
+  </div>
+</div>
 }
