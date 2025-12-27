@@ -1,33 +1,29 @@
 import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { AsyncPipe } from '@angular/common';
 import { AuthService } from './services/auth.service';
-import { NotificationService } from './services/notification.service';
+import { environment } from './environments/environment';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { environment } from './environments/environment';
 import { ConfigWarningComponent } from './components/config-warning/config-warning.component';
+import { NotificationService } from './services/notification.service';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [AsyncPipe, LoginComponent, DashboardComponent, ConfigWarningComponent],
   template: `
     <ng-container *ngIf="isConfigured()">
-      <app-login></app-login>
+      <app-login *ngIf="!authService.currentUser()"></app-login>
       <app-dashboard *ngIf="authService.currentUser()"></app-dashboard>
 
-      <!-- Global Toast Container -->
+      <!-- Toast Container -->
       <div aria-live="assertive" class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:p-6 sm:items-start z-50">
         <div class="w-full flex flex-col items-center space-y-4 sm:items-end">
           <ng-container *ngFor="let toast of notificationService.toasts(); trackBy: toast.id">
             <div class="max-w-sm w-full bg-slate-800 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden border"
                  [class]="getToastColor(toast.type)">
               <div class="p-4">
-                <div class="flex items-center">
-                  <div class="w-0 flex-1 flex justify-between">
-                    <p class="w-0 flex-1 text-sm font-medium text-white">
-                      {{ toast.message }}
-                    </p>
-                  </div>
-                </div>
+                <p class="text-sm font-medium text-white">{{ toast.message }}</p>
               </div>
             </div>
           </ng-container>
@@ -37,8 +33,7 @@ import { ConfigWarningComponent } from './components/config-warning/config-warni
 
     <app-config-warning *ngIf="!isConfigured()"></app-config-warning>
   `,
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [AsyncPipe, LoginComponent, DashboardComponent, ConfigWarningComponent]
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
   authService = inject(AuthService);

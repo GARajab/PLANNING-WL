@@ -1,33 +1,15 @@
-<ng-container *ngIf="isConfigured(); else configWarning">
-  <ng-container *ngIf="!authService.currentUser(); else dashboard">
-    <app-login></app-login>
+<div *ngIf="isConfigured(); else configWarning">
+  <!-- Show dashboard if user is logged in -->
+  <ng-container *ngIf="authService.currentUser(); else loginForm">
+    <app-dashboard></app-dashboard>
   </ng-container>
-</ng-container>
 
-<ng-template #dashboard>
-  <app-dashboard></app-dashboard>
-</ng-template>
+  <!-- Show login form if no user -->
+  <ng-template #loginForm>
+    <app-login></app-login>
+  </ng-template>
+</div>
 
 <ng-template #configWarning>
   <app-config-warning></app-config-warning>
 </ng-template>
-
-<!-- Global Toast Container -->
-<div aria-live="assertive"
-  class="fixed inset-0 flex items-end px-4 py-6 pointer-events-none sm:p-6 sm:items-start z-50">
-  <div class="w-full flex flex-col items-center space-y-4 sm:items-end">
-    <div *ngFor="let toast of notificationService.toasts(); trackBy: toast.id"
-      class="max-w-sm w-full bg-slate-800 shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 overflow-hidden border"
-      [class]="getToastColor(toast.type)">
-      <div class="p-4">
-        <div class="flex items-center">
-          <div class="w-0 flex-1 flex justify-between">
-            <p class="w-0 flex-1 text-sm font-medium text-white">
-              {{ toast.message }}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
